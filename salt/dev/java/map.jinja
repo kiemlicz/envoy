@@ -1,0 +1,15 @@
+{% import_yaml "java/defaults.yaml" as defaults %}
+
+{% set java = salt['grains.filter_by']({
+    'default': {
+        'repo_entries': [
+          "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main",
+          "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main"
+        ],
+        'file': '/etc/apt/sources.list.d/webupd8team-java.list',
+        'exports_file': '/etc/zsh/zshrc',
+        'environ_variable': 'JAVA_HOME',
+        'path_inside': 'bin',
+        'generic_link': '$(readlink -f /usr/bin/java | sed "s:jre/bin/java::")'
+    },
+}, merge=salt['pillar.get']('java', default=defaults.java, merge=True)) %}

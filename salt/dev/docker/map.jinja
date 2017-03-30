@@ -1,0 +1,26 @@
+{% import_yaml "docker/defaults.yaml" as defaults %}
+
+{% set docker = salt['grains.filter_by']({
+    'Debian': {
+        'file': '/etc/apt/sources.list.d/docker.list',
+    },
+    'Ubuntu': {
+        'file': '/etc/apt/sources.list.d/docker.list',
+    },
+}, merge=salt['grains.filter_by']({
+    'sid': {
+        'repo_entries': [
+          "deb https://apt.dockerproject.org/repo debian-stretch main",
+        ],
+    },
+    'jessie': {
+        'repo_entries': [
+          "deb https://apt.dockerproject.org/repo debian-jessie main",
+        ],
+    },
+    'xenial': {
+        'repo_entries': [
+          "deb https://apt.dockerproject.org/repo ubuntu-xenial main",
+        ],
+    }
+}, grain='oscodename', merge=salt['pillar.get']('docker', default=defaults.docker, merge=True))) %}

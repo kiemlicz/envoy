@@ -1,0 +1,15 @@
+{% extends "pkgs/base.jinja" %}
+{% block pkgs_filter %}
+{% set gui_pkgs = salt['grains.filter_by']({
+    'default': {
+        'names': ['kde-standard'],
+    },
+    'Ubuntu': {
+        'names': ['ubuntu-desktop'],
+    },
+    'Windows': {
+        'names': [],
+    }
+}, merge=salt['pillar.get']('gui_pkgs')) %}
+{% do pkgs.update({'names' : pkgs.names + gui_pkgs.names}) %}
+{% endblock %}

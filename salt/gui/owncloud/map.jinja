@@ -1,0 +1,16 @@
+{% import_yaml "owncloud/defaults.yaml" as defaults %}
+
+{% set owncloud = salt['grains.filter_by']({
+    'default': {
+        'repo_entries': [
+            "deb http://download.owncloud.org/download/repositories/stable/Debian_8.0/ /"
+        ],
+        'key_url': 'https://download.owncloud.org/download/repositories/stable/Debian_8.0/Release.key',
+        'file': '/etc/apt/sources.list.d/owncloud.list'
+    },
+    'Windows': {
+        'client': {
+            'pkg_name': 'owncloud',
+        }
+    }
+}, merge=salt['pillar.get']('owncloud', default=defaults.owncloud, merge=True)) %}

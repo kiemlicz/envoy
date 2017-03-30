@@ -1,0 +1,30 @@
+{% extends "repositories/base.jinja" %}
+{% block repositories_filter %}
+{% set gui_repositories = salt['grains.filter_by']({
+    'default': {
+        'list':[],
+        'preferences': [],
+    },
+}, merge=salt['grains.filter_by']({
+    'sid': {
+        'list': [{
+          'names': [
+            "deb http://dl.google.com/linux/chrome/deb/ stable main"
+           ],
+          'file': '/etc/apt/sources.list.d/google-chrome.list',
+          'key_url': 'https://dl.google.com/linux/linux_signing_key.pub'
+        }]
+    },
+    'jessie': {
+        'list': [{
+          'names': [
+            "deb http://dl.google.com/linux/chrome/deb/ stable main"
+           ],
+          'file': '/etc/apt/sources.list.d/google-chrome.list',
+          'key_url': 'https://dl.google.com/linux/linux_signing_key.pub'
+        }]
+    },
+}, grain='oscodename', merge=salt['pillar.get']('gui_repositories'))) %}
+{% do repositories.update({'list' : repositories.list + gui_repositories.list}) %}
+{% do repositories.update({'preferences' : repositories.preferences + gui_repositories.preferences}) %}
+{% endblock %}

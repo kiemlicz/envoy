@@ -1,0 +1,13 @@
+{% import_yaml "intellij/defaults.yaml" as defaults %}
+
+{% set intellij = salt['grains.filter_by']({
+    'default': {
+        'download_url': defaults.intellij.url,
+        'destination_dir': '/opt',
+        'generic_link': '/opt/default-idea',
+        'owner': 'root',
+        'owner_link_location': '/root/bin/idea',
+    },
+    'Windows': {
+    },
+}, merge=salt['pillar.get']('intellij', default=defaults.intellij, merge=True)) %}

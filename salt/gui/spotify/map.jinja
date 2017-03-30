@@ -1,0 +1,16 @@
+{% import_yaml "spotify/defaults.yaml" as defaults %}
+
+{% set spotify = salt['grains.filter_by']({
+    'default': {
+        'repo_entries': [
+            "deb http://repository.spotify.com stable non-free"
+        ],
+        'file': '/etc/apt/sources.list.d/spotify.list',
+    },
+}, merge=salt['grains.filter_by']({
+    'sid': {
+        'repo_entries': [
+            "deb http://repository.spotify.com testing non-free"
+        ],
+    }
+}, grain='oscodename', merge=salt['pillar.get']('spotify', default=defaults.spotify, merge=True))) %}

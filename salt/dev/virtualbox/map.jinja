@@ -1,0 +1,23 @@
+{% import_yaml "virtualbox/defaults.yaml" as defaults %}
+
+{% set virtualbox = salt['grains.filter_by']({
+    'default': {
+        'file': '/etc/apt/sources.list.d/virtualbox.list',
+    }
+}, merge=salt['grains.filter_by']({
+     'sid': {
+         'repo_entries': [
+           "deb http://download.virtualbox.org/virtualbox/debian stretch contrib",
+         ],
+     },
+     'jessie': {
+         'repo_entries': [
+           "deb http://download.virtualbox.org/virtualbox/debian jessie contrib",
+         ],
+     },
+     'xenial': {
+          'repo_entries': [
+            "deb http://download.virtualbox.org/virtualbox/debian xenial contrib"
+          ],
+     }
+ }, grain='oscodename', merge=salt['pillar.get']('virtualbox', default=defaults.virtualbox, merge=True))) %}

@@ -1,0 +1,26 @@
+{% macro add_environmental_variable(var_name, var_value, exports_file) %}
+  {% if grains['os'] != 'Windows' %}
+  file.append:
+    - name: {{ exports_file }}
+    - text: export {{ var_name }}={{ var_value }}
+  {% else %}
+  environ.setenv:
+    - name: {{ var_name }}
+    - value: {{ var_value }}
+  {% endif %}
+{% endmacro %}
+
+{% macro add_to_path(environ_variable, path_inside, exports_file) %}
+  envops.manage_path:
+    - name: {{ environ_variable }}
+    - directory_inside: {{ path_inside }}
+    - exports_file: {{ exports_file }}
+{% endmacro %}
+
+{% macro link_to_bin(link_location, target_link, owner) %}
+  file.symlink:
+    - name: {{ link_location }}
+    - target: {{ target_link }}
+    - user: {{ owner }}
+    - makedirs: True
+{% endmacro %}

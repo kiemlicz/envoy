@@ -1,0 +1,15 @@
+{% set locale = salt['grains.filter_by']({
+    'default': {
+        'locales': [
+          "en_US.UTF-8"
+        ],
+        'system_default': 'en_US.UTF-8',
+        'required_pkgs': [],
+    },
+    'Windows': {
+    }
+}, merge=salt['grains.filter_by']({
+      'jessie': {
+          'required_pkgs': ["dbus"],
+      },
+ }, grain='oscodename', merge=salt['pillar.get']('locale'))) %}

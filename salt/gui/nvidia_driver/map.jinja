@@ -1,0 +1,11 @@
+{% set nvidia = salt['grains.filter_by']({
+    'default': {
+        'driver_url': 'http://us.download.nvidia.com/XFree86/Linux-x86_64/367.57/NVIDIA-Linux-x86_64-367.57.run',
+        'dependent_services': ["sddm", "kdm"],
+        'dependent_kernel_modules': ["nvidia_modeset", "nvidia", "nouveau"],
+    },
+    'Windows': {
+        'dependent_services': [],
+        'dependent_kernel_modules': []
+    }
+}, merge=salt['pillar.get']('nvidia')) %}

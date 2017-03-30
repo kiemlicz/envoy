@@ -1,0 +1,24 @@
+{% import_yaml "sbt/defaults.yaml" as defaults %}
+
+{% set sbt = salt['grains.filter_by']({
+    'default': {
+        'repo_entries': [
+            "deb https://dl.bintray.com/sbt/debian /"
+        ],
+        'file': '/etc/apt/sources.list.d/sbt.list',
+        'exports_file': '/etc/zsh/zshrc',
+        'environ_variable': 'SBT_HOME',
+        'path_inside': 'bin',
+        'generic_link': '$(readlink -f /usr/bin/sbt | sed "s:bin/sbt::")'
+    },
+    'Windows': {
+        'repo_entries': [
+            "deb https://dl.bintray.com/sbt/debian /"
+        ],
+        'file': '/etc/apt/sources.list.d/sbt.list',
+        'exports_file': '/etc/zsh/zshrc',
+        'environ_variable': 'SBT_HOME',
+        'path_inside': 'bin',
+        'generic_link': '$(readlink -f /usr/bin/sbt | sed "s:bin/sbt::")'
+    },
+}, merge=salt['pillar.get']('sbt', default=defaults.sbt, merge=True)) %}
