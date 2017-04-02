@@ -1,11 +1,12 @@
-{% for address, aliases in pillar.get('hosts', {}).items() %}
+{% set entries = pillar.get('hosts', {}) %}
+{% if entries %}
+{% for address, aliases in entries.items() %}
 {{ address }}_host:
   host.present:
     - ip: {{ address }}
     - names: {{ aliases }}
 {% endfor %}
-
-{% if not pillar.get('hosts', []) %}
+{% else %}
 empty-hosts-notification:
   test.show_notification:
     - name: No hosts present
