@@ -1,4 +1,142 @@
 # Basics 
-[SaltStack](https://saltstack.com/) states to configure machines in the most generic way (as possible at least).  
-The goal is to create environments usable by developers as well as admins during the setup of either servers or 'client' machines.
+[SaltStack](https://saltstack.com/) _states_ for provisioning machines in the most generic way possible.  
+The goal is to create _salt environments_ usable by developers as well as admins during the setup of either server or 'client' machines.
+## Setup  
+Either refer to SaltStack documentation of [gitfs](https://docs.saltstack.com/en/latest/topics/tutorials/gitfs.html) 
+(if you prefer local filesystem then familiarize with [multienv](https://docs.saltstack.com/en/latest/ref/states/top.html)) or use 
+fully automated setup of SaltStack via associated [project ambassador](https://github.com/kiemlicz/ambassador)
+
+## Usage
+In order to run _states_ against _minions_, _pillar_ must be configured.
+### pillar structure
+Full _pillar_ contains following entries: 
+```
+base_pkgs:
+  names:
+    - pkg1
+    
+    
+gui_pkgs:
+  names:
+    - guipkg1
+
+hosts:
+   IP: [list of names]
+   
+mounts:
+{% if grains['host'] == 'my cool host' %}
+  - dev: /dev/sda1
+    target: /mnt/sda1
+    file_type: ext4
+    options: [user]  
+{% else %}
+  []
+{% endif %}
+
+locale:
+  locales:
+    - en_US.UTF-8
+
+{% set username = 'coolguy' %}
+{% set home_dir = '/home/' + username %}           
+           
+users:
+  {{ username }}:
+    name: {{ username }}
+    fullname: The coolest
+    nick: ql
+    home_dir: {{ home_dir }}
+    shell: /bin/zsh
+    groups:
+      - sudo
+      - wireshark
+      - docker
+      - vboxusers
+    user_dirs:
+      - {{ home_dir }}/bin
+      - {{ home_dir }}/downloads
+      - {{ home_dir }}/local
+    ssh:
+      known_hosts:
+        - bitbucket.org
+    sec:
+      ssh:
+        - name: home
+          privkey_location: {{ home_dir }}/.ssh/id_rsa
+          pubkey_location: {{ home_dir }}/.ssh/id_rsa.pub
+          override: True
+        - name: dotfile
+          privkey: key_data
+          pubkey: key_data
+          privkey_location: {{ home_dir }}/.ssh/cfg_ro.key
+          pubkey_location: {{ home_dir }}/.ssh/cfg_ro.key.pub
+          override: False
+    tools:
+      oh_my_zsh:
+        url: https://github.com/robbyrussell/oh-my-zsh.git
+        target: {{ home_dir }}/projects/open-source/oh-my-zsh
+        autoupdate: True
+      oh_my_zsh_syntax_highlighting:
+        url: https://github.com/zsh-users/zsh-syntax-highlighting.git
+        target: {{ home_dir }}/projects/open-source/oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+      fzf:
+        url: https://github.com/junegunn/fzf.git
+        target: {{ home_dir }}/projects/open-source/fzf
+      powerline:
+        url: https://github.com/powerline/fonts.git
+        target: {{ home_dir }}/projects/open-source/powerline
+        pip: powerline-status
+    dotfile:
+      repo: some repo url.git
+      branch: {{ grains['host'] }}
+      root: {{ home_dir }}
+      post_cmd: "fc-cache -vf ~/.fonts"
+    mount_samba_shares:
+      - server: some server address
+        path: '%(USER)'
+        mountpoint: '/mnt/%(USER)'      
+    owncloud_server:
+      name: nas
+    owncloud_sync:
+      - folder: keepass
+        remote: /home/local/keepass
+        local: {{ home_dir }}/local/keepass/
+    git_username_global: username for git
+    git_mail_global: mail for git
+    git_ignore: |
+      .cfg
+    projects:
+      - url: url to clone.git
+        target: {{ home_dir }}/some/path
+        identity: {{ home_dir }}/.ssh/id_rsa           
+           
+``` 
+_States_ must be written with assumption that given pillar entry may not exist.
+
+# Structure
+States are divided in environments:
+ 1. `base` - the main one. Any other environment comprises of at least `base`. Contains core states responsible for operations like
+ repositories configuration, core packages installation or user setup
+ 2. `gui` - for machines using graphical interface. Uses `base`. Contains states ensuring that e.g. window manager is installed (or your favorite gui apps).
+ 3. `dev` - for developer machines. Uses `gui` and `base`. Contains states that install tons of dev apps as well as configures them (like add entry to `PATH` variable)
+ 4. `server` - TODO
+ 5. `qa` - TODO
+ 7. `prod` - TODO
+
+# Extensions
+In order to keep _states_ readable and configuration of whole SaltStack as flexible as possible, some extensions were introduced:
+## privgit
+Dynamically configured `ext_pillar`.  
+Allows users to configure their own _pillar_ data git repository (in the runtime)
+## dotfile
+Custom _state_ that manages [dotfiles](https://en.wikipedia.org/wiki/Dot-file).  
+Clones them from passed repository and sets up according to following [technique](https://developer.atlassian.com/blog/2016/02/best-way-to-store-dotfiles-git-bare-repo/)
+## devtool
+Most dev tools setup comes down to downloading some kind of archive, unpacking it and possibly adding symlink to some generic location.  
+This state does pretty much that.
+## envops
+Environment variables operations.
  
+# References
+1. SaltStack [quickstart](https://docs.saltstack.com/en/latest/topics/states/index.html)
+2. SaltStack [best practices](https://docs.saltstack.com/en/latest/topics/best_practices.html)
