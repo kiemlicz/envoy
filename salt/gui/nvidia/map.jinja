@@ -1,0 +1,8 @@
+{% set nvidia = salt['grains.filter_by']({
+    'default': {
+      'pkgs': ["nvidia-driver", "linux-headers-$(uname -r|sed 's,[^-]*-[^-]*-,,')"]
+    },
+    'Windows': {
+      'pkgs': []
+    }
+}, merge=salt['pillar.get']('nvidia')) %}
