@@ -25,7 +25,7 @@
     - require:
       - user: {{ username }}
 
-{% if user.git_username_global is defined and user.git_mail_global is defined %}
+{% if user.git.global_username is defined and user.git.global_email is defined %}
 #https://github.com/saltstack/salt/issues/19869
 {{ username }}_no_home_workaround:
   environ.setenv:
@@ -34,7 +34,7 @@
 {{ username }}_setup_git_global_username:
   git.config_set:
     - name: user.name
-    - value: {{ user.git_username_global }}
+    - value: {{ user.git.global_username }}
     - user: {{ username }}
     - global: True
     - require:
@@ -42,20 +42,9 @@
 {{ username }}_setup_git_global_email:
   git.config_set:
     - name: user.email
-    - value: {{ user.git_mail_global }}
+    - value: {{ user.git.global_email }}
     - user: {{ username }}
     - global: True
-    - require:
-      - user: {{ username }}
-{% endif %}
-
-{% if user.git_ignore is defined %}
-{{ username }}_setup_git_ignore:
-  file.managed:
-    - name: {{ user.home_dir }}/.gitignore
-    - contents: {{ user.git_ignore }}
-    - user: {{ username }}
-    - group: {{ username }}
     - require:
       - user: {{ username }}
 {% endif %}
