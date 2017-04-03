@@ -101,10 +101,9 @@ users:
       - folder: keepass
         remote: /home/local/keepass
         local: {{ home_dir }}/local/keepass/
-    git_username_global: username for git
-    git_mail_global: mail for git
-    git_ignore: |
-      .cfg
+    git:
+      global_username: username for git
+      global_email: mail for git
     projects:
       - url: url to clone.git
         target: {{ home_dir }}/some/path
@@ -112,7 +111,12 @@ users:
            
 ``` 
 _States_ must be written with assumption that given pillar entry may not exist.
-
+`users` dict contains data (mostly self-describing) about particular... user.
+However some sections need more description:
+ - sec - designed to generate/copy user security keys/keypairs. For now only ssh is supported. When only `privkey_location` and `pubkey_location` is defined then keypair is generated on _minion_.
+ On the other hand, if `privkey` and `pubkey` is also defined then its content is used as keys
+ - dotfile - TODO
+ 
 # Structure
 States are divided in environments:
  1. `base` - the main one. Any other environment comprises of at least `base`. Contains core states responsible for operations like
