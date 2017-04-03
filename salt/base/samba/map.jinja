@@ -1,8 +1,8 @@
+{% import_yaml "samba/defaults.yaml" as defaults %}
+
 {% set samba = salt['grains.filter_by']({
     'Debian': {
         'pkgs': ["libpam-mount", "samba"],
-        'pam_mount_conf': '/etc/security/pam_mount.conf.xml',
-        'pam_mount_conf_managed': 'salt://samba/pam_mount.conf.xml',
         'service_name': salt['grains.filter_by']({
             'lenny': 'samba',
             'squeeze': 'samba',
@@ -13,4 +13,4 @@
     },
     'Windows': {
     }
-}, merge=salt['pillar.get']('samba')) %}
+}, merge=salt['pillar.get']('samba', default=defaults.samba, merge=True)) %}
