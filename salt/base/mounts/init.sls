@@ -1,4 +1,6 @@
-{% for mount in pillar.get('mounts', []) %}
+{% set entries = pillar.get('mounts', []) %}
+{% if entries %}
+{% for mount in entries %}
 {{ mount.dev }}_mount:
   mount.mounted:
     - name: {{ mount.target }}
@@ -7,8 +9,7 @@
     - opts: {{ mount.options }}
     - persist: True
 {% endfor %}
-
-{% if not pillar.get('mounts', []) %}
+{% else %}
 empty-mount-notification:
   test.show_notification:
     - name: None mounted
