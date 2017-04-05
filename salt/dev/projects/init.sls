@@ -10,7 +10,9 @@
     - name: {{ project.url }}
     - user: {{ username }}
     - target: {{ project.target }}
+{% if project.identity is defined %}
     - identity: {{ project.identity }}
+{% endif %}
 
 {% elif "hg" in project.url %}
 {{ username }}_hg_clone_{{ project.url }}:
