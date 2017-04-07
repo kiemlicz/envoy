@@ -1,3 +1,6 @@
+include:
+  - users
+
 {% for username in pillar['users'].keys() %}
 {% set user = pillar['users'][username] %}
 
@@ -13,6 +16,8 @@
 {% if project.identity is defined %}
     - identity: {{ project.identity }}
 {% endif %}
+    - require:
+      - user: {{ username }}
 
 {% elif "hg" in project.url %}
 {{ username }}_hg_clone_{{ project.url }}:
@@ -25,6 +30,8 @@
 {% else %}
     - opts: --insecure
 {% endif %}
+    - require:
+      - user: {{ username }}
 {% endif %}
 
 #todo switch to branch

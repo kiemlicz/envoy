@@ -1,5 +1,8 @@
 {% from "docker/map.jinja" import docker with context %}
 
+include:
+  - pkgs
+
 docker:
 {% if grains['os'] != 'Windows' %}
   pkgrepo.managed:
@@ -14,6 +17,8 @@ docker:
   pkg.latest:
     - name: {{ docker.pkg_name }}
     - refresh: True
+    - require:
+      - sls: pkgs
   service.running:
     - name: {{ docker.service_name }}
     - enable: True

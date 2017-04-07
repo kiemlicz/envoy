@@ -1,5 +1,8 @@
 {% from "erlang/map.jinja" import erlang with context %}
 
+include:
+  - users
+
 erlang:
 {% if grains['os'] != 'Windows' %}
   pkgrepo.managed:
@@ -18,3 +21,5 @@ erlang:
   pkg.latest:
     - name: {{ erlang.pkg_name }}
     - refresh: True
+    - require:
+      - sls: users

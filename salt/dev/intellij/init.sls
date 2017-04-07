@@ -1,7 +1,8 @@
 {% from "intellij/map.jinja" import intellij with context %}
 {% from "_macros/dev_tool.macros.jinja" import link_to_bin with context %}
 
-#todo must require window_manager
+include:
+  - users
 
 intellij:
   devtool.managed:
@@ -11,4 +12,6 @@ intellij:
     - user: {{ intellij.owner }}
     - group: {{ intellij.owner }}
     - saltenv: {{ saltenv }}
+    - require:
+      - sls: users
 {{ link_to_bin(intellij.owner_link_location, intellij.generic_link + '/bin/idea.sh', intellij.owner) }}
