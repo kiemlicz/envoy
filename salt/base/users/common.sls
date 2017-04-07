@@ -25,28 +25,22 @@
     - require:
       - user: {{ username }}
 
-{% if user.git.global_username is defined and user.git.global_email is defined %}
+{% if user.git.global_config %}
 #https://github.com/saltstack/salt/issues/19869
 {{ username }}_no_home_workaround:
   environ.setenv:
     - name: HOME
     - value: {{ user.home_dir }}
-{{ username }}_setup_git_global_username:
+{% for k,v in user.git.global_config.items() %}
+git_global_config_{{ username }}_{{ k }}:
   git.config_set:
-    - name: user.name
-    - value: {{ user.git.global_username }}
+    - name: {{ k }}
+    - value: {{ v }}
     - user: {{ username }}
     - global: True
     - require:
       - user: {{ username }}
-{{ username }}_setup_git_global_email:
-  git.config_set:
-    - name: user.email
-    - value: {{ user.git.global_email }}
-    - user: {{ username }}
-    - global: True
-    - require:
-      - user: {{ username }}
+{% endfor %}
 {% endif %}
 
 {{ username }}_setup_ssh_known_hosts:

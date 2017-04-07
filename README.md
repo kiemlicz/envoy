@@ -102,8 +102,9 @@ users:
         remote: /home/local/keepass
         local: {{ home_dir }}/local/keepass/
     git:
-      global_username: username for git
-      global_email: mail for git
+      global_config:
+        user.name: username for git
+        user.email: mail for git
     projects:
       - url: url to clone.git
         target: {{ home_dir }}/some/path
