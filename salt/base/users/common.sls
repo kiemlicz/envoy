@@ -8,9 +8,9 @@
     - shell: {{ user.shell }}
     - home: {{ user.home_dir }}
     - require:
-      - sls: pkgs
       - sls: mounts
       - sls: hosts
+      - sls: pkgs
   group.present:
     - names: {{ user.groups }}
     - addusers:

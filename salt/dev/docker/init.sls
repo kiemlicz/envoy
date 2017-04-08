@@ -1,6 +1,7 @@
 {% from "docker/map.jinja" import docker with context %}
 
 include:
+  - mounts
   - pkgs
 
 docker:
@@ -18,6 +19,7 @@ docker:
     - name: {{ docker.pkg_name }}
     - refresh: True
     - require:
+      - sls: mounts
       - sls: pkgs
   service.running:
     - name: {{ docker.service_name }}

@@ -18,7 +18,7 @@ sbt:
     - name: {{ sbt.pkg_name }}
     - refresh: True
     - require:
-      - sls: users
+      - sls: users.common
 {{ add_environmental_variable(sbt.environ_variable, sbt.generic_link, sbt.exports_file) }}
 {{ add_to_path(sbt.environ_variable, sbt.path_inside, sbt.exports_file) }}
 

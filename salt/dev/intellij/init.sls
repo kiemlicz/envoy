@@ -13,5 +13,5 @@ intellij:
     - group: {{ intellij.owner }}
     - saltenv: {{ saltenv }}
     - require:
-      - sls: users
+      - sls: users.common
 {{ link_to_bin(intellij.owner_link_location, intellij.generic_link + '/bin/idea.sh', intellij.owner) }}
