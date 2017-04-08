@@ -1,5 +1,8 @@
 {% from "repositories/map.jinja" import repositories with context %}
 
+include:
+  - locale
+
 {% for repo in repositories.list %}
 {{ repo.file }}_repository:
   pkgrepo.managed:
@@ -9,6 +12,8 @@
     - key_url: {{ repo.key_url }}
     {% endif %}
     - refresh_db: True
+    - require:
+      - sls: locale
     - require_in:
       - file: empty_sources_list
 {% endfor %}
@@ -21,6 +26,8 @@
     - template: jinja
     - makedirs: True
     - create: True
+    - require:
+      - sls: locale
     - context:
       pin: {{ pref.pin }}
       priority : {{ pref.priority }}

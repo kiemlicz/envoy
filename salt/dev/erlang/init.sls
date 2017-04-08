@@ -22,4 +22,4 @@ erlang:
     - name: {{ erlang.pkg_name }}
     - refresh: True
     - require:
-      - sls: users
+      - sls: users.common

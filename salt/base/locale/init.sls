@@ -1,8 +1,5 @@
 {% from "locale/map.jinja" import locale with context %}
 
-include:
-  - repositories
-
 required_pkgs:
   pkg.latest:
     - pkgs: {{ locale.required_pkgs }}

@@ -2,6 +2,9 @@
 {% from "mongodb/map.jinja" import mongodb_docker with context %}
 {% from "mongodb/map.jinja" import setup_type with context %}
 
+include:
+  - pkgs
+
 {% if setup_type == 'repo' %}
 mongodb:
   pkgrepo.managed:
@@ -11,8 +14,10 @@ mongodb:
     - keyserver: {{ mongodb_repo.keyserver }}
     - require_in:
       - pkg: {{ mongodb_repo.pkg_name }}
-  pkg.installed:
+  pkg.latest:
     - name: {{ mongodb_repo.pkg_name }}
+    - require:
+      - sls: pkgs
   service.running:
     - name: {{ mongodb_repo.service_name }}
     - enable: True
@@ -24,8 +29,10 @@ mongodb:
 {% from "docker/map.jinja" import docker with context %}
 
 mongo_in_docker_prerequisites:
-  pkg.installed:
+  pkg.latest:
     - pkgs: {{ mongodb_docker.prerequisites }}
+    - require:
+      - sls: pkgs
   pip.installed:
     - pkgs: {{ mongodb_docker.pip_pkgs }}
     - reload_modules: True

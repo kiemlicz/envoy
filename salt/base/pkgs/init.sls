@@ -1,7 +1,7 @@
 {% from "pkgs/map.jinja" import pkgs with context %}
 
 include:
-  - locale
+  - repositories
 
 pkgs:
   pkg.latest:

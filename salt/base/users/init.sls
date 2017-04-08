@@ -1,7 +1,7 @@
 include:
-  - pkgs
   - mounts
   - hosts
+  - pkgs
   - users.common
   - users.keys
   - users.tools
