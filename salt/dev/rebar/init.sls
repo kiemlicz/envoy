@@ -1,6 +1,9 @@
 {% from "rebar/map.jinja" import rebar with context %}
 {% from "_macros/dev_tool.macros.jinja" import add_environmental_variable,add_to_path with context %}
 
+include:
+  - users
+
 rebar:
   git.latest:
     - name: {{ rebar.git_url }}
@@ -10,6 +13,7 @@ rebar:
     - target: {{ rebar.destination_dir }}/{{ rebar.orig_name }}
     - user: {{ rebar.owner }}
     - require:
+      - sls: users
       - git: {{ rebar.git_url }}
 rebar_change_owner:
   file.directory:
@@ -20,6 +24,7 @@ rebar_change_owner:
       - user
       - group
     - require:
+      - sls: users
       - git: {{ rebar.git_url }}
   cmd.script:
     - name: {{ rebar.generic_link }}/bootstrap
@@ -28,6 +33,7 @@ rebar_change_owner:
     - env:
       - HOME: {{ rebar.owner_home_dir }}
     - require:
+      - sls: users
       - file: {{ rebar.destination_dir }}/{{ rebar.orig_name }}
 
 update_environment_rebar:

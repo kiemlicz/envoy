@@ -1,6 +1,9 @@
 {% from "sbt/map.jinja" import sbt with context %}
 {% from "_macros/dev_tool.macros.jinja" import add_environmental_variable,add_to_path with context %}
 
+include:
+  - users
+
 sbt:
 {% if grains['os'] != 'Windows' %}
   pkgrepo.managed:
@@ -14,6 +17,8 @@ sbt:
   pkg.latest:
     - name: {{ sbt.pkg_name }}
     - refresh: True
+    - require:
+      - sls: users
 {{ add_environmental_variable(sbt.environ_variable, sbt.generic_link, sbt.exports_file) }}
 {{ add_to_path(sbt.environ_variable, sbt.path_inside, sbt.exports_file) }}
 
