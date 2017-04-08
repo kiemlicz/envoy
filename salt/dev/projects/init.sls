@@ -18,6 +18,12 @@ include:
 {% endif %}
     - require:
       - user: {{ username }}
+  cmd.wait:
+    - name: {{ project.cmd }}
+    - runas: {{ username }}
+    - cwd: {{ project.target }}
+    - watch:
+      - git: {{ project.url }}
 
 {% elif "hg" in project.url %}
 {{ username }}_hg_clone_{{ project.url }}:
@@ -32,6 +38,12 @@ include:
 {% endif %}
     - require:
       - user: {{ username }}
+  cmd.wait:
+    - name: {{ project.cmd }}
+    - runas: {{ username }}
+    - cwd: {{ project.target }}
+    - watch:
+      - git: {{ project.url }}
 {% endif %}
 
 #todo switch to branch
