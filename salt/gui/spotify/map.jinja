@@ -8,7 +8,7 @@
         'file': '/etc/apt/sources.list.d/spotify.list',
     },
 }, merge=salt['grains.filter_by']({
-    'sid': {
+    'stretch': {
         'repo_entries': [
             "deb http://repository.spotify.com testing non-free"
         ],

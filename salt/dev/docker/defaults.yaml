@@ -1,5 +1,4 @@
 docker:
-  keyserver: https://apt.dockerproject.org/gpg
-  keyid: 58118E89F3A912897C070ADBF76221572C52609D
-  pkg_name: docker-engine
+  key_url: https://download.docker.com/linux/debian/gpg
+  pkg_name: docker-ce
   service_name: docker

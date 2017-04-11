@@ -1,31 +1,18 @@
 {% import_yaml "erlang/defaults.yaml" as defaults %}
 
+{% set os = salt['grains.get']('lsb_distrib_id') %}
+{% set dist_codename = salt['grains.get']('lsb_distrib_codename') %}
+
 {% set erlang = salt['grains.filter_by']({
-    'Debian': {
+    'default': {
         'file': '/etc/apt/sources.list.d/erlang.list',
+        'repo_entries': ["deb http://packages.erlang-solutions.com/" + os.lower() +  " " + dist_codename + " contrib"],
         'apt_preferences_file': '/etc/apt/preferences.d/erlang.pref',
         'apt_preferences': '|
             Package: *
             Pin: release o=Erlang Solutions Ltd.
             Pin-Priority: 999',
     },
-    'Ubuntu': {
-
-    },
 }, merge=salt['grains.filter_by']({
-    'sid': {
-        'repo_entries': [
-          "deb http://packages.erlang-solutions.com/debian stretch contrib"
-        ],
-    },
-    'jessie': {
-        'repo_entries': [
-          "deb http://packages.erlang-solutions.com/debian jessie contrib"
-        ],
-    },
-    'wheezy': {
-        'repo_entries': [
-           "deb http://packages.erlang-solutions.com/debian wheezy contrib"
-        ],
-    }
+
 }, grain='oscodename', merge=salt['pillar.get']('erlang', default=defaults.erlang, merge=True))) %}

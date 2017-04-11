@@ -24,7 +24,7 @@ def _fail(ret, msg, comments=None):
 def managed(name, home_dir, username,
            branch, target, identity,
            render=False, override=False,
-           onlyif=False, unless=False, post_state_cmd=None, saltenv='base'):
+           onlyif=False, unless=False, saltenv='base'):
     '''
     This state manages dotfiles: the 'name' repo is parsed and placed under 'home_dir'
 

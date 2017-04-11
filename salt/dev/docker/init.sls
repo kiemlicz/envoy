@@ -9,8 +9,7 @@ docker:
   pkgrepo.managed:
     - names: {{ docker.repo_entries }}
     - file: {{ docker.file }}
-    - keyid: {{ docker.keyid }}
-    - keyserver: {{ docker.keyserver }}
+    - key_url: {{ docker.key_url }}
     - refresh_db: true
     - require_in:
       - pkg: {{ docker.pkg_name }}
