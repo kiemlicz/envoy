@@ -1,23 +1,13 @@
 {% import_yaml "virtualbox/defaults.yaml" as defaults %}
 
+{% set os = salt['grains.get']('lsb_distrib_id') %}
+{% set dist_codename = salt['grains.get']('lsb_distrib_codename') %}
+{# ubuntu uses /debian #}
 {% set virtualbox = salt['grains.filter_by']({
     'default': {
         'file': '/etc/apt/sources.list.d/virtualbox.list',
+        'repo_entries': ["deb http://download.virtualbox.org/virtualbox/debian " + dist_codename + " contrib"],
     }
 }, merge=salt['grains.filter_by']({
-     'stretch': {
-         'repo_entries': [
-           "deb http://download.virtualbox.org/virtualbox/debian stretch contrib",
-         ],
-     },
-     'jessie': {
-         'repo_entries': [
-           "deb http://download.virtualbox.org/virtualbox/debian jessie contrib",
-         ],
-     },
-     'xenial': {
-          'repo_entries': [
-            "deb http://download.virtualbox.org/virtualbox/debian xenial contrib"
-          ],
-     }
+
  }, grain='oscodename', merge=salt['pillar.get']('virtualbox', default=defaults.virtualbox, merge=True))) %}
