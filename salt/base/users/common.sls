@@ -45,7 +45,7 @@ git_global_config_{{ username }}_{{ k }}:
 
 {{ username }}_setup_ssh_known_hosts:
   ssh_known_hosts.present:
-    - names: {{ user.ssh.known_hosts }}
+    - names: {{ user.known_hosts }}
     - user: {{ username }}
     - require:
       - user: {{ username }}
