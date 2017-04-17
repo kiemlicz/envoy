@@ -56,9 +56,8 @@ users:
       - {{ home_dir }}/bin
       - {{ home_dir }}/downloads
       - {{ home_dir }}/local
-    ssh:
-      known_hosts:
-        - bitbucket.org
+    known_hosts:
+      - bitbucket.org
     sec:
       ssh:
         - name: home
@@ -90,17 +89,7 @@ users:
       repo: some repo url.git
       branch: {{ grains['host'] }}
       root: {{ home_dir }}
-      post_cmd: "fc-cache -vf ~/.fonts"
-    mount_samba_shares:
-      - server: some server address
-        path: '%(USER)'
-        mountpoint: '/mnt/%(USER)'      
-    owncloud_server:
-      name: nas
-    owncloud_sync:
-      - folder: keepass
-        remote: /home/local/keepass
-        local: {{ home_dir }}/local/keepass/
+      post_cmd: "fc-cache -vf ~/.fonts"      
     git:
       global_config:
         user.name: username for git
