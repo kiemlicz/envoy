@@ -4,7 +4,7 @@ include:
   - pkgs
 
 {% if spotify.required_pkgs_urls %}
-spotify_prerequisite_{{ req }}:
+spotify_prerequisites:
   pkg.installed:
     - sources: {{ spotify.required_pkgs_urls }}
     - require:
