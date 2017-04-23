@@ -7,11 +7,7 @@
     'default': {
         'file': '/etc/apt/sources.list.d/erlang.list',
         'repo_entries': ["deb http://packages.erlang-solutions.com/" + os.lower() +  " " + dist_codename + " contrib"],
-        'apt_preferences_file': '/etc/apt/preferences.d/erlang.pref',
-        'apt_preferences': '|
-            Package: *
-            Pin: release o=Erlang Solutions Ltd.
-            Pin-Priority: 999',
+        'apt_preferences_file': '/etc/apt/preferences.d/erlang.pref'
     },
 }, merge=salt['grains.filter_by']({
 
