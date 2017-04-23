@@ -14,7 +14,7 @@ erlang:
       - file: {{ erlang.apt_preferences_file }}
   file.managed:
     - name: {{ erlang.apt_preferences_file }}
-    - content: {{ erlang.apt_preferences }}
+    - source: salt://erlang/erlang.pref
     - require_in:
       - pkg: {{ erlang.pkg_name }}
 {% endif %}
