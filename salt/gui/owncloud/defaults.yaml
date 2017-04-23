@@ -1,3 +1,5 @@
 owncloud:
   client:
     pkg_name: owncloud-client
+
+#https://download.owncloud.org/download/repositories/stable/owncloud/
