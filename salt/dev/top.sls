@@ -1,5 +1,15 @@
 dev:
   '*':
+    - hosts
+    - repositories
+    - locale
+    - pkgs
+    - mounts
+    - samba
+    - keepass
+    - owncloud
+    - dropbox
+    - spotify
     - java
     - scala
     - erlang
@@ -13,6 +23,14 @@ dev:
     - redis
     - intellij
     - robomongo
-
-  'not G@biosversion:VirtualBox':
     - virtualbox
+
+  'gpus:vendor:nvidia':
+    - match: grain
+    - nvidia
+
+  'not G@os:Windows':
+    - match: compound
+    - sensors
+    - lxc
+    - users
