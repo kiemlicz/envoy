@@ -10,4 +10,10 @@
         ],
         'file': '/etc/apt/sources.list.d/dropbox.list'
     }
-}, merge=salt['pillar.get']('dropbox', default=defaults.dropbox, merge=True)) %}
+}, merge=salt['grains.filter_by']({
+       'stretch': {
+           'repo_entries': [
+               "deb http://linux.dropbox.com/" + os.lower() + " sid main"
+           ],
+       }
+   }, grain='oscodename', merge=salt['pillar.get']('dropbox', default=defaults.dropbox, merge=True))) %}
