@@ -8,7 +8,7 @@ include:
 
 keepass:
   pkg.installed:
-    - sources :
+    - sources:
       - {{ keepass.pkg_name }}: {{ keepass.url }}
     - require:
       - sls: pkgs
