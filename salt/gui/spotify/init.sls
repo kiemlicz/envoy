@@ -6,13 +6,14 @@ include:
 {% if spotify.required_pkgs_urls %}
 spotify_prerequisites:
   pkg.installed:
-    - sources: {{ spotify.required_pkgs_urls }}
+    - sources:
+{% for k, v in spotify.required_pkgs_urls.items() %}
+      - {{ k }}: {{ v }}
+{% endfor %}
     - require:
-     - sls: pkgs
-{% if grains['os'] != 'Windows' %}
+      - sls: pkgs
     - require_in:
-     - pkg: {{ spotify.pkg_name }}
-{% endif %}
+      - pkg: {{ spotify.pkg_name }}
 {% endif %}
 
 spotify:
