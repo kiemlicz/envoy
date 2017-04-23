@@ -74,7 +74,6 @@ users:
       oh_my_zsh:
         url: https://github.com/robbyrussell/oh-my-zsh.git
         target: {{ home_dir }}/projects/open-source/oh-my-zsh
-        autoupdate: True
       oh_my_zsh_syntax_highlighting:
         url: https://github.com/zsh-users/zsh-syntax-highlighting.git
         target: {{ home_dir }}/projects/open-source/oh-my-zsh/custom/plugins/zsh-syntax-highlighting
