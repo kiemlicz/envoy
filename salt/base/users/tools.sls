@@ -6,6 +6,7 @@
     - user: {{ username }}
     - name: {{ user.tools.oh_my_zsh.url }}
     - target: {{ user.tools.oh_my_zsh.target }}
+    - force_fetch: True
     - require:
       - user: {{ username }}
 {{ username }}_setup_oh_my_zsh_syntax_highlighting:
@@ -13,6 +14,7 @@
     - user: {{ username }}
     - name: {{ user.tools.oh_my_zsh_syntax_highlighting.url }}
     - target: {{ user.tools.oh_my_zsh_syntax_highlighting.target }}
+    - force_fetch: True
     - require:
       - user: {{ username }}
 {{ username }}_fzf:
@@ -20,6 +22,7 @@
     - user: {{ username }}
     - name: {{ user.tools.fzf.url }}
     - target: {{ user.tools.fzf.target }}
+    - force_fetch: True
     - require:
       - user: {{ username }}
   cmd.run:
@@ -41,6 +44,7 @@
     - user: {{ username }}
     - name: {{ user.tools.powerline.url }}
     - target: {{ user.tools.powerline.target }}
+    - force_fetch: True
     - require:
       - user: {{ username }}
   cmd.run:
