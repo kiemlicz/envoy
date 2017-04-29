@@ -1,1 +1,19 @@
-{% extends "pkgs/base.jinja" %}
+{% set pkgs = salt['grains.filter_by']({
+    'default': {
+        'names': [
+           "sudo",
+           "apt-transport-https",
+           "man",
+           "rsync",
+           "git",
+           "curl",
+           "ntp",
+           "zsh"
+        ],
+    },
+    'Windows': {
+        'names': [
+           "git"
+        ],
+    }
+}, merge=salt['pillar.get']('pkgs')) %}
