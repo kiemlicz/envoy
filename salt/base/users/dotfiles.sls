@@ -22,12 +22,14 @@
     - identity: {{ key_spec.privkey_location }}
     - saltenv: {{ saltenv }}
 #todo fallback location = home
+{% if user.dotfile.post_cmd %}
   cmd.wait:
     - name: {{ user.dotfile.post_cmd }}
     - runas: {{ username }}
     - cwd: {{ user.dotfile.root }}
     - watch:
       - dotfile: {{ user.dotfile.repo }}
+{% endif %}
 
 {% endif %}
 {% endfor %}
