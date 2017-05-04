@@ -22,7 +22,7 @@
     - identity: {{ key_spec.privkey_location }}
     - saltenv: {{ saltenv }}
 #todo fallback location = home
-{% if user.dotfile.post_cmd %}
+{% if user.dotfile.post_cmd is defined %}
   cmd.wait:
     - name: {{ user.dotfile.post_cmd }}
     - runas: {{ username }}
