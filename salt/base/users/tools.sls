@@ -33,6 +33,11 @@
       - user: {{ username }}
 {{ username }}_powerline:
 #todo pip3 as well
+  pkg.latest:
+    - pkgs: {{ user.tools.powerline.required_pkgs }}
+    - refresh: True
+    - require:
+      - user: {{ username }}
   pip.installed:
     - name: {{ user.tools.powerline.pip }}
     - user: {{ username }}
