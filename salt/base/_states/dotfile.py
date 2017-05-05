@@ -103,17 +103,19 @@ def managed(name, home_dir, username,
         else:
             log.debug("Checking out files from: {0}, branch: {1}".format(name, branch))
             git_dir = "{0}/.cfg/".format(target)
-            return_data = __states__['git.latest'](name=name, target=git_dir, user=username, bare=True, identity=identity)  # no branch at this point
+            return_data = __states__['git.latest'](name=name, target=git_dir, user=username, bare=True, identity=identity)
+            # no branch at this point as this is bare repository
             if not return_data['result']:
                 return _fail(ret, "Cloning dotfiles repo failed", [return_data['comment']])
             # backup previous files
             return_data = __states__['cmd.run']("mkdir -p {0}/.cfg.bak && "
-                                                "git --git-dir={1} --work-tree={0} checkout {2} 2>&1 | egrep \"\s+\.\" | awk {{'print $1'}} |"
-                                                "xargs -I{{}} sh -c 'mkdir -p {0}/.cfg.bak/{{}}; mv {{}} {0}/.cfg.bak/{{}}'".format(target, git_dir, branch), runas=username)
+                                                "git --git-dir={1} --work-tree={0} checkout {2} 2>&1 | sed -n 's/\(^[[:alnum:]]\)\?\s\+\(\.[[:alnum:]]\+\)/\\2/p' | "
+                                                "xargs -I{{}} mv {{}} {0}/.cfg.bak/{{}}".format(target, git_dir, branch), runas=username)
             if return_data['changes']['retcode'] != 0:
                 return _fail(ret, "Backup of previous dotfiles failed", [return_data['changes']['stderr']])
 
-            return_data = __states__['cmd.run']("git --git-dir={0} --work-tree={1} checkout {2}".format(git_dir, target, branch), runas=username)
+            # as this is bare repo -f must be used
+            return_data = __states__['cmd.run']("git --git-dir={0} --work-tree={1} checkout -f {2}".format(git_dir, target, branch), runas=username)
             if return_data['changes']['retcode'] != 0:
                 return _fail(ret, "Dotfiles checkout failed", [return_data['changes']['stderr']])
 

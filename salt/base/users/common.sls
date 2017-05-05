@@ -25,7 +25,7 @@
     - require:
       - user: {{ username }}
 
-{% if user.git.global_config %}
+{% if user.git.global_config is defined %}
 #https://github.com/saltstack/salt/issues/19869
 {{ username }}_no_home_workaround:
   environ.setenv:
