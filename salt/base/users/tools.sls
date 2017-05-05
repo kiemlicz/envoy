@@ -17,6 +17,7 @@
     - force_fetch: True
     - require:
       - user: {{ username }}
+      - git: {{ username }}_setup_oh_my_zsh
 {{ username }}_fzf:
   git.latest:
     - user: {{ username }}
@@ -25,12 +26,15 @@
     - force_fetch: True
     - require:
       - user: {{ username }}
-  cmd.run:
-  # will duplicate entry in zshrc
+  cmd.wait:
+  # doesn't duplicate line appended to .zshrc
     - name: yes | {{ user.tools.fzf.target }}/install
     - runas: {{ username }}
     - require:
       - user: {{ username }}
+      - git: {{ username }}_fzf
+    - watch:
+      - git: {{ username }}_fzf
 {{ username }}_powerline:
 #todo pip3 as well
   pkg.latest:
@@ -45,6 +49,7 @@
       - --user
     - require:
       - user: {{ username }}
+      - pkg: {{ username }}_powerline
   git.latest:
     - user: {{ username }}
     - name: {{ user.tools.powerline.url }}
@@ -52,10 +57,14 @@
     - force_fetch: True
     - require:
       - user: {{ username }}
-  cmd.run:
+      - pip: {{ username }}_powerline
+  cmd.wait:
     - name: {{ user.tools.powerline.target }}/install.sh
     - runas: {{ username }}
+    - watch:
+      - git: {{ username }}_powerline
     - require:
       - user: {{ username }}
+      - git: {{ username }}_powerline
 
 {% endfor %}
