@@ -6,3 +6,16 @@
       'pkgs': []
     }
 }, merge=salt['pillar.get']('nvidia')) %}
+
+{% set gpus_vendors = salt['grains.get']('gpus')|map(attribute='vendor')|list %}
+
+{% if 'intel' in gpus_vendors and 'nvidia' in gpus_vendors %}
+{% do nvidia.update(salt['grains.filter_by']({
+      'default': {
+        'pkgs': nvidia['pkgs'] + ["bumblebee-nvidia", "primus"]
+      },
+      'Windows': {
+        'pkgs': []
+      }
+  }, merge=salt['pillar.get']('nvidia_dual_gpu'))) %}
+{% endif %}
