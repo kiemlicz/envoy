@@ -6,7 +6,9 @@ include:
   - users.common
   - users.keys
   - users.tools
+  - users.vpn
   - users.dotfiles
+  - users.backup
 {% else %}
 empty-users-notification:
   test.show_notification:
