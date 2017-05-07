@@ -50,7 +50,6 @@
     - install_options:
       - --user
     - require:
-      - user: {{ username }}
       - pkg: {{ username }}_powerline_requirements
 {{ username }}_powerline_python3:
   pip.installed:
@@ -60,7 +59,6 @@
     - install_options:
       - --user
     - require:
-      - user: {{ username }}
       - pkg: {{ username }}_powerline_requirements
 {{ username }}_powerline_fonts:
   git.latest:
@@ -69,7 +67,6 @@
     - target: {{ user.tools.powerline.target }}
     - force_fetch: True
     - require:
-      - user: {{ username }}
       - pip: {{ username }}_powerline_python3
       - pip: {{ username }}_powerline_python2
   cmd.wait:
@@ -78,7 +75,6 @@
     - watch:
       - git: {{ username }}_powerline_fonts
     - require:
-      - user: {{ username }}
       - git: {{ username }}_powerline_fonts
 
 {% endfor %}

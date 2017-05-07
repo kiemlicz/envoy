@@ -23,6 +23,6 @@
 {% endif %}
 
 {% endfor %}
-{# todo most likely empty notification is needed here #}
+{# somehow empty notification is not needed here #}
 {% endif %}
 {% endfor %}
