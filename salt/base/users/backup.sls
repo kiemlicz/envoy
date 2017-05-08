@@ -12,7 +12,9 @@
     - makedirs: True
     - mode: 775
     - defaults:
+{% if user.backup.remote is defined %}
         remote: {{ user.backup.remote }}
+{% endif %}
         locations: {{ user.backup.source_locations|join(' ') }}
         destination: {{ user.backup.destination_location }}
         archive: {{ user.backup.archive_location }}
@@ -23,7 +25,9 @@
     - user: {{ username }}
     - hour: {{ user.backup.hour }}
     - minute: {{ user.backup.minute }}
-    - require:
+    - daymonth: {{ user.backup.daymonth }}
+    - month: {{ user.backup.month }}
+    - dayweek: {{ user.backup.dayweek }}
       - file: {{ user.backup.script_location }}
 
 {% endif %}
