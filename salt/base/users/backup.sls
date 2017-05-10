@@ -25,9 +25,16 @@
     - user: {{ username }}
     - hour: {{ user.backup.hour }}
     - minute: {{ user.backup.minute }}
+{% if user.backup.daymonth is defined %}
     - daymonth: {{ user.backup.daymonth }}
+{% endif %}
+{% if user.backup.month is defined %}
     - month: {{ user.backup.month }}
+{% endif %}
+{% if user.backup.dayweek is defined %}
     - dayweek: {{ user.backup.dayweek }}
+{% endif %}
+    - require:
       - file: {{ user.backup.script_location }}
 
 {% endif %}
