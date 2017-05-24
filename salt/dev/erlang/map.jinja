@@ -1,4 +1,4 @@
-{% import_yaml "erlang/defaults.yaml" as defaults %}
+{% import_yaml "defaults.yaml" as defaults %}
 
 {% set os = salt['grains.get']('lsb_distrib_id') %}
 {% set dist_codename = salt['grains.get']('lsb_distrib_codename') %}

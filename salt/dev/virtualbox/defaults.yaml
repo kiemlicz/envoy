@@ -1,3 +1,0 @@
-virtualbox:
-  key_url: https://www.virtualbox.org/download/oracle_vbox_2016.asc
-  pkg_name: virtualbox-5.1

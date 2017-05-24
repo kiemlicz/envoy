@@ -1,6 +1,0 @@
-java:
-  keyid: EEA14886
-  keyserver: hkp://keyserver.ubuntu.com:80
-  pkg_name: oracle-java8-installer
-  ext_pkgs:
-    - oracle-java8-unlimited-jce-policy
