@@ -1,4 +1,0 @@
-docker:
-  key_url: https://download.docker.com/linux/debian/gpg
-  pkg_name: docker-ce
-  service_name: docker

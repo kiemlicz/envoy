@@ -1,3 +1,0 @@
-erlang:
-  key_url: http://packages.erlang-solutions.com/debian/erlang_solutions.asc
-  pkg_name: erlang
