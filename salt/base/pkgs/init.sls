@@ -9,3 +9,9 @@ pkgs:
     - refresh: True
     - require:
       - sls: repositories
+{% if pkgs.post_install is defined %}
+  cmd.wait:
+    - names: {{ pkgs.post_install }}
+    - watch:
+      - pkg: {{ pkgs.names }}
+{% endif %}
