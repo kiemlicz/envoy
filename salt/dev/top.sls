@@ -31,6 +31,5 @@ dev:
 
   'not G@os:Windows':
     - match: compound
-    - sensors
     - lxc
     - users
