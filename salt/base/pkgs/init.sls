@@ -5,6 +5,7 @@ include:
 
 pkgs:
   pkg.latest:
+    - name: packages
     - pkgs: {{ pkgs.names }}
     - refresh: True
     - require:
@@ -13,5 +14,5 @@ pkgs:
   cmd.wait:
     - names: {{ pkgs.post_install }}
     - watch:
-      - pkg: {{ pkgs.names }}
+      - pkg: packages
 {% endif %}

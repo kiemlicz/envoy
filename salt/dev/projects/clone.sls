@@ -15,9 +15,9 @@
 {% endif %}
     - require:
       - user: {{ username }}
-{% if project.cmd is defined %}
+{% if project.cmds is defined %}
   cmd.wait:
-    - name: {{ project.cmd }}
+    - names: {{ project.cmds }}
     - runas: {{ username }}
     - cwd: {{ project.target }}
     - watch:
@@ -37,9 +37,9 @@
 {% endif %}
     - require:
       - user: {{ username }}
-{% if project.cmd is defined %}
+{% if project.cmds is defined %}
   cmd.wait:
-    - name: {{ project.cmd }}
+    - names: {{ project.cmds }}
     - runas: {{ username }}
     - cwd: {{ project.target }}
     - watch:
