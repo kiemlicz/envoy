@@ -3,11 +3,14 @@
 
 include:
   - users
+  - erlang
 
 rebar:
   git.latest:
     - name: {{ rebar.git_url }}
     - target: {{ rebar.destination_dir }}/{{ rebar.orig_name }}
+    - require:
+      - sls: erlang
   file.symlink:
     - name: {{ rebar.generic_link }}
     - target: {{ rebar.destination_dir }}/{{ rebar.orig_name }}
