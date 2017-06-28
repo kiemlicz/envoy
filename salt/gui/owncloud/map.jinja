@@ -1,11 +1,18 @@
 {% import_yaml "owncloud/defaults.yaml" as defaults %}
 
 {% set owncloud = salt['grains.filter_by']({
-    'default': {
+    'Debian': {
         'repo_entries': [
             "deb http://download.owncloud.org/download/repositories/stable/Debian_8.0/ /"
         ],
         'key_url': 'https://download.owncloud.org/download/repositories/stable/Debian_8.0/Release.key',
+        'file': '/etc/apt/sources.list.d/owncloud.list'
+    },
+    'Ubuntu': {
+        'repo_entries': [
+            "deb http://download.owncloud.org/download/repositories/stable/Ubuntu_17.04/ /"
+        ],
+        'key_url': 'https://download.owncloud.org/download/repositories/stable/Ubuntu_17.04/Release.key',
         'file': '/etc/apt/sources.list.d/owncloud.list'
     },
     'Windows': {
@@ -13,4 +20,18 @@
             'pkg_name': 'owncloud',
         }
     }
-}, merge=salt['pillar.get']('owncloud', default=defaults.owncloud, merge=True)) %}
+}, merge=salt['grains.filter_by']({
+    'yakkety': {
+        'repo_entries': [
+            "deb http://download.owncloud.org/download/repositories/stable/Ubuntu_16.10/ /"
+        ],
+        'key_url': 'https://download.owncloud.org/download/repositories/stable/Ubuntu_16.10/Release.key',
+
+    },
+    'xenial': {
+        'repo_entries': [
+            "deb http://download.owncloud.org/download/repositories/stable/Ubuntu_16.04/ /"
+        ],
+        'key_url': 'https://download.owncloud.org/download/repositories/stable/Ubuntu_16.04/Release.key',
+    }
+}, grain='oscodename', merge=salt['pillar.get']('owncloud', default=defaults.owncloud, merge=True))) %}
