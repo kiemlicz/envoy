@@ -14,19 +14,19 @@
 {% set port = salt['pillar.get']('mongodb:settings:port', default=defaults.mongodb.settings.port) %}
 
 {% set mongodb_repo = salt['grains.filter_by']({
-    'Debian': {
+    'default': {
         'repo_entries': [
           "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.4 main"
         ],
         'file': '/etc/apt/sources.list.d/mongodb-org-3.4.list',
     },
-    'Ubuntu': {
-        'repo_entries': [
-          "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse"
-        ],
-        'file': '/etc/apt/sources.list.d/mongodb-org-3.4.list',
-    }
-}, grain='oscodename', merge=salt['pillar.get']('mongodb:repo', default=defaults.mongodb.repo, merge=True)) %}
+}, merge=salt['grains.filter_by']({
+       'zesty': {
+         'repo_entries': [
+             "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse"
+         ],
+       },
+}, grain='oscodename', merge=salt['pillar.get']('mongodb:repo', default=defaults.mongodb.repo, merge=True))) %}
 
 {# todo verify mongodb docker requisites are still needed #}
 
