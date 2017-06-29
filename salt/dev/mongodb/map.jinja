@@ -26,9 +26,7 @@
         ],
         'file': '/etc/apt/sources.list.d/mongodb-org-3.4.list',
     }
-}, merge=salt['grains.filter_by']({
-
-}, grain='oscodename', merge=salt['pillar.get']('mongodb:repo', default=defaults.mongodb.repo, merge=True))) %}
+}, grain='oscodename', merge=salt['pillar.get']('mongodb:repo', default=defaults.mongodb.repo, merge=True)) %}
 
 {# todo verify mongodb docker requisites are still needed #}
 
