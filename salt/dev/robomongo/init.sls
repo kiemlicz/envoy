@@ -14,4 +14,4 @@ robomongo:
     - saltenv: {{ saltenv }}
     - require:
       - sls: users.common
-{{ link_to_bin(robomongo.owner_link_location, robomongo.generic_link + '/bin/robomongo', robomongo.owner) }}
+{{ link_to_bin(robomongo.owner_link_location, robomongo.generic_link + '/bin/robo3t', robomongo.owner) }}
