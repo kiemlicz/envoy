@@ -5,15 +5,11 @@
 
 {% set dropbox = salt['grains.filter_by']({
     'default': {
-        'repo_entries': [
-            "deb http://linux.dropbox.com/" + os.lower() + " " + dist_codename + " main"
-        ],
+        'repo_entries': ["deb http://linux.dropbox.com/" + os.lower() + " " + dist_codename + " main"],
         'file': '/etc/apt/sources.list.d/dropbox.list'
     }
 }, merge=salt['grains.filter_by']({
-       'stretch': {
-           'repo_entries': [
-               "deb http://linux.dropbox.com/" + os.lower() + " sid main"
-           ],
-       }
-   }, grain='oscodename', merge=salt['pillar.get']('dropbox', default=defaults.dropbox, merge=True))) %}
+    'stretch': {
+        'repo_entries': ["deb http://linux.dropbox.com/" + os.lower() + " sid main"],
+    }
+}, grain='oscodename', merge=salt['pillar.get']('dropbox', default=defaults.dropbox, merge=True))) %}

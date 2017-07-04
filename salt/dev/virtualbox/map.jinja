@@ -4,10 +4,12 @@
 {% set dist_codename = salt['grains.get']('lsb_distrib_codename') %}
 {# ubuntu uses /debian #}
 {% set virtualbox = salt['grains.filter_by']({
-    'default': {
+    'Debian': {
         'file': '/etc/apt/sources.list.d/virtualbox.list',
         'repo_entries': ["deb http://download.virtualbox.org/virtualbox/debian " + dist_codename + " contrib"],
     }
 }, merge=salt['grains.filter_by']({
-
- }, grain='oscodename', merge=salt['pillar.get']('virtualbox', default=defaults.virtualbox, merge=True))) %}
+    'sid': {
+        'repo_entries': ["deb http://download.virtualbox.org/virtualbox/debian stretch contrib"],
+    }
+}, grain='oscodename', merge=salt['pillar.get']('virtualbox', default=defaults.virtualbox, merge=True))) %}

@@ -14,7 +14,7 @@
 {% set port = salt['pillar.get']('mongodb:settings:port', default=defaults.mongodb.settings.port) %}
 
 {% set mongodb_repo = salt['grains.filter_by']({
-    'default': {
+    'Debian': {
         'repo_entries': [
           "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.4 main"
         ],

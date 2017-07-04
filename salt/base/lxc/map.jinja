@@ -1,9 +1,13 @@
 {% import_yaml "lxc/defaults.yaml" as defaults %}
 
 {% set lxc = salt['grains.filter_by']({
-    'default': {
+    'Debian': {
         'pkgs': ["lxc", "bridge-utils", "debootstrap", "ubuntu-archive-keyring"],
     },
     'Windows': {
     }
-}, merge=salt['pillar.get']('lxc', default=defaults.lxc, merge=True)) %}
+}, merge=salt['grains.filter_by']({
+      'yakkety': {
+        'pkgs': ["lxc", "bridge-utils", "debootstrap"],
+      },
+}, merge=salt['pillar.get']('lxc', default=defaults.lxc, merge=True))) %}

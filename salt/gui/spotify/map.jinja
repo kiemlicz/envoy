@@ -9,6 +9,11 @@
         'required_pkgs_urls': {}
     },
 }, merge=salt['grains.filter_by']({
+    'sid': {
+        'repo_entries': [
+            "deb http://repository.spotify.com testing non-free"
+        ],
+    },
     'stretch': {
         'repo_entries': [
             "deb http://repository.spotify.com testing non-free"
