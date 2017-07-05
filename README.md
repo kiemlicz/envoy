@@ -88,7 +88,8 @@ users:
       repo: some repo url.git
       branch: {{ grains['host'] }}
       root: {{ home_dir }}
-      post_cmd: "fc-cache -vf ~/.fonts"      
+      post_cmds: 
+        - "fc-cache -vf ~/.fonts"      
     git:
       global_config:
         user.name: username for git

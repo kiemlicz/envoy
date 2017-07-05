@@ -9,6 +9,14 @@
         'required_pkgs_urls': {}
     },
 }, merge=salt['grains.filter_by']({
+    'sid': {
+        'repo_entries': [
+            "deb http://repository.spotify.com testing non-free"
+        ],
+        'required_pkgs_urls': {
+          "libssl1.0.0": "http://ftp.de.debian.org/debian/pool/main/o/openssl/libssl1.0.0_1.0.2k-1~bpo8+1_amd64.deb"
+        }
+    },
     'stretch': {
         'repo_entries': [
             "deb http://repository.spotify.com testing non-free"
