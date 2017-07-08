@@ -60,21 +60,5 @@
       - --user
     - require:
       - pkg: {{ username }}_powerline_requirements
-{{ username }}_powerline_fonts:
-  git.latest:
-    - user: {{ username }}
-    - name: {{ user.tools.powerline.url }}
-    - target: {{ user.tools.powerline.target }}
-    - force_fetch: True
-    - require:
-      - pip: {{ username }}_powerline_python3
-      - pip: {{ username }}_powerline_python2
-  cmd.wait:
-    - name: {{ user.tools.powerline.target }}/install.sh
-    - runas: {{ username }}
-    - watch:
-      - git: {{ username }}_powerline_fonts
-    - require:
-      - git: {{ username }}_powerline_fonts
 
 {% endfor %}
