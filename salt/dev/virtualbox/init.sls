@@ -9,6 +9,10 @@ virtualbox:
     - names: {{ virtualbox.repo_entries }}
     - file: {{ virtualbox.file }}
     - key_url: {{ virtualbox.key_url }}
+    - require:
+      - sls: pkgs
+    - require_in:
+      - pkg: {{ virtualbox.pkg_name }}
 {% endif %}
   pkg.installed:
     - name: {{ virtualbox.pkg_name }}

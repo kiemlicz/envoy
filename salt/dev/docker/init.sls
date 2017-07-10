@@ -11,6 +11,8 @@ docker:
     - file: {{ docker.file }}
     - key_url: {{ docker.key_url }}
     - refresh_db: true
+    - require:
+      - sls: pkgs
     - require_in:
       - pkg: {{ docker.pkg_name }}
 {% endif %}
