@@ -3,6 +3,7 @@
 
 include:
   - users
+  - pkgs
 
 sbt:
 {% if grains['os'] != 'Windows' %}
@@ -11,6 +12,8 @@ sbt:
     - file: {{ sbt.file }}
     - keyid: {{ sbt.keyid }}
     - keyserver: {{ sbt.keyserver }}
+    - require:
+      - sls: pkgs
     - require_in:
       - pkg: {{ sbt.pkg_name }}
 {% endif %}

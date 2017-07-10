@@ -17,6 +17,10 @@ lxc:
     - name: {{ lxc.net_cfg_file }}
     - source: salt://lxc/lxc-net
     - makedirs: True
+  sysctl.present:
+    - name: net.ipv4.ip_forward
+    - value: 1
+    - config: {{ lxc.sysctl_config_location }}
 
 #todo libvirt?
 #todo add unpriviledged

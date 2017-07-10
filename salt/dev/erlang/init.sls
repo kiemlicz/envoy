@@ -1,7 +1,7 @@
 {% from "erlang/map.jinja" import erlang with context %}
 
 include:
-  - users
+  - pkgs
 
 erlang:
 {% if grains['os'] != 'Windows' %}
@@ -10,6 +10,8 @@ erlang:
     - file: {{ erlang.file }}
     - key_url: {{ erlang.key_url }}
     - refresh_db: True
+    - require:
+      - sls: pkgs
     - require_in:
       - file: {{ erlang.apt_preferences_file }}
   file.managed:
@@ -22,4 +24,4 @@ erlang:
     - name: {{ erlang.pkg_name }}
     - refresh: True
     - require:
-      - sls: users.common
+      - sls: pkgs
