@@ -3,6 +3,7 @@
 {% set lxc = salt['grains.filter_by']({
     'Debian': {
         'pkgs': ["lxc", "bridge-utils", "debootstrap", "ubuntu-archive-keyring"],
+        'sysctl_config_location': '/etc/sysctl.d/local.conf'
     },
     'Windows': {
     }
