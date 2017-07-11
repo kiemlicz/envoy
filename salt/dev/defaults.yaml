@@ -6,7 +6,7 @@ erlang:
   key_url: http://packages.erlang-solutions.com/debian/erlang_solutions.asc
   pkg_name: erlang
 gradle:
-  version: '4.0'
+  version: '4.0.1'
 intellij:
   url: https://download.jetbrains.com/idea/ideaIC-2017.1.5.tar.gz
 java:
