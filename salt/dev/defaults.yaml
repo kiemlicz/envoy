@@ -8,7 +8,7 @@ erlang:
 gradle:
   version: '4.0.1'
 intellij:
-  url: https://download.jetbrains.com/idea/ideaIC-2017.1.5.tar.gz
+  url: https://download.jetbrains.com/idea/ideaIC-2017.2.tar.gz
 java:
   keyid: EEA14886
   keyserver: hkp://keyserver.ubuntu.com:80
