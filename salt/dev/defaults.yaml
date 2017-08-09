@@ -6,9 +6,9 @@ erlang:
   key_url: http://packages.erlang-solutions.com/debian/erlang_solutions.asc
   pkg_name: erlang
 gradle:
-  version: '4.0.1'
+  version: '4.1'
 intellij:
-  url: https://download.jetbrains.com/idea/ideaIC-2017.1.5.tar.gz
+  url: https://download.jetbrains.com/idea/ideaIC-2017.2.1.tar.gz
 java:
   keyid: EEA14886
   keyserver: hkp://keyserver.ubuntu.com:80
@@ -42,7 +42,7 @@ sbt:
   keyid: 2EE0EA64E40A89B84B2DF73499E82A75642AC823
   pkg_name: sbt
 scala:
-  version: '2.12.2'
+  version: '2.12.3'
 virtualbox:
   key_url: https://www.virtualbox.org/download/oracle_vbox_2016.asc
   pkg_name: virtualbox-5.1
