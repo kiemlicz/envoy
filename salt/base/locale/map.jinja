@@ -2,7 +2,7 @@
 
 {% set locale = salt['grains.filter_by']({
     'Debian': {
-        'required_pkgs': [],
+        'required_pkgs': ["locales"],
     },
     'Windows': {
     }
