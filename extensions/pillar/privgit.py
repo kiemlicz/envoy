@@ -1,11 +1,13 @@
 import copy
 import logging
 import os
+
 import salt.ext.six as six
+import salt.loader
 import salt.utils
 import salt.utils.dictupdate
 import salt.utils.gitfs
-import traceback
+from salt.exceptions import SaltConfigurationError
 from salt.utils.gitfs import GitPillar
 
 PER_REMOTE_OVERRIDES = ('env', 'root', 'ssl_verify', 'refspecs')
@@ -41,47 +43,42 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
     :param kwargs: 
     :return: 
     '''
+
+    def fail(ex): raise ex
+
+    def from_pillar_then_opts_required(key):
+        fallback_opts = [e[key] for e in args if key in e]
+        return pillar[key] if key in pillar else fallback_opts[0] if len(fallback_opts) > 0 else fail(SaltConfigurationError("option: {} not found in configuration".format(key)))
+
     opts = copy.deepcopy(__opts__)
-
-    def default(key):
-        for opt in args:
-            if key in opt:
-                return opt[key]
-        return None
-
-    privgit_env = default('privgit_env')
-    privgit_root = default('privgit_root')
-    privgit_branch = default('privgit_branch')
-    privgit_repo = pillar['privgit_url']
-    if 'privgit_env' in pillar:
-        privgit_env = pillar['privgit_env']
-    if 'privgit_root' in pillar:
-        privgit_root = pillar['privgit_root']
-    if 'privgit_branch' in pillar:
-        privgit_branch = pillar['privgit_branch']
+    cachedir = __salt__['config.get']('cachedir')
 
     if "privgit_privkey" in pillar and "privgit_pubkey" in pillar:
-        parent = os.path.join(opts['cachedir'], 'privgit', minion_id)
-        if __salt__['file.mkdir'](parent):
-            temp_dir = __salt__['temp.dir'](parent=parent)
-            log.debug("temp dir created: {}".format(temp_dir))
-            priv_location = os.path.join(temp_dir, 'priv.key')
-            pub_location = os.path.join(temp_dir, 'pub.key')
-            __salt__['file.write'](priv_location, pillar['privgit_privkey'])
-            __salt__['file.write'](pub_location, pillar['privgit_pubkey'])
-            pillar['privgit_privkey_location'] = priv_location
-            pillar['privgit_pubkey_location'] = pub_location
-        else:
-            raise IOError('Unable to create: {}'.format(parent))
+        parent = os.path.join(cachedir, 'privgit', minion_id)
+        priv_location = os.path.join(parent, 'priv.key')
+        pub_location = os.path.join(parent, 'pub.key')
+        __salt__['file.write'](priv_location, pillar['privgit_privkey'])
+        __salt__['file.write'](pub_location, pillar['privgit_pubkey'])
+        pillar['privgit_privkey_location'] = priv_location
+        pillar['privgit_pubkey_location'] = pub_location
+
+    privgit_env = from_pillar_then_opts_required('privgit_env')
+    privgit_root = from_pillar_then_opts_required('privgit_root')
+    privgit_branch = from_pillar_then_opts_required('privgit_branch')
+    privgit_repo = from_pillar_then_opts_required('privgit_url')
+    privgit_privkey = from_pillar_then_opts_required('privgit_privkey_location')
+    privgit_pubkey = from_pillar_then_opts_required('privgit_pubkey_location')
 
     repo = [{'{} {}'.format(privgit_branch, privgit_repo): [
         {"env": privgit_env},
         {"root": privgit_root},
-        {"privkey": pillar['privgit_privkey_location']},
-        {"pubkey": pillar['privgit_pubkey_location']}]}]
-    log.debug("generated private git to use: {}".format(repo))
+        {"privkey": privgit_privkey},
+        {"pubkey": privgit_pubkey}]}]
+    log.debug("generated private git configuration: {}".format(repo))
 
     try:
+        # this logic is shamelessly taken from: salt.pillar.git_pillar.ext_pillar
+        # due to: https://github.com/saltstack/salt/issues/39978
         privgit = GitPillar(opts)
         privgit.init_remotes(repo, PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY)
         if __opts__.get('__role') == 'minion':
@@ -114,9 +111,7 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
                 log.debug('__env__ maps to %s', env)
 
             pillar_roots = [pillar_dir]
-
             opts['pillar_roots'] = {env: pillar_roots}
-
             local_pillar = salt.pillar.Pillar(opts, __grains__, minion_id, env)
             ret = salt.utils.dictupdate.merge(
                 ret,
@@ -125,7 +120,6 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
                 merge_lists=merge_lists
             )
         return ret
-    except:
-        tb = traceback.format_exc()
-        log.error("Fatal error in privgit: {}".format(tb))
+    except Exception as e:
+        log.error("Fatal error in privgit", str(e))
         return {}
