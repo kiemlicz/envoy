@@ -125,7 +125,72 @@ States are divided in environments:
 In order to keep _states_ readable and configuration of whole SaltStack as flexible as possible, some extensions were introduced:
 ## privgit
 Dynamically configured `ext_pillar`.  
-Allows users to configure their own _pillar_ data git repository (in the runtime)
+Allows users to configure their own _pillar_ data git repository (in the runtime - using pillar entries)
+Repository must contain pillar data under the `root` directory
+### Usage
+Fully static configuration (use _git_pillar_ instead of such):
+```
+ext_pillar:
+  - privgit:
+    - name1:
+      - url: git@github.com:someone/somerepo.git
+      - branch: master  
+      - env: custom
+      - root: pillar
+      - privkey: |
+        some
+        sensitive data
+      - pubkey: and so on
+    - name2:
+      - url: git@github.com:someone/somerepo.git
+      - branch: develop
+      - env: custom
+      - privkey_location: /location/on/master
+      - pubkey_location: /location/on/master
+```
+Each of such parameter can be overridden in _pillar_ data that comes before _ext_pillar_:
+```
+privgit:
+  - name1:
+    - url: git@github.com:someone/somerepo.git
+    - branch: master  
+    - env: custom
+    - root: pillar
+    - privkey: |
+      some
+      sensitive data
+    - pubkey: and so on
+  - name2:
+    - url: git@github.com:someone/somerepo.git
+    - branch: develop
+    - env: custom
+    - privkey_location: /location/on/master
+    - pubkey_location: /location/on/master
+  - name2:
+    - url: git@github.com:someone/somerepo.git
+    - branch: notdevelop
+```
+Entries order does matter, last one is the most specific one. It doesn't affect further pillar merge strategies.
+They rely on salt settings only
+
+Due to potential integration with systems like [foreman](https://theforeman.org/) that support string keys only, 
+another (unpleasant) syntax exists:
+```
+privgit_name1_url: git@github.com:someone/somerepo.git
+privgit_name1_branch: master 
+privgit_name1_env: custom
+privgit_name1_root: pillar
+privgit_name1_privkey: |
+        some
+        sensitive data
+privgit_name1_pubkey: and so on
+privgit_name2_url: git@github.com:someone/somerepo.git
+privgit_name2_branch: develop
+privgit_name2_env: custom
+privgit_name2_privkey_location: /location/on/master
+privgit_name2_pubkey_location: /location/on/master
+``` 
+
 ## dotfile
 Custom _state_ that manages [dotfiles](https://en.wikipedia.org/wiki/Dot-file).  
 Clones them from passed repository and sets up according to following [technique](https://developer.atlassian.com/blog/2016/02/best-way-to-store-dotfiles-git-bare-repo/)
