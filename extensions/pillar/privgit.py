@@ -2,6 +2,7 @@ import collections
 import copy
 import logging
 import os
+import re
 
 import salt.ext.six as six
 import salt.utils
@@ -46,18 +47,19 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
         return d[key] if key in d else fail(SaltConfigurationError("option: {} not found in configuration".format(key)))
 
     def deflatten_pillar():
-        d = {}
-        for e in (e for e in pillar if e.startswith('privgit_')):
+        privgit_pattern = re.compile("privgit_\S+_\S+")
+        d = []
+        for e in (e for e in pillar if privgit_pattern.match(e) is not None):
             value = pillar[e]
-            keys = e[9:].split('_', 1)
-            d[keys[0]] = {
+            keys = e[8:].split('_', 1)
+            d.append({keys[0]: {
                 keys[1]: value
-            }
+            }})
         return d
 
-    def merge(input_dict, output_dict):
-        for e in input_dict:
-            output_dict.update(e)
+    def merge(input_list, output_dict):
+        for e in input_list:
+            output_dict.update(e) # fixme this overrides nested dictionary
 
     ext_name = 'privgit'
     opt_url = 'url'
@@ -81,12 +83,13 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
     )
     repositories = collections.OrderedDict()
 
-    merge(args, repositories)
-    merge(pillar[ext_name], repositories)
+    merge(args, repositories)  # args = list of objects
+    merge(pillar[ext_name] if ext_name in pillar else [], repositories)
     merge(deflatten_pillar(), repositories)
 
+    log.info("Using following repositories: {}".format(repositories))
     ret = {}
-    for repository_name, repository_opts in repositories:
+    for repository_name, repository_opts in repositories.items():
         if opt_privkey in repository_opts and opt_pubkey in repository_opts:
             parent = os.path.join(cachedir, ext_name, minion_id, repository_name)
             priv_location = os.path.join(parent, 'priv.key')
