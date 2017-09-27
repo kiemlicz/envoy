@@ -57,9 +57,15 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
             }})
         return d
 
-    def merge(input_list, output_dict):
-        for e in input_list:
-            output_dict.update(e) # fixme this overrides nested dictionary
+    def merge(input_dict, output_dict):
+        for e in input_dict:
+            output_dict = salt.utils.dictupdate.merge(
+                output_dict,
+                e,
+                strategy='smart',
+                merge_lists=True
+            )
+        return output_dict
 
     ext_name = 'privgit'
     opt_url = 'url'
@@ -83,15 +89,16 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
     )
     repositories = collections.OrderedDict()
 
-    merge(args, repositories)  # args = list of objects
-    merge(pillar[ext_name] if ext_name in pillar else [], repositories)
-    merge(deflatten_pillar(), repositories)
+    repositories = merge(args, repositories)
+    repositories = merge(pillar[ext_name] if ext_name in pillar else [], repositories)
+    repositories = merge(deflatten_pillar(), repositories)
 
     log.info("Using following repositories: {}".format(repositories))
     ret = {}
     for repository_name, repository_opts in repositories.items():
         if opt_privkey in repository_opts and opt_pubkey in repository_opts:
             parent = os.path.join(cachedir, ext_name, minion_id, repository_name)
+            os.makedirs(parent)
             priv_location = os.path.join(parent, 'priv.key')
             pub_location = os.path.join(parent, 'pub.key')
             __salt__['file.write'](priv_location, repository_opts[opt_privkey])

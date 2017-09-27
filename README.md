@@ -133,42 +133,42 @@ Fully static configuration (use _git_pillar_ instead of such):
 ext_pillar:
   - privgit:
     - name1:
-      - url: git@github.com:someone/somerepo.git
-      - branch: master  
-      - env: custom
-      - root: pillar
-      - privkey: |
-        some
-        sensitive data
-      - pubkey: and so on
+      url: git@github.com:someone/somerepo.git
+      branch: master  
+      env: custom
+      root: pillar
+      privkey: |
+      some
+      sensitive data
+      pubkey: and so on
     - name2:
-      - url: git@github.com:someone/somerepo.git
-      - branch: develop
-      - env: custom
-      - privkey_location: /location/on/master
-      - pubkey_location: /location/on/master
+      url: git@github.com:someone/somerepo.git
+      branch: develop
+      env: custom
+      privkey_location: /location/on/master
+      pubkey_location: /location/on/master
 ```
 Each of such parameter can be overridden in _pillar_ data that comes before _ext_pillar_:
 ```
 privgit:
   - name1:
-    - url: git@github.com:someone/somerepo.git
-    - branch: master  
-    - env: custom
-    - root: pillar
-    - privkey: |
-      some
-      sensitive data
-    - pubkey: and so on
+    url: git@github.com:someone/somerepo.git
+    branch: master  
+    env: custom
+    root: pillar
+    privkey: |
+    some
+    sensitive data
+    pubkey: and so on
   - name2:
-    - url: git@github.com:someone/somerepo.git
-    - branch: develop
-    - env: custom
-    - privkey_location: /location/on/master
-    - pubkey_location: /location/on/master
+    url: git@github.com:someone/somerepo.git
+    branch: develop
+    env: custom
+    privkey_location: /location/on/master
+    pubkey_location: /location/on/master
   - name2:
-    - url: git@github.com:someone/somerepo.git
-    - branch: notdevelop
+    url: git@github.com:someone/somerepo.git
+    branch: notdevelop
 ```
 Entries order does matter, last one is the most specific one. It doesn't affect further pillar merge strategies.
 They rely on salt settings only
