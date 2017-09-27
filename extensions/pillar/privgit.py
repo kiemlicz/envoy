@@ -1,14 +1,15 @@
+import collections
 import copy
 import logging
 import os
-import csv
+import re
+
 import salt.ext.six as six
 import salt.utils
 import salt.utils.dictupdate
 import salt.utils.gitfs
 from salt.exceptions import SaltConfigurationError
 from salt.utils.gitfs import GitPillar
-from StringIO import StringIO
 
 PER_REMOTE_OVERRIDES = ('env', 'root', 'ssl_verify', 'refspecs')
 PER_REMOTE_ONLY = ('name', 'mountpoint')
@@ -28,23 +29,53 @@ def __virtual__():
 
 def ext_pillar(minion_id, pillar, *args, **kwargs):
     '''
-    Custom git pillar that can be set up using previous pillars
-
+    Custom git pillar that can be set up in the runtime via other pillar data
+    Read more at envoy README.md file
     Use:
-    privgit_privkey_location
-    privgit_pubkey_location
+    privkey_location
+    pubkey_location
     to point to ssh keypair on master
     or 
-    privgit_privkey
-    privgit_pubkey
+    privkey
+    pubkey
     with raw content (instead of *_location)
     '''
 
     def fail(ex): raise ex
 
-    def from_pillar_then_opts_required(key):
-        fallback_opts = [e[key] for e in args if key in e]
-        return pillar[key] if key in pillar else fallback_opts[0] if len(fallback_opts) > 0 else fail(SaltConfigurationError("option: {} not found in configuration".format(key)))
+    def read_configuration(key, d):
+        return d[key] if key in d else fail(SaltConfigurationError("option: {} not found in configuration".format(key)))
+
+    def deflatten_pillar():
+        privgit_pattern = re.compile("privgit_\S+_\S+")
+        d = []
+        for e in (e for e in pillar if privgit_pattern.match(e) is not None):
+            value = pillar[e]
+            keys = e[8:].split('_', 1)
+            d.append({keys[0]: {
+                keys[1]: value
+            }})
+        return d
+
+    def merge(input_dict, output_dict):
+        for e in input_dict:
+            output_dict = salt.utils.dictupdate.merge(
+                output_dict,
+                e,
+                strategy='smart',
+                merge_lists=True
+            )
+        return output_dict
+
+    ext_name = 'privgit'
+    opt_url = 'url'
+    opt_branch = 'branch'
+    opt_env = 'env'
+    opt_root = 'root'
+    opt_privkey = 'privkey'
+    opt_pubkey = 'pubkey'
+    opt_privkey_loc = 'privkey_location'
+    opt_pubkey_loc = 'pubkey_location'
 
     opts = copy.deepcopy(__opts__)
     cachedir = __salt__['config.get']('cachedir')
@@ -56,38 +87,39 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
         'pillar_merge_lists',
         False
     )
+    repositories = collections.OrderedDict()
 
-    if "privgit_privkey" in pillar and "privgit_pubkey" in pillar:
-        parent = os.path.join(cachedir, 'privgit', minion_id)
-        priv_location = os.path.join(parent, 'priv.key')
-        pub_location = os.path.join(parent, 'pub.key')
-        __salt__['file.write'](priv_location, pillar['privgit_privkey'])
-        __salt__['file.write'](pub_location, pillar['privgit_pubkey'])
-        pillar['privgit_privkey_location'] = priv_location
-        pillar['privgit_pubkey_location'] = pub_location
+    repositories = merge(args, repositories)
+    repositories = merge(pillar[ext_name] if ext_name in pillar else [], repositories)
+    repositories = merge(deflatten_pillar(), repositories)
 
-    '''
-    In order to support multiple repositories it would be be better to declare them in pillar as list
-    Unfortunately if integrating salt with foreman it would be impossible to alter such list, due to: 
-    http://projects.theforeman.org/issues/4127
-    '''
-    privgit_branch_repo_csv_string = from_pillar_then_opts_required('privgit_url')
-    privgit_env = from_pillar_then_opts_required('privgit_env')
-    privgit_root = from_pillar_then_opts_required('privgit_root')
-    privgit_privkey = from_pillar_then_opts_required('privgit_privkey_location')
-    privgit_pubkey = from_pillar_then_opts_required('privgit_pubkey_location')
-
+    log.info("Using following repositories: {}".format(repositories))
     ret = {}
-    privgit_branch_repo_list = csv.reader(StringIO(privgit_branch_repo_csv_string), delimiter=';').next()
-    for privgit_repo in privgit_branch_repo_list:
-        try:
-            repo = [{'{}'.format(privgit_repo): [
-                {"env": privgit_env},
-                {"root": privgit_root},
-                {"privkey": privgit_privkey},
-                {"pubkey": privgit_pubkey}]}]
-            log.debug("generated private git configuration: {}".format(repo))
+    for repository_name, repository_opts in repositories.items():
+        if opt_privkey in repository_opts and opt_pubkey in repository_opts:
+            parent = os.path.join(cachedir, ext_name, minion_id, repository_name)
+            os.makedirs(parent)
+            priv_location = os.path.join(parent, 'priv.key')
+            pub_location = os.path.join(parent, 'pub.key')
+            __salt__['file.write'](priv_location, repository_opts[opt_privkey])
+            __salt__['file.write'](pub_location, repository_opts[opt_pubkey])
+            repository_opts[opt_privkey_loc] = priv_location
+            repository_opts[opt_pubkey_loc] = pub_location
 
+        privgit_url = read_configuration(opt_url, repository_opts)
+        privgit_branch = read_configuration(opt_branch, repository_opts)
+        privgit_env = read_configuration(opt_env, repository_opts)
+        privgit_root = read_configuration(opt_root, repository_opts)
+        privgit_privkey = read_configuration(opt_privkey_loc, repository_opts)
+        privgit_pubkey = read_configuration(opt_pubkey_loc, repository_opts)
+        repo = [{'{} {}'.format(privgit_branch, privgit_url): [
+            {"env": privgit_env},
+            {"root": privgit_root},
+            {"privkey": privgit_privkey},
+            {"pubkey": privgit_pubkey}]}]
+
+        log.debug("generated private git configuration: {}".format(repo))
+        try:
             ret = salt.utils.dictupdate.merge(
                 ret,
                 _privgit_clone(minion_id, opts, repo, merge_strategy, merge_lists),
@@ -95,7 +127,8 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
                 merge_lists=merge_lists
             )
         except Exception as e:
-            log.error("Fatal error in privgit, for: {}".format(privgit_repo), str(e))
+            log.error("Fatal error in privgit, for: {} {}, repository will be omitted".format(privgit_branch, privgit_url), str(e))
+
     return ret
 
 
