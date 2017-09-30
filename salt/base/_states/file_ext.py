@@ -56,7 +56,7 @@ def managed(name,
     In order to use this state you must pre-authorize file_ext in your google drive using file_ext_authorize
 
     This extensions requires (pip):
-     - requests-oauthlib
+     - google-auth
     Also set pillar_opts: True in master config file
     '''
 
