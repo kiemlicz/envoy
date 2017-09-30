@@ -98,9 +98,11 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
     for repository_name, repository_opts in repositories.items():
         if opt_privkey in repository_opts and opt_pubkey in repository_opts:
             parent = os.path.join(cachedir, ext_name, minion_id, repository_name)
-            os.makedirs(parent)
+            if not os.path.exists(parent):
+                os.makedirs(parent)
             priv_location = os.path.join(parent, 'priv.key')
             pub_location = os.path.join(parent, 'pub.key')
+            # will override if already exists
             __salt__['file.write'](priv_location, repository_opts[opt_privkey])
             __salt__['file.write'](pub_location, repository_opts[opt_pubkey])
             repository_opts[opt_privkey_loc] = priv_location
