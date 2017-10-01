@@ -1,6 +1,7 @@
 {% for username in pillar['users'].keys() %}
 {% set user = pillar['users'][username] %}
 
+{# either generates or copies key under given locations #}
 
 {% for key_spec in user.sec.ssh %}
 
@@ -10,10 +11,12 @@
 {% if (pillar[ssh_priv] is defined and pillar[ssh_pub] is defined) or
  (key_spec.privkey is defined and key_spec.pubkey is defined) %}
 {{ username }}_copy_{{ key_spec.name }}_ssh_priv:
-  file.managed:
+  file_ext.managed:
     - name: {{ key_spec.privkey_location }}
 {% if pillar[ssh_priv] is defined %}
     - contents_pillar: {{ ssh_priv }}
+{% elif key_spec.source is defined %}
+    - source: {{ key_spec.source }}
 {% else %}
     - contents: {{ key_spec.privkey | yaml_encode }}
 {% endif %}
@@ -23,7 +26,7 @@
     - require:
       - user: {{ username }}
 {{ username }}_copy_{{ key_spec.name }}_ssh_pub:
-  file.managed:
+  file_ext.managed:
     - name: {{ key_spec.pubkey_location }}
 {% if pillar[ssh_pub] is defined %}
     - contents_pillar: {{ ssh_pub }}
