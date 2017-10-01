@@ -8,10 +8,12 @@ import salt.config
 import salt.utils.locales
 from google.auth.transport.urllib3 import AuthorizedHttp
 from google.oauth2.credentials import Credentials
+from salt.exceptions import CommandExecutionError
+from salt.ext import six
 from salt.ext.six.moves.urllib.parse import urlparse
 
+log = logging.getLogger(__name__)
 
-# todo add recurse
 
 def managed(name,
             source=None,
@@ -73,54 +75,205 @@ def managed(name,
     if urlparse(source).scheme != 'gdrive':
         return delegate_to_file_managed(source, contents)
 
-    log = logging.getLogger(__name__)
     source = urlparse(source)
+    authorized_http = _gdrive_connection()
+    p = source.netloc + source.path
+    location = p.split(os.sep)
+
+    log.debug("Asserting path: {}".format(location))
+    contents = _download_file(authorized_http, _traverse_to(authorized_http, location))
+
+    log.info("Propagating contents to file.managed: {}".format(contents))
+    return delegate_to_file_managed(source=None, contents=contents)
+
+
+def recurse(name,
+            source,
+            keep_source=True,  # not yet supported in 2017.7
+            clean=False,
+            require=None,
+            user=None,
+            group=None,
+            dir_mode=None,
+            file_mode=None,
+            sym_mode=None,
+            template=None,
+            context=None,
+            replace=True,  # not yet supported in 2017.7
+            defaults=None,
+            include_empty=False,
+            backup='',
+            include_pat=None,
+            exclude_pat=None,
+            maxdepth=None,
+            keep_symlinks=False,
+            force_symlinks=False,
+            **kwargs):
+    '''
+    State that extends file.recurse with new source scheme (`gdrive://`)
+    If other than `gdrive://` scheme is used, execution is delegated to `file.recurse` state
+    '''
+    ret = {
+        'name': name,
+        'changes': {},
+        'pchanges': {},
+        'result': True,
+        'comment': {}  # { path: [comment, ...] }
+    }
+
+    def delegate_to_file_recurse():
+        return __states__['file.recurse'](name, source, clean, require, user, group, dir_mode, file_mode, sym_mode,
+                                          template, context, defaults, include_empty, backup, include_pat,
+                                          exclude_pat, maxdepth, keep_symlinks, force_symlinks, **kwargs)
+
+    def delegate_to_file_managed(path, contents, replace):
+        return __states__['file.managed'](path,
+                                          source=None,
+                                          user=user,
+                                          group=group,
+                                          mode='keep',
+                                          template=template,
+                                          makedirs=True,
+                                          replace=replace,
+                                          defaults=defaults,
+                                          backup=backup,
+                                          contents=contents,
+                                          **kwargs)
+
+    def add_comment(path, comment):
+        comments = ret['comment'].setdefault(path, [])
+        if isinstance(comment, six.string_types):
+            comments.append(comment)
+        else:
+            comments.extend(comment)
+
+    def merge_ret(path, _ret):
+        # Use the most "negative" result code (out of True, None, False)
+        if _ret['result'] is False or ret['result'] is True:
+            ret['result'] = _ret['result']
+
+        # Only include comments about files that changed
+        if _ret['result'] is not True and _ret['comment']:
+            add_comment(path, _ret['comment'])
+
+        if _ret['changes']:
+            ret['changes'][path] = _ret['changes']
+
+    def manage_file(path, replace):
+        if clean and os.path.exists(path) and os.path.isdir(path) and replace:
+            _ret = {'name': name, 'changes': {}, 'result': True, 'comment': ''}
+            if __opts__['test']:
+                _ret['comment'] = u'Replacing directory {0} with a ' \
+                                  u'file'.format(path)
+                _ret['result'] = None
+                merge_ret(path, _ret)
+                return
+            else:
+                __salt__['file.remove'](path)
+                _ret['changes'] = {'diff': 'Replaced directory with a '
+                                           'new file'}
+                merge_ret(path, _ret)
+
+        c = _download_file(authorized_http, _traverse_to(authorized_http, location))
+        _ret = delegate_to_file_managed(path, c, replace)
+        merge_ret(path, _ret)
+
+    def manage_directory(path):
+        _ret = __states__['file.directory']()
+        merge_ret(path, _ret)
+
+    source = salt.utils.locales.sdecode(source)
+    if urlparse(source).scheme != 'gdrive':
+        return delegate_to_file_recurse()
+
+    source = urlparse(source)
+    authorized_http = _gdrive_connection()
+    p = source.netloc + source.path
+    location = p.split(os.sep)
+    source_id = _traverse_to(authorized_http, location)
+    dir_hierarchy = _walk_dir(authorized_http, source_id)
+
+    def handle(file_list, absolute_dest_path):
+        manage_directory(absolute_dest_path)
+        for f in file_list:
+            p = os.path.join(absolute_dest_path, f['name'])
+            if isinstance(f, list):
+                handle(f, p)
+            else:
+                manage_file(p, replace)
+
+    handle(dir_hierarchy, name)
+    return ret
+
+
+def _walk_dir(auth_http, start_id):
+    return [(_walk_dir(auth_http, e['id']) if e['mimeType'] == 'application/vnd.google-apps.folder' else e) for e in
+            _list_children(auth_http, start_id)]
+
+
+def _traverse_to(auth_http, path_segment_list):
+    '''
+    Asserts that path_segment_list exists on the google drive
+
+    :return: id of file/folder traversed to (the last one in the path_segment_list)
+    '''
+
+    def go(parent_id, idx):
+        if idx >= len(path_segment_list):
+            return parent_id
+        next_name = path_segment_list[idx]
+        file_list = _list_children(auth_http, parent_id)
+        r = [e for e in file_list if e['name'] == next_name]
+        if len(r) > 0:
+            # don't care if name occurred in other pages or already multiple times
+            return go(r[0]['id'], idx + 1)
+        raise ValueError('Unable to find name: {}, under directory with id: {}'.format(next_name, parent_id))
+
+    if not path_segment_list:
+        return 'root'
+    else:
+        return go('root', 0)
+
+
+def _list_children(auth_http, parent_id):
+    def query(extra_params=None):
+        request_params = {
+            'q': "'{}' in parents".format(parent_id)
+        }
+        if extra_params is not None:
+            request_params.update(extra_params)
+        r = json.loads(
+            auth_http.request('GET', 'https://www.googleapis.com/drive/v3/files', fields=request_params).data)
+        _assert_incomplete_search(r)
+        return r
+
+    json_response = query()
+    ret_list = json_response['files']
+    while 'nextPageToken' in json_response:
+        log.debug("Fetching next page of files under id: {}".format(parent_id))
+        json_response = query({'pageToken': json_response['nextPageToken']})
+        ret_list.extend(json_response['files'])
+    return ret_list
+
+
+def _download_file(auth_http, file_id):
+    log.debug("Fetching file id: {}".format(file_id))
+    return auth_http.request('GET',
+                             'https://www.googleapis.com/drive/v3/files/{}?alt=media'.format(file_id)).data
+
+
+def _gdrive_connection():
     config = __salt__['config.get']('google_api')
     token_url = config['token_url']
     client_id = config['client_id']
     client_secret = config['client_secret']
     token = __salt__['pillar.get']("gdrive")
     log.debug("Token retrieved: {}".format(token))
-
     credentials = Credentials(token[u'access_token'], refresh_token=token[u'refresh_token'], token_uri=token_url,
                               client_id=client_id, client_secret=client_secret)
-    authorized_http = AuthorizedHttp(credentials)
+    return AuthorizedHttp(credentials)
 
-    path, file_name = os.path.split(source.netloc + source.path)
-    parts = path.split(os.sep)
-    log.debug("Asserting path: {} and filename: {}".format(parts, file_name))
 
-    def download_file(file_id):
-        log.debug("Fetching file: {} (id={})".format(file_name, file_id))
-        return authorized_http.request('GET', 'https://www.googleapis.com/drive/v3/files/{}?alt=media'.format(file_id)).data
-
-    def fetch_files(request_params):
-        return json.loads(
-            authorized_http.request('GET', 'https://www.googleapis.com/drive/v3/files', fields=request_params).data)
-
-    def traverse_to_file(parent_id, idx):
-        if idx > len(parts):
-            return download_file(parent_id)
-
-        next_name = parts[idx] if len(parts) > idx else file_name
-        request_params = {
-            'q': "'{}' in parents".format(parent_id)  # and mimeType = 'application/vnd.google-apps.folder'
-        }
-        json_response = fetch_files(request_params)
-        r = [e for e in json_response['files'] if e['name'] == next_name]
-        if len(r) > 0:
-            # don't care if name occurred in other pages or already multiple times
-            return traverse_to_file(r[0]['id'], idx + 1)
-        elif 'nextPageToken' in json_response:
-            while 'nextPageToken' in json_response:
-                log.debug("Fetching next page of files under id: {}".format(parent_id))
-                request_params['pageToken'] = json_response['nextPageToken']
-                json_response = fetch_files(request_params)
-                r = [e for e in json_response['files'] if e['name'] == next_name]
-                if len(r) > 0:
-                    return traverse_to_file(r[0]['id'], idx + 1)
-        raise ValueError('Unable to find name: {}, under directory with id: {}'.format(next_name, parent_id))
-
-    contents = traverse_to_file('root', 0)
-    log.info("Propagating contents to file.managed: {}".format(contents))
-    return delegate_to_file_managed(source=None, contents=contents)
+def _assert_incomplete_search(json_response):
+    if json_response['incompleteSearch']:
+        raise CommandExecutionError('google drive query ended due to incompleteSearch')
