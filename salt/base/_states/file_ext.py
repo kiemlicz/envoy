@@ -45,7 +45,6 @@ def managed(name,
             win_perms=None,
             win_deny_perms=None,
             win_inheritance=True,
-            mime_type='text/plain',
             **kwargs):
     '''
     State that extends file.managed with new source scheme (`gdrive://`)
@@ -93,10 +92,7 @@ def managed(name,
 
     def download_file(file_id):
         log.debug("Fetching file: {} (id={})".format(file_name, file_id))
-        f = authorized_http.request('GET', 'https://www.googleapis.com/drive/v3/files/{}/export'.format(file_id), fields={
-                                        'mimeType': mime_type
-                                    }).data
-        return f
+        return authorized_http.request('GET', 'https://www.googleapis.com/drive/v3/files/{}?alt=media'.format(file_id)).data
 
     def fetch_files(request_params):
         return json.loads(
