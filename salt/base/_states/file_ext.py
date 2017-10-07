@@ -131,7 +131,6 @@ def recurse(name,
                                           source=None,
                                           user=user,
                                           group=group,
-                                          mode='keep',
                                           template=template,
                                           makedirs=True,
                                           replace=replace,
@@ -139,6 +138,17 @@ def recurse(name,
                                           backup=backup,
                                           contents=contents,
                                           **kwargs)
+
+    def delegate_to_file_directory(path):
+        return __states__['file.directory'](path,
+                                            user=user,
+                                            group=group,
+                                            recurse=[],
+                                            dir_mode=dir_mode,
+                                            file_mode=file_mode,
+                                            makedirs=True,
+                                            clean=False,
+                                            require=None)
 
     def add_comment(path, comment):
         comments = ret['comment'].setdefault(path, [])
@@ -159,7 +169,7 @@ def recurse(name,
         if _ret['changes']:
             ret['changes'][path] = _ret['changes']
 
-    def manage_file(path, replace):
+    def manage_file(path, replace, fileid):
         if clean and os.path.exists(path) and os.path.isdir(path) and replace:
             _ret = {'name': name, 'changes': {}, 'result': True, 'comment': ''}
             if __opts__['test']:
@@ -174,12 +184,12 @@ def recurse(name,
                                            'new file'}
                 merge_ret(path, _ret)
 
-        c = _download_file(authorized_http, _traverse_to(authorized_http, location))
+        c = _download_file(authorized_http, fileid)
         _ret = delegate_to_file_managed(path, c, replace)
         merge_ret(path, _ret)
 
     def manage_directory(path):
-        _ret = __states__['file.directory']()
+        _ret = delegate_to_file_directory(path)
         merge_ret(path, _ret)
 
     source = salt.utils.locales.sdecode(source)
@@ -189,25 +199,30 @@ def recurse(name,
     source = urlparse(source)
     authorized_http = _gdrive_connection()
     p = source.netloc + source.path
-    location = p.split(os.sep)
+    location = p.strip(os.sep).split(os.sep)
     source_id = _traverse_to(authorized_http, location)
     dir_hierarchy = _walk_dir(authorized_http, source_id)
+    log.debug("google drive walk result: {}".format(dir_hierarchy))
 
     def handle(file_list, absolute_dest_path):
         manage_directory(absolute_dest_path)
         for f in file_list:
-            p = os.path.join(absolute_dest_path, f['name'])
-            if isinstance(f, list):
-                handle(f, p)
+            dest = os.path.join(absolute_dest_path, f['name'])
+            if 'content' in f:
+                handle(f['content'], dest)
             else:
-                manage_file(p, replace)
+                manage_file(dest, replace, f['id'])
 
     handle(dir_hierarchy, name)
     return ret
 
 
 def _walk_dir(auth_http, start_id):
-    return [(_walk_dir(auth_http, e['id']) if e['mimeType'] == 'application/vnd.google-apps.folder' else e) for e in
+    def merge(indict):
+        indict.update({'content': _walk_dir(auth_http, indict['id'])})
+        return indict
+
+    return [(merge(e) if e['mimeType'] == 'application/vnd.google-apps.folder' else e) for e in
             _list_children(auth_http, start_id)]
 
 
