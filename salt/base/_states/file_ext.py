@@ -75,11 +75,8 @@ def managed(name,
     if urlparse(source).scheme != 'gdrive':
         return delegate_to_file_managed(source, contents)
 
-    source = urlparse(source)
     authorized_http = _gdrive_connection()
-    p = source.netloc + source.path
-    location = p.split(os.sep)
-
+    location = _source_to_gdrive_location_list(source)
     log.debug("Asserting path: {}".format(location))
     contents = _download_file(authorized_http, _traverse_to(authorized_http, location))
 
@@ -185,8 +182,16 @@ def recurse(name,
                                            'new file'}
                 merge_ret(path, _ret)
 
-        c = _download_file(authorized_http, fileid)
-        _ret = delegate_to_file_managed(path, c, replace)
+        try:
+            c = _export_file(authorized_http, fileid)
+            _ret = delegate_to_file_managed(path, c, replace)
+        except Exception as e:
+            _ret = {
+                'name': name,
+                'changes': {},
+                'result': False,
+                'comment': str(e)
+            }
         merge_ret(path, _ret)
 
     def manage_directory(path):
@@ -197,10 +202,8 @@ def recurse(name,
     if urlparse(source).scheme != 'gdrive':
         return delegate_to_file_recurse()
 
-    source = urlparse(source)
     authorized_http = _gdrive_connection()
-    p = source.netloc + source.path
-    location = p.strip(os.sep).split(os.sep)
+    location = _source_to_gdrive_location_list(source)
     source_id = _traverse_to(authorized_http, location)
     dir_hierarchy = _walk_dir(authorized_http, source_id)
     log.debug("google drive walk result: {}".format(dir_hierarchy))
@@ -216,6 +219,12 @@ def recurse(name,
 
     handle(dir_hierarchy, name)
     return ret
+
+
+def _source_to_gdrive_location_list(source):
+    source = urlparse(source)
+    p = source.netloc + source.path
+    return p.strip(os.sep).split(os.sep)
 
 
 def _walk_dir(auth_http, start_id):
@@ -272,10 +281,21 @@ def _list_children(auth_http, parent_id):
     return ret_list
 
 
+def _export_file(auth_http, file_id, mime_type='text/plain'):
+    log.debug("Exporting file id: {}".format(file_id))
+    return _do_get(auth_http, 'https://www.googleapis.com/drive/v3/files/{}/export'.format(file_id), {'mimeType': mime_type})
+
+
 def _download_file(auth_http, file_id):
-    log.debug("Fetching file id: {}".format(file_id))
-    return auth_http.request('GET',
-                             'https://www.googleapis.com/drive/v3/files/{}?alt=media'.format(file_id)).data
+    log.debug("Downloading file id: {}".format(file_id))
+    return _do_get(auth_http, 'https://www.googleapis.com/drive/v3/files/{}?alt=media'.format(file_id))
+
+
+def _do_get(auth_http, url, params={}):
+    response = auth_http.request('GET', url, fields=params)
+    if response.status >= 400:
+        raise CommandExecutionError('Unable to download file (url: {}), reason: {}'.format(url, response.data))
+    return response.data
 
 
 def _gdrive_connection():
@@ -285,8 +305,15 @@ def _gdrive_connection():
     client_secret = config['client_secret']
     token = __salt__['pillar.get']("gdrive")
     log.debug("Token retrieved: {}".format(token))
-    credentials = Credentials(token[u'access_token'], refresh_token=token[u'refresh_token'], token_uri=token_url,
-                              client_id=client_id, client_secret=client_secret)
+
+    if not isinstance(token, dict):
+        raise CommandExecutionError('Improper token format, does the google token exist?')
+
+    credentials = Credentials(token[u'access_token'],
+                              refresh_token=token[u'refresh_token'],
+                              token_uri=token_url,
+                              client_id=client_id,
+                              client_secret=client_secret)
     return AuthorizedHttp(credentials)
 
 
