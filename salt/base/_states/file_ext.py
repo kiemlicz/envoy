@@ -78,7 +78,7 @@ def managed(name,
     authorized_http = _gdrive_connection()
     location = _source_to_gdrive_location_list(source)
     log.debug("Asserting path: {}".format(location))
-    contents = _download_file(authorized_http, _traverse_to(authorized_http, location))
+    contents = _get_file(authorized_http, _traverse_to(authorized_http, location))
 
     log.info("Propagating contents to file.managed: {}".format(contents))
     return delegate_to_file_managed(source=None, contents=contents)
@@ -167,7 +167,7 @@ def recurse(name,
         if _ret['changes']:
             ret['changes'][path] = _ret['changes']
 
-    def manage_file(path, replace, fileid):
+    def manage_file(path, replace, file_meta):
         if clean and os.path.exists(path) and os.path.isdir(path) and replace:
             _ret = {'name': name, 'changes': {}, 'result': True, 'comment': ''}
             if __opts__['test']:
@@ -183,7 +183,7 @@ def recurse(name,
                 merge_ret(path, _ret)
 
         try:
-            c = _export_file(authorized_http, fileid)
+            c = _get_file(authorized_http, file_meta)
             _ret = delegate_to_file_managed(path, c, replace)
         except Exception as e:
             _ret = {
@@ -204,8 +204,8 @@ def recurse(name,
 
     authorized_http = _gdrive_connection()
     location = _source_to_gdrive_location_list(source)
-    source_id = _traverse_to(authorized_http, location)
-    dir_hierarchy = _walk_dir(authorized_http, source_id)
+    source_meta = _traverse_to(authorized_http, location)
+    dir_hierarchy = _walk_dir(authorized_http, source_meta)
     log.debug("google drive walk result: {}".format(dir_hierarchy))
 
     def handle(file_list, absolute_dest_path):
@@ -215,7 +215,7 @@ def recurse(name,
             if 'content' in f:
                 handle(f['content'], dest)
             else:
-                manage_file(dest, replace, f['id'])
+                manage_file(dest, replace, f)
 
     handle(dir_hierarchy, name)
     return ret
@@ -227,43 +227,43 @@ def _source_to_gdrive_location_list(source):
     return p.strip(os.sep).split(os.sep)
 
 
-def _walk_dir(auth_http, start_id):
+def _walk_dir(auth_http, start_meta):
     def merge(indict):
-        indict.update({'content': _walk_dir(auth_http, indict['id'])})
+        indict.update({'content': _walk_dir(auth_http, indict)})
         return indict
 
     return [(merge(e) if e['mimeType'] == 'application/vnd.google-apps.folder' else e) for e in
-            _list_children(auth_http, start_id)]
+            _list_children(auth_http, start_meta)]
 
 
 def _traverse_to(auth_http, path_segment_list):
     '''
     Asserts that path_segment_list exists on the google drive
 
-    :return: id of file/folder traversed to (the last one in the path_segment_list)
+    :return: full file_meta of file/folder traversed to (the last one in the path_segment_list)
     '''
 
-    def go(parent_id, idx):
+    def go(parent_meta, idx):
         if idx >= len(path_segment_list):
-            return parent_id
+            return parent_meta
         next_name = path_segment_list[idx]
-        file_list = _list_children(auth_http, parent_id)
+        file_list = _list_children(auth_http, parent_meta)
         r = [e for e in file_list if e['name'] == next_name]
         if len(r) > 0:
             # don't care if name occurred in other pages or already multiple times
-            return go(r[0]['id'], idx + 1)
-        raise ValueError('Unable to find name: {}, under directory with id: {}'.format(next_name, parent_id))
+            return go(r[0], idx + 1)
+        raise ValueError('Unable to find name: {}, under directory with meta: {}'.format(next_name, parent_meta))
 
     if not path_segment_list:
-        return 'root'
+        return {'id': 'root', 'mimeType': ''}
     else:
-        return go('root', 0)
+        return go({'id': 'root'}, 0)
 
 
-def _list_children(auth_http, parent_id):
+def _list_children(auth_http, parent_meta):
     def query(extra_params=None):
         request_params = {
-            'q': "'{}' in parents".format(parent_id)
+            'q': "'{}' in parents".format(parent_meta['id'])
         }
         if extra_params is not None:
             request_params.update(extra_params)
@@ -275,27 +275,31 @@ def _list_children(auth_http, parent_id):
     json_response = query()
     ret_list = json_response['files']
     while 'nextPageToken' in json_response:
-        log.debug("Fetching next page of files under id: {}".format(parent_id))
+        log.debug("Fetching next page of files under: {}".format(parent_meta))
         json_response = query({'pageToken': json_response['nextPageToken']})
         ret_list.extend(json_response['files'])
     return ret_list
 
 
-def _export_file(auth_http, file_id, mime_type='text/plain'):
-    log.debug("Exporting file id: {}".format(file_id))
-    return _do_get(auth_http, 'https://www.googleapis.com/drive/v3/files/{}/export'.format(file_id), {'mimeType': mime_type})
+def _get_file(auth_http, file_meta, mime_type='text/plain'):
+    def export_file(file_id, mime_type):
+        log.debug("Exporting file id: {}".format(file_id))
+        return _do_get('https://www.googleapis.com/drive/v3/files/{}/export'.format(file_id), {'mimeType': mime_type})
 
+    def download_file(file_id):
+        log.debug("Downloading file id: {}".format(file_id))
+        return _do_get('https://www.googleapis.com/drive/v3/files/{}?alt=media'.format(file_id))
 
-def _download_file(auth_http, file_id):
-    log.debug("Downloading file id: {}".format(file_id))
-    return _do_get(auth_http, 'https://www.googleapis.com/drive/v3/files/{}?alt=media'.format(file_id))
+    def _do_get(url, params={}):
+        response = auth_http.request('GET', url, fields=params)
+        if response.status >= 400:
+            raise CommandExecutionError('Unable to download file (url: {}), reason: {}'.format(url, response.data))
+        return response.data
 
-
-def _do_get(auth_http, url, params={}):
-    response = auth_http.request('GET', url, fields=params)
-    if response.status >= 400:
-        raise CommandExecutionError('Unable to download file (url: {}), reason: {}'.format(url, response.data))
-    return response.data
+    if file_meta['mimeType'] == 'application/vnd.google-apps.document':
+        return export_file(file_meta['id'], mime_type)
+    else:
+        return download_file(file_meta['id'])
 
 
 def _gdrive_connection():
