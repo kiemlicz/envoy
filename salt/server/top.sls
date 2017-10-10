@@ -4,4 +4,5 @@ server:
     - samba
     - docker
     - deluge
+    - kannel
     - dashboard
