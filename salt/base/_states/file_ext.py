@@ -3,6 +3,7 @@ from __future__ import print_function
 import json
 import logging
 import os
+import posixpath
 
 import salt.config
 import salt.utils.locales
@@ -202,10 +203,13 @@ def recurse(name,
     if urlparse(source).scheme != 'gdrive':
         return delegate_to_file_recurse()
 
+    if not source.endswith(posixpath.sep):
+        source = source + posixpath.sep
+
     authorized_http = _gdrive_connection()
     location = _source_to_gdrive_location_list(source)
     source_meta = _traverse_to(authorized_http, location)
-    dir_hierarchy = _walk_dir(authorized_http, source_meta)
+    dir_hierarchy = _walk_dir(authorized_http, source_meta, include_pat, exclude_pat, source, source)
     log.debug("google drive walk result: {}".format(dir_hierarchy))
 
     def handle(file_list, absolute_dest_path):
@@ -227,13 +231,20 @@ def _source_to_gdrive_location_list(source):
     return p.strip(os.sep).split(os.sep)
 
 
-def _walk_dir(auth_http, start_meta):
-    def merge(indict):
-        indict.update({'content': _walk_dir(auth_http, indict)})
+def _walk_dir(auth_http, start_meta, include_pat, exclude_pat, current_path, source_path):
+    def merge(indict, cpath):
+        indict.update({'content': loop(indict, os.path.join(cpath, indict['name']))})
         return indict
 
-    return [(merge(e) if e['mimeType'] == 'application/vnd.google-apps.folder' else e) for e in
-            _list_children(auth_http, start_meta)]
+    def loop(current_file_meta, cpath):
+        def f(file_meta):
+            relpath = posixpath.relpath(os.path.join(cpath, file_meta['name']), source_path)
+            return salt.utils.check_include_exclude(relpath, include_pat, exclude_pat)
+
+        return [(merge(e, cpath) if e['mimeType'] == 'application/vnd.google-apps.folder' else e) for e in
+                filter(f, _list_children(auth_http, current_file_meta))]
+
+    return loop(start_meta, current_path)
 
 
 def _traverse_to(auth_http, path_segment_list):
