@@ -4,7 +4,7 @@
 {% if user.backup is defined %}
 
 {{ username }}_backup:
-  file.managed:
+  file_ext.managed:
     - name: {{ user.backup.script_location }}
     - source: salt://users/backup.sh
     - user: {{ username }}

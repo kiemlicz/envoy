@@ -1,4 +1,4 @@
-{% import_yaml "defaults.yaml" as defaults %}
+{# {% import_yaml "defaults.yaml" as defaults %} #}
 
 {% set os = salt['grains.get']('lsb_distrib_id') %}
 {% set dist_codename = salt['grains.get']('lsb_distrib_codename') %}
@@ -7,9 +7,12 @@
     'default': {
         'file': '/etc/apt/sources.list.d/docker.list',
         'repo_entries': ["deb [arch=amd64] https://download.docker.com/linux/" + os.lower() + " " + dist_codename + " stable"],
+        'key_url': "https://download.docker.com/linux/" + os.lower() + "/gpg",
+        'pkg_name': "docker-ce",
+        'service_name': "docker",
     },
 }, merge=salt['grains.filter_by']({
     'sid': {
         'repo_entries': ["deb [arch=amd64] https://download.docker.com/linux/" + os.lower() + " stretch stable edge"],
     }
-}, grain='oscodename', merge=salt['pillar.get']('docker', default=defaults.docker, merge=True))) %}
+}, grain='oscodename', merge=salt['pillar.get']('docker'))) %}

@@ -1,5 +1,6 @@
-{% import_yaml "defaults.yaml" as defaults %}
+{# {% import_yaml "defaults.yaml" as defaults %} #}
 
+{% set version_major = '9' %}
 {% set java = salt['grains.filter_by']({
     'default': {
         'repo_entries': [
@@ -10,7 +11,13 @@
         'exports_file': '/etc/zsh/zshrc',
         'environ_variable': 'JAVA_HOME',
         'path_inside': 'bin',
-        'generic_link': '$(readlink -f /usr/bin/java | sed "s:jre/bin/java::")'
+        'generic_link': '$(readlink -f /usr/bin/java | sed "s:jre/bin/java::")',
+        'keyid': "EEA14886",
+        'keyserver': "hkp://keyserver.ubuntu.com:80",
+        'pkg_name': "oracle-java" + version_major + "-installer",
+        'ext_pkgs': [
+          "oracle-java" + version_major + "-unlimited-jce-policy"
+        ]
     },
 }, merge=salt['grains.filter_by']({
    'zesty': {
@@ -19,4 +26,4 @@
            "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu zesty main"
          ],
    },
-}, grain='oscodename', merge=salt['pillar.get']('java', default=defaults.java, merge=True))) %}
+}, grain='oscodename', merge=salt['pillar.get']('java'))) %}

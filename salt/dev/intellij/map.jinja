@@ -1,4 +1,4 @@
-{% import_yaml "defaults.yaml" as defaults %}
+{# {% import_yaml "defaults.yaml" as defaults %} #}
 
 {% set intellij = salt['grains.filter_by']({
     'default': {
@@ -7,7 +7,8 @@
         'generic_link': '/opt/default-idea',
         'owner': 'root',
         'owner_link_location': '/root/bin/idea',
+        'url': "https://download.jetbrains.com/idea/ideaIC-2017.2.5.tar.gz"
     },
     'Windows': {
     },
-}, merge=salt['pillar.get']('intellij', default=defaults.intellij, merge=True)) %}
+}, merge=salt['pillar.get']('intellij')) %}
