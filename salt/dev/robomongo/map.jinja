@@ -1,6 +1,6 @@
-{% import_yaml "defaults.yaml" as defaults %}
+{# {% import_yaml "defaults.yaml" as defaults %} #}
 
-{% set url = defaults.robomongo.url %}
+{% set url = "https://download.robomongo.org/1.1.1/linux/robo3t-1.1.1-linux-x86_64-c93c6b0.tar.gz" %}
 {% set robomongo = salt['grains.filter_by']({
     'default': {
         'download_url': url,
@@ -11,4 +11,4 @@
     },
     'Windows': {
     },
-}, merge=salt['pillar.get']('robomongo', default=defaults.robomongo, merge=True)) %}
+}, merge=salt['pillar.get']('robomongo')) %}
