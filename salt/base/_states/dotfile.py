@@ -22,7 +22,7 @@ def _fail(ret, msg, comments=None):
 
 
 def managed(name, home_dir, username,
-           branch, target, identity,
+           branch, target, identity=None,
            render=False, override=False,
            onlyif=False, unless=False, saltenv='base'):
     '''
