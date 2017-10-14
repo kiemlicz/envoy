@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import json
 import logging
 import os
@@ -7,13 +5,23 @@ import posixpath
 
 import salt.config
 import salt.utils.locales
-from google.auth.transport.urllib3 import AuthorizedHttp
-from google.oauth2.credentials import Credentials
 from salt.exceptions import CommandExecutionError
 from salt.ext import six
 from salt.ext.six.moves.urllib.parse import urlparse
 
+try:
+    from google.auth.transport.urllib3 import AuthorizedHttp
+    from google.oauth2.credentials import Credentials
+
+    HAS_GOOGLE_AUTH = True
+except ImportError:
+    HAS_GOOGLE_AUTH = False
+
 log = logging.getLogger(__name__)
+
+
+def __virtual__():
+    return True if HAS_GOOGLE_AUTH else (False, "Cannot load file.ext, install: google-auth library")
 
 
 def managed(name,
