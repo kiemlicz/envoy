@@ -35,7 +35,7 @@
     - dayweek: {{ user.backup.dayweek }}
 {% endif %}
     - require:
-      - file: {{ user.backup.script_location }}
+      - file_ext: {{ user.backup.script_location }}
 
 {% endif %}
 
