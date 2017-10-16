@@ -3,9 +3,9 @@
 {% set owncloud = salt['grains.filter_by']({
     'Debian': {
         'repo_entries': [
-            "deb http://download.owncloud.org/download/repositories/stable/Debian_8.0/ /"
+            "deb http://download.owncloud.org/download/repositories/production/Debian_9.0/ /"
         ],
-        'key_url': 'https://download.owncloud.org/download/repositories/stable/Debian_8.0/Release.key',
+        'key_url': 'https://download.owncloud.org/download/repositories/production/Debian_9.0/Release.key',
         'file': '/etc/apt/sources.list.d/owncloud.list'
     },
     'Windows': {
@@ -32,4 +32,10 @@
         ],
         'key_url': 'https://download.owncloud.org/download/repositories/stable/Ubuntu_17.04/Release.key',
     },
+    'jessie': {
+         'repo_entries': [
+              "deb http://download.owncloud.org/download/repositories/production/Debian_8.0/ /"
+         ],
+         'key_url': 'https://download.owncloud.org/download/repositories/production/Debian_8.0/Release.key',
+    }
 }, grain='oscodename', merge=salt['pillar.get']('owncloud', default=defaults.owncloud, merge=True))) %}
