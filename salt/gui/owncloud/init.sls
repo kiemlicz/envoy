@@ -1,2 +1,3 @@
 include:
+  - pkgs
   - owncloud.client
