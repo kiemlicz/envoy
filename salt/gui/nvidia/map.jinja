@@ -1,6 +1,7 @@
+{% set version = salt['cmd.shell']("uname -r|sed 's/[^-]*-[^-]*-//'") %}
 {% set nvidia = salt['grains.filter_by']({
     'default': {
-      'pkgs': ["nvidia-driver", "linux-headers-" + salt['cmd.run']("uname -r|sed 's,[^-]*-[^-]*-,,'")]
+      'pkgs': ["nvidia-driver", "linux-headers-" + version]
     },
     'Windows': {
       'pkgs': []
