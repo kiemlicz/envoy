@@ -1,6 +1,7 @@
 {% set pkgs = salt['grains.filter_by']({
     'Debian': {
-        'names': [
+        'pip_packages': ["google-auth"],
+        'os_packages': [
            "sudo",
            "apt-transport-https",
            "man",
@@ -13,7 +14,8 @@
         ],
     },
     'Windows': {
-        'names': [
+        'pip_packages': ["google-auth"],
+        'os_packages': [
            "git"
         ],
     }
