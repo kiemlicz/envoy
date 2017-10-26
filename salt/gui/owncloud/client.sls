@@ -8,7 +8,7 @@ owncloud:
     - key_url: {{ owncloud.key_url }}
     - refresh_db: True
     - require:
-      - pkg: packages
+      - pkg: os_packages
     - require_in:
       - pkg: {{ owncloud.client.pkg_name }}
 {% endif %}
