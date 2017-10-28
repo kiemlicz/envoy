@@ -37,10 +37,10 @@ mongo_in_docker_prerequisites:
     - pkgs: {{ mongodb_docker.pip_pkgs }}
     - reload_modules: True
     - require_in:
-      - dockerng: {{ mongodb_docker.name }}
+      - docker_container: {{ mongodb_docker.name }}
 
 mongodb:
-  dockerng.running:
+  docker_container.running:
     - name: {{ mongodb_docker.name }}
     - image: {{ mongodb_docker.image }}
     {% for host in mongodb_docker.bind_addresses %}
