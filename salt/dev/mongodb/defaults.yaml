@@ -1,15 +1,2 @@
 mongodb:
   setup_type: repo # [repo, docker]
-  settings:
-    port: 27017
-    interfaces:
-      - 127.0.0.1
-  repo:
-    keyserver: hkp://keyserver.ubuntu.com:80
-    keyid: 0C49F3730359A14518585931BC711F9BA15703C6
-    pkg_name: mongodb-org
-    service_name: mongod
-  docker:
-    name: mongo
-    image: 'mongo:latest'
-    container_port: 27017
