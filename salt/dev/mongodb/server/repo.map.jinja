@@ -1,0 +1,18 @@
+{% set mongodb = salt['grains.filter_by']({
+    'Debian': {
+        'repo_entries': [
+          "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.4 main"
+        ],
+        'keyserver': "hkp://keyserver.ubuntu.com:80",
+        'keyid': "0C49F3730359A14518585931BC711F9BA15703C6",
+        'pkg_name': "mongodb-org",
+        'file': '/etc/apt/sources.list.d/mongodb-org-3.4.list',
+        'service_name': "mongod",
+    },
+}, merge=salt['grains.filter_by']({
+       'zesty': {
+         'repo_entries': [
+             "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse"
+         ],
+       },
+}, grain='oscodename', merge=salt['pillar.get']('mongodb:repo'))) %}
