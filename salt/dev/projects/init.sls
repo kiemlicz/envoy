@@ -2,6 +2,7 @@ include:
   - users
 {% if pillar.get('users', {}) %}
   - projects.clone
+  - projects.setup
 {% else %}
 empty-projects-notification:
   test.show_notification:
