@@ -1,12 +1,13 @@
-{% import_yaml "spotify/defaults.yaml" as defaults %}
-
 {% set spotify = salt['grains.filter_by']({
     'default': {
         'repo_entries': [
             "deb http://repository.spotify.com stable non-free"
         ],
         'file': '/etc/apt/sources.list.d/spotify.list',
-        'required_pkgs_urls': {}
+        'required_pkgs_urls': {},
+        'pkg_name': "spotify-client",
+        'keyserver': "hkp://keyserver.ubuntu.com:80",
+        'keyid': "BBEBDCB318AD50EC6865090613B00F1FD2C19886",
     },
 }, merge=salt['grains.filter_by']({
     'sid': {
@@ -25,4 +26,4 @@
           "libssl1.0.0": "http://ftp.de.debian.org/debian/pool/main/o/openssl/libssl1.0.0_1.0.1t-1+deb8u6_amd64.deb"
         }
     }
-}, grain='oscodename', merge=salt['pillar.get']('spotify', default=defaults.spotify, merge=True))) %}
+}, grain='oscodename', merge=salt['pillar.get']('spotify'))) %}
