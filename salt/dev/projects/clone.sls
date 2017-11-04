@@ -3,9 +3,7 @@
 
 {% for project in user.projects %}
 
-
-{% if "git" in project.url %}
-{{ username }}_git_clone_{{ project.url }}:
+{{ username }}_project_clone_{{ project.url }}:
   git.latest:
     - name: {{ project.url }}
     - user: {{ username }}
@@ -13,42 +11,13 @@
 {% if project.identity is defined %}
     - identity: {{ project.identity }}
 {% endif %}
+    - branch: {{ project.branch|default('master') }}
     - require:
       - user: {{ username }}
-{% if project.cmds is defined %}
-  cmd.wait:
-    - names: {{ project.cmds }}
-    - runas: {{ username }}
-    - cwd: {{ project.target }}
-    - watch:
-      - git: {{ project.url }}
-{% endif %}
+{% for req in project.requisites|default([]) %}
+      - sls: {{ req }}
+{% endfor %}
 
-{% elif "hg" in project.url %}
-{{ username }}_hg_clone_{{ project.url }}:
-  hg.latest:
-    - name: {{ project.url }}
-    - user: {{ username }}
-    - target: {{ project.target }}
-{% if project.identity is defined %}
-    - identity: {{ project.identity }}
-{% else %}
-    - opts: --insecure
-{% endif %}
-    - require:
-      - user: {{ username }}
-{% if project.cmds is defined %}
-  cmd.wait:
-    - names: {{ project.cmds }}
-    - runas: {{ username }}
-    - cwd: {{ project.target }}
-    - watch:
-      - git: {{ project.url }}
-{% endif %}
-{% endif %}
-
-#todo switch to branch
-#todo copy custom files
 
 {% endfor %}
 

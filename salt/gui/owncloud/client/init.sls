@@ -1,4 +1,4 @@
-{% from "owncloud/map.jinja" import owncloud with context %}
+{% from "owncloud/client/client.map.jinja" import owncloud with context %}
 
 owncloud:
 {% if grains['os'] != 'Windows' %}
@@ -10,10 +10,10 @@ owncloud:
     - require:
       - pkg: os_packages
     - require_in:
-      - pkg: {{ owncloud.client.pkg_name }}
+      - pkg: {{ owncloud.pkg_name }}
 {% endif %}
   pkg.latest:
-    - name: {{ owncloud.client.pkg_name }}
+    - name: {{ owncloud.pkg_name }}
     - refresh: True
 
 #further config via dotfiles

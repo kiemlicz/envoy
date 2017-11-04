@@ -1,4 +1,4 @@
-{% import_yaml "owncloud/defaults.yaml" as defaults %}
+{# https://download.owncloud.org/download/repositories/stable/owncloud/ #}
 
 {% set owncloud = salt['grains.filter_by']({
     'Debian': {
@@ -6,12 +6,11 @@
             "deb http://download.owncloud.org/download/repositories/production/Debian_9.0/ /"
         ],
         'key_url': 'https://download.owncloud.org/download/repositories/production/Debian_9.0/Release.key',
-        'file': '/etc/apt/sources.list.d/owncloud.list'
+        'file': '/etc/apt/sources.list.d/owncloud.list',
+        'pkg_name': "owncloud-client",
     },
     'Windows': {
-        'client': {
-            'pkg_name': 'owncloud',
-        }
+        'pkg_name': 'owncloud',
     }
 }, merge=salt['grains.filter_by']({
     'yakkety': {
@@ -38,4 +37,4 @@
          ],
          'key_url': 'https://download.owncloud.org/download/repositories/production/Debian_8.0/Release.key',
     }
-}, grain='oscodename', merge=salt['pillar.get']('owncloud', default=defaults.owncloud, merge=True))) %}
+}, grain='oscodename', merge=salt['pillar.get']('owncloud'))) %}
