@@ -11,10 +11,12 @@
       - sls: mounts
       - sls: hosts
       - sls: pkgs
+{% if user.groups is defined %}
   group.present:
     - names: {{ user.groups }}
     - addusers:
       - {{ username }}
+{% endif %}
 {{ username }}_setup_directories:
   file.directory:
     - user: {{ username }}
@@ -25,13 +27,13 @@
     - require:
       - user: {{ username }}
 
-{% if user.git.global_config is defined %}
+{% if user.git is defined %}
 #https://github.com/saltstack/salt/issues/19869
 {{ username }}_no_home_workaround:
   environ.setenv:
     - name: HOME
     - value: {{ user.home_dir }}
-{% for k,v in user.git.global_config.items() %}
+{% for k,v in user.git.items() %}
 git_global_config_{{ username }}_{{ k }}:
   git.config_set:
     - name: {{ k }}
@@ -43,13 +45,13 @@ git_global_config_{{ username }}_{{ k }}:
 {% endfor %}
 {% endif %}
 
+{% if user.known_hosts is defined %}
 {{ username }}_setup_ssh_known_hosts:
   ssh_known_hosts.present:
     - names: {{ user.known_hosts }}
     - user: {{ username }}
     - require:
       - user: {{ username }}
-
-#todo setup backup policy
+{% endif %}
 
 {% endfor %}

@@ -91,9 +91,8 @@ users:
       post_cmds: 
         - "fc-cache -vf ~/.fonts"      
     git:
-      global_config:
-        user.name: username for git
-        user.email: mail for git
+      user.name: username for git
+      user.email: mail for git
     projects:
       - url: url to clone.git
         target: {{ home_dir }}/some/path

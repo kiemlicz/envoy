@@ -17,11 +17,11 @@
     - saltenv: {{ saltenv }}
 #todo fallback location = home
 {% if user.dotfile.post_cmds is defined %}
-  cmd.wait:
+  cmd.run:
     - names: {{ user.dotfile.post_cmds }}
     - runas: {{ username }}
     - cwd: {{ user.dotfile.root }}
-    - watch:
+    - onchange:
       - dotfile: {{ user.dotfile.repo }}
 {% endif %}
 

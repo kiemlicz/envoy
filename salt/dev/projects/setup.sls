@@ -1,7 +1,7 @@
 {% for username in pillar['users'].keys() %}
 {% set user = pillar['users'][username] %}
 
-{% for project in user.projects if project.cmds is defined %}
+{% for project in user.projects|default([]) if project.cmds is defined %}
 
 {{ username }}_project_{{ project.url }}_setup:
   cmd.run:
@@ -13,7 +13,7 @@
 
 {% endfor %}
 
-{% for project in user.projects if project.configs is defined %}
+{% for project in user.projects|default([]) if project.configs is defined %}
 {% for config in project.configs %}
 
 {{ username }}_project_{{ project.url }}_config_{{ config.name }}:
