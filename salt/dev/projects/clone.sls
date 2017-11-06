@@ -1,7 +1,7 @@
 {% for username in pillar['users'].keys() %}
 {% set user = pillar['users'][username] %}
 
-{% for project in user.projects %}
+{% for project in user.projects|default([]) %}
 
 {{ username }}_project_clone_{{ project.url }}:
   git.latest:
