@@ -27,14 +27,11 @@
     - force_fetch: True
     - require:
       - user: {{ username }}
-  cmd.wait:
+  cmd.run:
   # doesn't duplicate line appended to .zshrc
     - name: yes | {{ user.tools.fzf.target }}/install
     - runas: {{ username }}
-    - require:
-      - user: {{ username }}
-      - git: {{ username }}_fzf
-    - watch:
+    - onchange:
       - git: {{ username }}_fzf
 
 {{ username }}_powerline_requirements:

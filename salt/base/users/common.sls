@@ -11,10 +11,12 @@
       - sls: mounts
       - sls: hosts
       - sls: pkgs
+{% if user.groups is defined %}
   group.present:
     - names: {{ user.groups }}
     - addusers:
       - {{ username }}
+{% endif %}
 {{ username }}_setup_directories:
   file.directory:
     - user: {{ username }}
