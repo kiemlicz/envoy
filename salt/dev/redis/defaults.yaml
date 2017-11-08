@@ -1,0 +1,2 @@
+redis:
+  setup_type: single

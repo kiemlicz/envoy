@@ -1,5 +1,3 @@
-{% set redis = salt['grains.filter_by']({
-    'default': {
-        'pkg_name': 'redis-server',
-    },
-}, merge=salt['pillar.get']('redis')) %}
+{% import_yaml "redis/defaults.yaml" as defaults %}
+
+{% set setup_type = salt['pillar.get']('redis:setup_type', default=defaults.redis.setup_type) %}
