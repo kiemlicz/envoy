@@ -1,0 +1,15 @@
+{% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces', default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
+{% set interface = salt['pillar.get']('redis:settings:interfaces', default=foreman_discovered_interfaces)|first %}
+{% set port = salt['pillar.get']('redis:settings:port', default=6379) %}
+
+{% set redis = salt['grains.filter_by']({
+    'default': {
+        'name': 'redis',
+        'hosts': [],
+        'bind_address': interface,
+        'bind_port': port,
+        'processes_per_minion': 1,
+        'prerequisites': [],
+        'pip_packages': []
+    },
+}, merge=salt['pillar.get']('redis:cluster')) %}

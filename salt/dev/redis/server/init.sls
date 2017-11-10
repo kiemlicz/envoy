@@ -6,7 +6,7 @@ include:
   - redis.server.single
 
 {% elif setup_type == 'cluster' %}
-
+{# host guard here #}
 include:
   - redis.server.cluster
 
