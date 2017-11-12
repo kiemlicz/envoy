@@ -1,19 +1,33 @@
 {% from "redis/server/cluster.map.jinja" import redis with context %}
 
-{% if grains['host'] == redis.host %}
+redis_pkg:
+  pkg.latest:
+    - name: {{ redis.pkg_name }}
+    - require:
+      - pkg: os_packages
+# for systemd uses %i variable that allows multiple instances per node
+  file_ext.managed:
+    - name: {{ redis.init_location }}
+    - source: {{ redis.init }}
+    - require:
+      - pkg: {{ redis.pkg_name }}
 
-{% for port in redis.ports %}
+{% for bind in redis.bind_list %}
 
 redis_config:
   file_ext.managed:
-    - name: {{ redis. }}
-    - source: {{ redis. }}
+    - name: /etc/redis/{{ redis.name }}-{{ bind.port }}.conf
+    - source: {{ redis.config }}
     - makedirs: True
+    - template: jinja
     - context:
-      name: {{ redis.name }}
+      bind: {{ bind }}
     - require:
-      - pkg: os_packages
+      - file_ext: {{ redis.init_location }}
+  service.running:
+    - name: {{ redis.service }}@{{ redis.name }}-{{ bind.port }}
+    - enable: True
+    - require:
+      - file_ext: /etc/redis/{{ redis.name }}-{{ bind.port }}
 
 {% endfor %}
-
-{% endif %}

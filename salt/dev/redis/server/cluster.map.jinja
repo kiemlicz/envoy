@@ -1,14 +1,21 @@
 {% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces', default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
 {% set interface = salt['pillar.get']('redis:settings:interfaces', default=foreman_discovered_interfaces)|first %}
-{% set port = salt['pillar.get']('redis:settings:port', default=6379) %}
+{% set ports = salt['pillar.get']('redis:settings:ports', default=[6379]) %}
+{% set hostname = salt['grains.get']('host') %}
 
 {% set redis = salt['grains.filter_by']({
-    'default': {
+    'Debian': {
         'name': 'redis',
-        'hosts': [],
-        'bind_address': interface,
-        'bind_port': port,
-        'processes_per_minion': 1,
+        'pkg_name': 'redis-server',
+        'service': 'redis',
+        'config': 'salt://redis/server/redis.conf',
+        'init': 'salt://redis/server/redis.service',
+        'init_location': '/etc/systemd/system/redis@.service',
+        'bind_list': [{
+          'hostname': hostname,
+          'host': '127.0.0.1',
+          'port': '6379',
+        }],
         'prerequisites': [],
         'pip_packages': []
     },

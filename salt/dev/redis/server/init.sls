@@ -6,8 +6,12 @@ include:
   - redis.server.single
 
 {% elif setup_type == 'cluster' %}
-{# host guard here #}
+
+{% from "redis/server/cluster.map.jinja" import redis with context %}
+
+{% if grains['host'] in redis.bind_list|map(attribute='hostname')|list %}
 include:
   - redis.server.cluster
+{% endif %}
 
 {% endif %}
