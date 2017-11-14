@@ -14,7 +14,12 @@ redis_pkg:
 
 {% for bind in redis.bind_list %}
 
-redis_config:
+redis_config_{{ bind.host }}_{{ bind.port }}_dir:
+  file.directory:
+    - name: /var/lib/redis/{{ bind.port }}
+    - user: {{ redis.user }}
+
+redis_config_{{ bind.host }}_{{ bind.port }}:
   file_ext.managed:
     - name: /etc/redis/{{ redis.name }}-{{ bind.port }}.conf
     - source: {{ redis.config }}
