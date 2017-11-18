@@ -11,7 +11,7 @@
         'user': 'redis',
         'config': 'salt://redis/server/redis.conf',
         'init': 'salt://redis/server/redis.service',
-        'init_location': '/etc/systemd/system/redis@.service',
+        'init_location': '/lib/systemd/system/redis@.service',
         'bind_list': [{
           'hostname': hostname,
           'host': '127.0.0.1',

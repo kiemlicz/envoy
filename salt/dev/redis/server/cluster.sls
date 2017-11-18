@@ -13,15 +13,11 @@ redis_pkg:
       - pkg: {{ redis.pkg_name }}
 
 {% for bind in redis.bind_list %}
-
-redis_config_{{ bind.host }}_{{ bind.port }}_dir:
-  file.directory:
-    - name: /var/lib/redis/{{ bind.port }}
-    - user: {{ redis.user }}
+{% set instance = redis.name + '-' + bind.port %}
 
 redis_config_{{ bind.host }}_{{ bind.port }}:
   file_ext.managed:
-    - name: /etc/redis/{{ redis.name }}-{{ bind.port }}.conf
+    - name: /etc/redis/{{ instance }}.conf
     - source: {{ redis.config }}
     - makedirs: True
     - template: jinja
@@ -30,9 +26,9 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
     - require:
       - file_ext: {{ redis.init_location }}
   service.running:
-    - name: {{ redis.service }}@{{ redis.name }}-{{ bind.port }}
+    - name: {{ redis.service }}@{{ instance }}
     - enable: True
     - require:
-      - file_ext: /etc/redis/{{ redis.name }}-{{ bind.port }}
+      - file_ext: /etc/redis/{{ instance }}.conf
 
 {% endfor %}
