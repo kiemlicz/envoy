@@ -31,4 +31,8 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
     - require:
       - file_ext: /etc/redis/{{ instance }}.conf
 
+# meet
+# alloc slots
+# event send to slave ?
+
 {% endfor %}

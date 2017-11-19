@@ -2,6 +2,7 @@
 {% set interface = salt['pillar.get']('redis:settings:interfaces', default=foreman_discovered_interfaces)|first %}
 {% set ports = salt['pillar.get']('redis:settings:ports', default=[6379]) %}
 {% set hostname = salt['grains.get']('host') %}
+{% set slots = 16383 %}
 
 {% set redis = salt['grains.filter_by']({
     'Debian': {
@@ -16,6 +17,7 @@
           'hostname': hostname,
           'host': '127.0.0.1',
           'port': '6379',
+          'master': True
         }],
         'prerequisites': [],
         'pip_packages': []
