@@ -1,4 +1,5 @@
 {% from "redis/server/cluster.map.jinja" import redis with context %}
+{% set this_host = grains['host'] %}
 
 redis_pkg:
   pkg.latest:
@@ -12,7 +13,7 @@ redis_pkg:
     - require:
       - pkg: {{ redis.pkg_name }}
 
-{% for bind in redis.bind_list %}
+{% for bind in redis.bind_list|selectattr("hostname", this_host)|list %}
 {% set instance = redis.name + '-' + bind.port %}
 
 redis_config_{{ bind.host }}_{{ bind.port }}:
