@@ -9,7 +9,7 @@ include:
 
 {% from "redis/server/cluster.map.jinja" import redis with context %}
 
-{% if grains['host'] in redis.bind_list|map(attribute='hostname')|list %}
+{% if grains['host'] in redis.master_bind_list|map(attribute='hostname')|list %}
 include:
   - redis.server.cluster
 {% endif %}

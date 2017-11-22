@@ -13,7 +13,7 @@ redis_pkg:
     - require:
       - pkg: {{ redis.pkg_name }}
 
-{% for bind in redis.bind_list|selectattr("hostname", this_host)|list %}
+{% for bind in redis.master_bind_list|selectattr("hostname", this_host)|list %}
 {% set instance = redis.name + '-' + bind.port %}
 
 redis_config_{{ bind.host }}_{{ bind.port }}:

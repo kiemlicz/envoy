@@ -2,7 +2,7 @@
 {% set interface = salt['pillar.get']('redis:settings:interfaces', default=foreman_discovered_interfaces)|first %}
 {% set ports = salt['pillar.get']('redis:settings:ports', default=[6379]) %}
 {% set hostname = salt['grains.get']('host') %}
-{% set slots = 16383 %}
+{% set total_slots = 16383 %}
 
 {% set redis = salt['grains.filter_by']({
     'Debian': {
@@ -13,13 +13,19 @@
         'config': 'salt://redis/server/redis.conf',
         'init': 'salt://redis/server/redis.service',
         'init_location': '/lib/systemd/system/redis@.service',
-        'bind_list': [{
+        'master_bind_list': [{
           'hostname': hostname,
           'host': '127.0.0.1',
           'port': '6379',
-          'master': True
         }],
         'prerequisites': [],
         'pip_packages': []
     },
-}, merge=salt['pillar.get']('redis:cluster')) %}
+}, merge=salt['pillar.get']('redis')) %}
+
+{% set redis_cluster = salt['grains.filter_by']({
+    'default': {
+      'total_slots': total_slots,
+      'range': total_slots/(redis.master_bind_list|count),
+    },
+}, merge=salt['pillar.get']('redis_cluster')) %}
