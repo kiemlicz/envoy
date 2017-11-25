@@ -1,7 +1,7 @@
 {% from "redis/server/cluster.map.jinja" import redis with context %}
 {% from "redis/server/cluster.map.jinja" import redis_cluster with context %}
 
-{% set this_host = grains['host'] %}
+{% set this_host = grains['id'] %}
 
 {% for master in redis.master_bind_list|selectattr("hostname", "equalto", this_host)|list %}
 

@@ -4,6 +4,4 @@ redis_cluster_meet:
     - args:
       - mods: redis.server.cluster-meet
       - saltenv: dev
-      - pillar:
-          event_tag: {{ tag }}
-          event_data: {{ data|json }}
+

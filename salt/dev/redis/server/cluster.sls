@@ -1,5 +1,5 @@
 {% from "redis/server/cluster.map.jinja" import redis with context %}
-{% set this_host = grains['host'] %}
+{% set this_host = grains['id'] %}
 {% set all_instances = redis.master_bind_list + redis.slave_bind_list %}
 
 redis_pkg:
