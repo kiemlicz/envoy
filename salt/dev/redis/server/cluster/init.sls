@@ -1,21 +1,13 @@
-{% from "redis/server/cluster.map.jinja" import redis with context %}
+{% from "redis/server/cluster/map.jinja" import redis with context %}
 {% set this_host = grains['id'] %}
 {% set all_instances = redis.master_bind_list + redis.slave_bind_list %}
 
-redis_pkg:
-  pkg.latest:
-    - name: {{ redis.pkg_name }}
-    - require:
-      - pkg: os_packages
-# for systemd uses %i variable that allows multiple instances per node
-  file_ext.managed:
-    - name: {{ redis.init_location }}
-    - source: {{ redis.init }}
-    - require:
-      - pkg: {{ redis.pkg_name }}
+{% if this_host in all_instances|map(attribute='host_id')|list %}
 
+include:
+  - redis.server.single.install
 
-{% for bind in all_instances|selectattr("hostname", "equalto", this_host)|list %}
+{% for bind in all_instances|selectattr("host_id", "equalto", this_host)|list %}
 {% set instance = redis.name + '-' + bind.port %}
 
 redis_config_{{ bind.host }}_{{ bind.port }}:
@@ -34,8 +26,6 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
     - require:
       - file_ext: /etc/redis/{{ instance }}.conf
 
-# meet
-# alloc slots
-# event send to slave ?
-
 {% endfor %}
+
+{% endif %}

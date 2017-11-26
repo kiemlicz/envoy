@@ -20,10 +20,13 @@ dev:
     - mongodb
     - docker
     - projects
-    - redis
     - intellij
     - robomongo
     - virtualbox
+  'redis:setup_type:cluster':
+    - redis.server.cluster
+  'redis:setup_type:single':
+    - redis.server.single
 
   'gpus:vendor:nvidia':
     - match: grain
