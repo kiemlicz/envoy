@@ -1,5 +1,8 @@
 {% from "redis/server/single/map.jinja" import redis with context %}
 
+include:
+  - pkgs
+
 redis_pkg:
   pkg.latest:
     - name: {{ redis.pkg_name }}

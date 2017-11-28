@@ -33,6 +33,7 @@
 {% set redis_cluster = salt['grains.filter_by']({
     'default': {
       'total_slots': total_slots,
-      'range': total_slots/(redis.master_bind_list|count),
+      'range': total_slots // redis.master_bind_list|count,
+      'remaining_slots': total_slots % redis.master_bind_list|count,
     },
 }, merge=salt['pillar.get']('redis_cluster')) %}
