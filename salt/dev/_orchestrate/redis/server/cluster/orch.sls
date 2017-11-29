@@ -1,4 +1,4 @@
-redis_cluster_meet_orchestrate:
+redis_cluster_orchestrate:
   salt.state:
     - tgt: '*'
     - sls:
