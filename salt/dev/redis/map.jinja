@@ -1,5 +1,0 @@
-{% set redis = salt['grains.filter_by']({
-    'default': {
-        'pkg_name': 'redis-server',
-    },
-}, merge=salt['pillar.get']('redis')) %}
