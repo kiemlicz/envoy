@@ -8,7 +8,7 @@ include:
   - redis.server.single.install
 
 {% for bind in all_instances|selectattr("host_id", "equalto", this_host)|list %}
-{% set instance = redis.name + '-' + bind.port %}
+{% set instance = redis.name + '-' + bind.port|string %}
 
 redis_config_{{ bind.host }}_{{ bind.port }}:
   file_ext.managed:

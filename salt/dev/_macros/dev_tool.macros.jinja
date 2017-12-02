@@ -26,5 +26,5 @@
 {% endmacro %}
 
 {% macro redis_master_id(host, port) -%}
-{{ salt['cmd.run']('redis-cli -h ' + host + ' -p ' + port + ' CLUSTER MYID') }}
+{{ salt['cmd.run']('redis-cli -h ' + host + ' -p ' + port|string + ' CLUSTER MYID') }}
 {%- endmacro %}

@@ -1,4 +1,3 @@
-{% from "_macros/dev_tool.macros.jinja" import redis_master_id with context %}
 {% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces', default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
 {% set interface = salt['pillar.get']('redis:settings:interfaces', default=foreman_discovered_interfaces)|first %}
 {% set ports = salt['pillar.get']('redis:settings:ports', default=[6379]) %}
@@ -17,13 +16,14 @@
         'master_bind_list': [{
           'host_id': host_id,
           'host': '127.0.0.1',
-          'port': '6379',
+          'port': 6379,
         }],
         'slave_bind_list': [{
-          'master_id': redis_master_id('127.0.0.1', '6379'),
+          'master_host': '127.0.0.1',
+          'master_port': 6379,
           'host_id': host_id,
           'host': '127.0.0.1',
-          'port': '6380',
+          'port': 6390,
         }],
         'prerequisites': [],
         'pip_packages': []

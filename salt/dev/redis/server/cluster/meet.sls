@@ -12,7 +12,7 @@
 redis_master_{{ master.host }}_{{ master.port }}_cluster_meet:
   cmd.run:
     - names:
-{% for other in redis.master_bind_list %}
+{% for other in redis.master_bind_list + redis.slave_bind_list %}
       - redis-cli -h {{ master.host }} -p {{ master.port }} CLUSTER MEET {{ other.host }} {{ other.port }}
 {% endfor %}
     - runas: {{ redis.user }}
