@@ -1,6 +1,6 @@
 redis_cluster_orchestrate:
   salt.state:
-    - tgt: '*'
+    - tgt: {{ salt['pillar.get']("tgt") }}
     - sls:
       - redis.server.cluster.reset
       - redis.server.cluster.meet
