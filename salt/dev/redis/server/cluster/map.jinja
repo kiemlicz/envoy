@@ -1,6 +1,7 @@
 {% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces', default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
 {% set interface = salt['pillar.get']('redis:settings:interfaces', default=foreman_discovered_interfaces)|first %}
 {% set ports = salt['pillar.get']('redis:settings:ports', default=[6379]) %}
+{# host_id == hostname by default #}
 {% set host_id = salt['grains.get']('id') %}
 {% set total_slots = 16383 %}
 
