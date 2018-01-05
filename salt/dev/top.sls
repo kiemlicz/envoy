@@ -23,9 +23,9 @@ dev:
     - intellij
     - robomongo
     - virtualbox
-  'redis:setup_type:cluster':
+  'I@redis:setup_type:cluster':
     - redis.server.cluster
-  'redis:setup_type:single':
+  'I@redis:setup_type:single':
     - redis.server.single
 
   'gpus:vendor:nvidia':

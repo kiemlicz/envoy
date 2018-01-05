@@ -1,6 +1,6 @@
-{% set masters = salt['pillar.get']("redis.master_bind_list")|map(attribute="host_id")|list %}
-{% set slaves = salt['pillar.get']("redis.slave_bind_list")|map(attribute="host_id")|list %}
-{% set redis_minions = masters + slaves %}
+{% set masters = salt['pillar.get']("redis:master_bind_list")|map(attribute="host_id")|list %}
+{% set slaves = salt['pillar.get']("redis:slave_bind_list")|map(attribute="host_id")|list %}
+{% set redis_minions = (masters + slaves)|unique %}
 
 redis_cluster_orchestrate:
   salt.state:

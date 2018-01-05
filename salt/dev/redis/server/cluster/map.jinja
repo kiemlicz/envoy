@@ -1,5 +1,6 @@
 {% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces', default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
 {% set interface = salt['pillar.get']('redis:settings:interfaces', default=foreman_discovered_interfaces)|first %}
+{# inteface ports - it is useless - it must be pure pillar fetech - impossible to automate as mulitple nodes involved #}
 {% set ports = salt['pillar.get']('redis:settings:ports', default=[6379]) %}
 {# host_id == hostname by default #}
 {% set host_id = salt['grains.get']('id') %}
