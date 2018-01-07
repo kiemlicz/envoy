@@ -45,8 +45,8 @@ redis_config_{{ host }}_{{ port }}:
         service_name: {{ service_name }}
     - require:
       - file_ext: {{ init_location }}
-{% if salt['grains.get']("init") != 'systemd'  %}
-{% do service = instance %}
+{% if salt['grains.get']("init") != 'systemd' %}
+{% set service = instance %}
   file.symlink:
     - name: /etc/init.d/{{ instance }}
     - target: {{ init_location }}
@@ -57,7 +57,9 @@ redis_config_{{ host }}_{{ port }}:
 {% endif %}
   service.running:
     - name: {{ service }}
+{% if salt['grains.get']("virtual_subtype") != "Docker" %}
     - enable: True
+{% endif %}
     - require:
       - file_ext: /etc/redis/{{ instance }}.conf
 {%- endmacro %}

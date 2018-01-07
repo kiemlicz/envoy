@@ -14,7 +14,7 @@ include:
 
 {% for bind in all_instances|selectattr("host_id", "equalto", this_host)|list %}
 
-{{ redis_configure(redis.host, redis.port, redis.config, redis.init_location, redis.service) }}
+{{ redis_configure(bind.host, bind.port|string, redis.config, redis.init_location, redis.service) }}
 
 {% endfor %}
 
