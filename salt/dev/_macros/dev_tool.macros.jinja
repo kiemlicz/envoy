@@ -28,3 +28,50 @@
 {% macro redis_master_id(host, port) -%}
 {{ salt['cmd.run']('redis-cli -h ' + host + ' -p ' + port|string + ' CLUSTER MYID') }}
 {%- endmacro %}
+
+{% macro redis_configure(host, port, config, init_location, service_name) -%}
+{% set instance = service_name + '-' + port %}
+{% set service = service_name + '@' + instance %}
+redis_config_{{ host }}_{{ port }}:
+  file_ext.managed:
+    - name: /etc/redis/{{ instance }}.conf
+    - source: {{ config }}
+    - makedirs: True
+    - template: jinja
+    - context:
+      bind:
+        host: {{ host }}
+        port: {{ port }}
+        service_name: {{ service_name }}
+    - require:
+      - file_ext: {{ init_location }}
+{% if salt['grains.get']("init") != 'systemd'  %}
+{% do service = instance %}
+  file.symlink:
+    - name: /etc/init.d/{{ instance }}
+    - target: {{ init_location }}
+    - require:
+      - file_ext: /etc/redis/{{ instance }}.conf
+    - require_in:
+      - service: {{ service }}
+{% endif %}
+  service.running:
+    - name: {{ service }}
+    - enable: True
+    - require:
+      - file_ext: /etc/redis/{{ instance }}.conf
+{%- endmacro %}
+
+{% macro redis_install(pkg_name, init, init_location, required_pkg) -%}
+redis_pkg:
+  pkg.latest:
+    - name: {{ pkg_name }}
+    - refresh: True
+    - require:
+      - pkg: {{ required_pkg }}
+  file_ext.managed:
+    - name: {{ init_location }}
+    - source: {{ init }}
+    - require:
+      - pkg: {{ pkg_name }}
+{%- endmacro %}

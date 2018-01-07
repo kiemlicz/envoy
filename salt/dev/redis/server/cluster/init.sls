@@ -1,30 +1,20 @@
 {% from "redis/server/cluster/map.jinja" import redis with context %}
+{% from "_macros/dev_tool.macros.jinja" import redis_install with context %}
+{% from "_macros/dev_tool.macros.jinja" import redis_configure with context %}
+
 {% set this_host = grains['id'] %}
 {% set all_instances = redis.master_bind_list + redis.slave_bind_list %}
 
 {% if this_host in all_instances|map(attribute='host_id')|list %}
 
 include:
-  - redis.server.single.install
+  - pkgs
+
+{{ redis_install(redis.pkg_name, redis.init, redis.init_location, "os_packages") }}
 
 {% for bind in all_instances|selectattr("host_id", "equalto", this_host)|list %}
-{% set instance = redis.name + '-' + bind.port|string %}
 
-redis_config_{{ bind.host }}_{{ bind.port }}:
-  file_ext.managed:
-    - name: /etc/redis/{{ instance }}.conf
-    - source: {{ redis.config }}
-    - makedirs: True
-    - template: jinja
-    - context:
-      bind: {{ bind }}
-    - require:
-      - file_ext: {{ redis.init_location }}
-  service.running:
-    - name: {{ redis.service }}@{{ instance }}
-    - enable: True
-    - require:
-      - file_ext: /etc/redis/{{ instance }}.conf
+{{ redis_configure(redis.host, redis.port, redis.config, redis.init_location, redis.service) }}
 
 {% endfor %}
 

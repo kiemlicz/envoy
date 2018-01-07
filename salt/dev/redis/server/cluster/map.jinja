@@ -1,3 +1,4 @@
+{% from "redis/server/single/map.jinja" import redis as redis_single with context %}
 {% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces', default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
 {% set interface = salt['pillar.get']('redis:settings:interfaces', default=foreman_discovered_interfaces)|first %}
 {# inteface ports - it is useless - it must be pure pillar fetech - impossible to automate as mulitple nodes involved #}
@@ -8,13 +9,8 @@
 
 {% set redis = salt['grains.filter_by']({
     'Debian': {
-        'name': 'redis',
-        'pkg_name': 'redis-server',
-        'service': 'redis',
         'user': 'redis',
         'config': 'salt://redis/server/redis.conf',
-        'init': 'salt://redis/server/redis.service',
-        'init_location': '/lib/systemd/system/redis@.service',
         'master_bind_list': [{
           'host_id': host_id,
           'host': '127.0.0.1',
@@ -27,10 +23,10 @@
           'host': '127.0.0.1',
           'port': 6390,
         }],
-        'prerequisites': [],
-        'pip_packages': []
     },
 }, merge=salt['pillar.get']('redis')) %}
+
+{% do redis.update(redis_single) %}
 
 {% set redis_cluster = salt['grains.filter_by']({
     'default': {

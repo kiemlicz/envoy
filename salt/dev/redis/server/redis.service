@@ -5,6 +5,7 @@ Documentation=http://redis.io/documentation, man:redis-server(1)
 
 [Service]
 Type=forking
+#uses %i variable that allows multiple instances per node
 Environment=statedir=/var/lib/redis/%i
 ExecStart=/usr/bin/redis-server /etc/redis/%i.conf
 ExecStop=/usr/bin/redis-cli shutdown
