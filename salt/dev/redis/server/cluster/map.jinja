@@ -5,7 +5,6 @@
 {% set ports = salt['pillar.get']('redis:settings:ports', default=[6379]) %}
 {# host_id == hostname by default #}
 {% set host_id = salt['grains.get']('id') %}
-{% set total_slots = 16383 %}
 
 {% set redis = salt['grains.filter_by']({
     'Debian': {
@@ -27,11 +26,3 @@
 }, merge=salt['pillar.get']('redis')) %}
 
 {% do redis.update(redis_single) %}
-
-{% set redis_cluster = salt['grains.filter_by']({
-    'default': {
-      'total_slots': total_slots,
-      'range': total_slots // redis.master_bind_list|count,
-      'remaining_slots': total_slots % redis.master_bind_list|count,
-    },
-}, merge=salt['pillar.get']('redis_cluster')) %}
