@@ -33,12 +33,10 @@ def run():
         "redis.server.cluster.replicate"
       ]},
       { 'saltenv': saltenv },
-      { 'kwarg': {
-        'pillar': {
+      { 'pillar': {
           'redis': {
             'slots': slots
             }
-          }
         }
       },
       { 'require': [
