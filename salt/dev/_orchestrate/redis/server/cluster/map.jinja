@@ -1,5 +1,0 @@
-{% set redis_cluster = salt['grains.filter_by']({
-    'default': {
-      'total_slots': 16383,
-    },
-}, merge=salt['pillar.get']('redis_cluster')) %}

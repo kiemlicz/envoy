@@ -5,12 +5,16 @@ def run():
   masters = [e["host_id"] for e in __pillar__["redis"]["master_bind_list"]]
   slaves = [e["host_id"] for e in __pillar__["redis"]["slave_bind_list"]]
   redis_minions = list(set(masters + slaves))
-  total_slots = 16383
-  #fixme come up with idea how to import in #!py jinja template
+  #todo come up with idea how to import in #!py jinja template
+  redis_cluster = __salt__['grains.filter_by']({
+    'default': {
+      'total_slots': 16384,
+    }
+  }, merge=__salt__['pillar.get']('redis_cluster'))
   slots = {}
   state = {}
 
-  for i in range(0, total_slots):
+  for i in range(0, redis_cluster['total_slots']):
     slots.setdefault(masters[i%len(masters)], []).append(i)
 
   state['redis_cluster_reset'] = {
@@ -36,7 +40,7 @@ def run():
       { 'pillar': {
           'redis': {
             'slots': slots
-            }
+          }
         }
       },
       { 'require': [
