@@ -3,6 +3,7 @@
 {%- endmacro %}
 
 {% macro redis_configure(redis) -%}
+{% if redis.install_type == "repo" %}
 {% set instance = redis.service_name + '-' + redis.port|string %}
 {% set service = redis.service_name + '@' + instance %}
 
