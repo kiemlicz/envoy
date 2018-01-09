@@ -4,8 +4,8 @@
 
 {% macro redis_configure(redis, bind) -%}
 {% if redis.install_type == "repo" %}
-{% set instance = redis.service_name + '-' + bind.port|string %}
-{% set service = redis.service_name + '@' + instance %}
+{% set instance = redis.service + '-' + bind.port|string %}
+{% set service = redis.service + '@' + instance %}
 
 redis_config_{{ bind.host }}_{{ bind.port }}:
   file_ext.managed:
@@ -17,7 +17,7 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
       bind:
         host: {{ bind.host }}
         port: {{ bind.port }}
-        service_name: {{ redis.service_name }}
+        service_name: {{ redis.service }}
     - require:
       - file_ext: {{ redis.init_location }}
 {% if salt['grains.get']("init") != 'systemd' %}
