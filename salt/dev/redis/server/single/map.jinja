@@ -2,6 +2,7 @@
 {% set interface = salt['pillar.get']('redis:settings:interfaces', default=foreman_discovered_interfaces)|first %}
 {% set port = salt['pillar.get']('redis:settings:port', default="6379") %}
 
+{# available options: repo, docker #}
 {% set redis = salt['grains.filter_by']({
   'Debian': {
     'pkg_name': 'redis-server',
@@ -9,8 +10,11 @@
     'config': 'salt://redis/server/redis.conf',
     'host': interface,
     'port': port,
-    'prerequisites': [],
-    'pip_packages': []
+    'container_port': 6379,
+    'install_type': "docker",
+    'image': 'redis:latest',
+    'prerequisites': ["python-pip"],
+    'pip_packages': ["docker-py"]
   },
 }, merge=salt['grains.filter_by']({
     'default': {

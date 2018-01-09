@@ -1,4 +1,4 @@
-{% from "_macros/dev_tool.macros.jinja" import redis_master_id with context %}
+{% from "redis/server/macros.jinja" import redis_master_id with context %}
 {% from "redis/server/cluster/map.jinja" import redis with context %}
 {% set this_host = grains['id'] %}
 
