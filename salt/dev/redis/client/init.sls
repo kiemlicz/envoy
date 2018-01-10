@@ -3,7 +3,7 @@
 include:
   - pkgs
 
-redis:
+redis_client:
   pkg.latest:
     - name: {{ redis.pkg_name }}
     - refresh: True
