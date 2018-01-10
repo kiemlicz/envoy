@@ -77,10 +77,17 @@ redis_in_docker_prerequisites:
     - reload_modules: True
     - require:
       - pkg: redis_os_packages_prerequisites
+  file.managed:
+    - name: /usr/local/etc/redis/Dockerfile
+    - source: salt://redis/server/Dockerfile
+    - makedirs: True
+    - require:
+      - pip: redis_pip_prerequisites
 redis:
   docker_image.present:
     - name: {{ redis.image }}
+    - build: /usr/local/etc/redis/
     - require:
-      - pip: redis_pip_prerequisites
+      - file: /usr/local/etc/redis/Dockerfile
 {% endif %}
 {%- endmacro %}
