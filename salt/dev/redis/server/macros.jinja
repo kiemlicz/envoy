@@ -45,7 +45,7 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
     - name: redis_{{ bind.host }}_{{ bind.port }}
     - image: {{ redis.image }}
     - port_bindings:
-      - {{ bind.host }}:{{ bind.port }}:{{ redis.container_port }}
+      - {{ bind.host|dns_check(4505) }}:{{ bind.port }}:{{ redis.container_port }}
 {% endif %}
 {%- endmacro %}
 
