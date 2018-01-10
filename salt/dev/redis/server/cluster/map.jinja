@@ -8,7 +8,6 @@
 
 {% set redis = salt['grains.filter_by']({
     'Debian': {
-        'user': 'redis',
         'config': 'salt://redis/server/redis.conf',
         'master_bind_list': [{
           'host_id': host_id,

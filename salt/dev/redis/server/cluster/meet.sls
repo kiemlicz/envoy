@@ -11,7 +11,6 @@ redis_master_{{ master.host }}_{{ master.port }}_cluster_meet:
 {% for other in redis.master_bind_list + redis.slave_bind_list %}
       - redis-cli -h {{ master.host }} -p {{ master.port }} CLUSTER MEET {{ other.host|dns_check(4505) }} {{ other.port }}
 {% endfor %}
-    - runas: {{ redis.user }}
 
 redis_master_{{ master.host }}_{{ master.port }}_assign_slots:
   cmd.run:

@@ -6,7 +6,6 @@
 {% set redis = salt['grains.filter_by']({
   'Debian': {
     'pkg_name': 'redis-server',
-    'user': 'redis',
     'config': 'salt://redis/server/redis.conf',
     'host': interface,
     'port': port,
