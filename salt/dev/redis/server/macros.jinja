@@ -44,6 +44,7 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
   docker_container.running:
     - name: redis_{{ bind.host }}_{{ bind.port }}
     - image: {{ redis.image }}
+    - network_mode: host
     - port_bindings:
       - {{ bind.host|dns_check(4505) }}:{{ bind.port }}:{{ redis.container_port }}
 {% endif %}
