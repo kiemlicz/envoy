@@ -3,6 +3,7 @@
 include:
   - repositories
 
+# any pkg.* that depends on this state for performance reasons, should not use refresh: True
 pkgs:
   pkg.latest:
     - name: os_packages

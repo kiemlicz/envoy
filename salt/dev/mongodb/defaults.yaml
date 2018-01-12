@@ -1,2 +1,0 @@
-mongodb:
-  setup_type: repo # [repo, docker]

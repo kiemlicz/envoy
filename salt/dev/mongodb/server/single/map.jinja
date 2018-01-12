@@ -1,0 +1,30 @@
+{% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces', default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
+{% set interfaces = salt['pillar.get']('mongodb:settings:interfaces', default=foreman_discovered_interfaces) %}
+{% set port = salt['pillar.get']('mongodb:settings:port', default=27017) %}
+
+{% set mongodb = salt['grains.filter_by']({
+    'Debian': {
+        'repo_entries': [
+          "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.6 main"
+        ],
+        'keyserver': "hkp://keyserver.ubuntu.com:80",
+        'keyid': "2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5",
+        'file': '/etc/apt/sources.list.d/mongodb-org-3.6.list',
+        'pkg_name': "mongodb-org",
+        'install_type': "docker",
+        'prerequisites': ['python-pip'],
+        'pip_packages': ['docker-py'],
+        'image': 'mongo:latest',
+        'service': "mongod",
+        'container_port': 27017,
+        'name': 'mongo',
+        'bind_addresses': interfaces,
+        'bind_port': port,
+    },
+}, merge=salt['grains.filter_by']({
+       'zesty': {
+         'repo_entries': [
+             "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse"
+         ],
+       },
+}, grain='oscodename', merge=salt['pillar.get']('mongodb'))) %}

@@ -1,4 +1,4 @@
-{% from "mongodb/server/docker.map.jinja" import mongodb with context %}
+{% from "mongodb/server/single/map.jinja" import mongodb with context %}
 {% from "docker/map.jinja" import docker with context %}
 
 mongo_in_docker_prerequisites:
