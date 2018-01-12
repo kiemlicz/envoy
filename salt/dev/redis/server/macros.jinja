@@ -2,7 +2,7 @@
 {{ salt['cmd.run']('redis-cli -h ' + host + ' -p ' + port|string + ' CLUSTER MYID') }}
 {%- endmacro %}
 
-{% macro redis_configure(redis, bind) -%}
+{% macro redis_configure(redis, bind, cluster_enabled) -%}
 {% if redis.install_type == "repo" %}
 {% set instance = redis.service + '-' + bind.port|string %}
 {% set service = redis.service + '@' + instance %}
@@ -17,7 +17,9 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
       bind:
         host: {{ bind.host }}
         port: {{ bind.port }}
-        service_name: {{ redis.service }}
+      service_name: {{ redis.service }}
+      cluster_enabled: {{ cluster_enabled }}
+      virtual_subtype: {{ grains['virtual_subtype'] }}
     - require:
       - file_ext: {{ redis.init_location }}
 {% if salt['grains.get']("init") != 'systemd' %}
@@ -41,12 +43,29 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
 {% else %}
 
 redis_config_{{ bind.host }}_{{ bind.port }}:
+  file.managed:
+    - name: /usr/local/etc/redis/redis_{{ bind.host }}_{{ bind.port }}.conf
+    - source: {{ redis.config }}
+    - makedirs: True
+    - template: jinja
+    - context:
+      bind:
+        host: {{ bind.host }}
+        port: {{ bind.port }}
+      service_name: {{ redis.service }}
+      cluster_enabled: {{ cluster_enabled }}
+      virtual_subtype: {{ grains['virtual_subtype'] }}
   docker_container.running:
     - name: redis_{{ bind.host }}_{{ bind.port }}
     - image: {{ redis.image }}
     - network_mode: host
-    - port_bindings:
-      - {{ bind.host|dns_check(4505) }}:{{ bind.port }}:{{ redis.container_port }}
+#    - port_bindings:
+#      - {{ bind.host|dns_check(4505) }}:{{ bind.port }}:{{ redis.container_port }}
+    - command: redis-server /etc/redis/redis_{{ bind.host }}_{{ bind.port }}.conf
+    - binds:
+      - /usr/local/etc/redis/:/etc/redis/
+    - require:
+      - file: /usr/local/etc/redis/redis_{{ bind.host }}_{{ bind.port }}.conf
 {% endif %}
 {%- endmacro %}
 
@@ -78,17 +97,8 @@ redis_in_docker_prerequisites:
     - reload_modules: True
     - require:
       - pkg: redis_os_packages_prerequisites
-  file.managed:
-    - name: /usr/local/etc/redis/Dockerfile
-    - source: salt://redis/server/Dockerfile
-    - makedirs: True
-    - require:
-      - pip: redis_pip_prerequisites
 redis:
   docker_image.present:
     - name: {{ redis.image }}
-    - build: /usr/local/etc/redis/
-    - require:
-      - file: /usr/local/etc/redis/Dockerfile
 {% endif %}
 {%- endmacro %}
