@@ -2,6 +2,39 @@
 {{ salt['cmd.run']('redis-cli -h ' + host + ' -p ' + port|string + ' CLUSTER MYID') }}
 {%- endmacro %}
 
+{% macro redis_install(redis) -%}
+{% if redis.install_type == "repo" %}
+redis:
+  pkg.latest:
+    - name: {{ redis.pkg_name }}
+    - require:
+      - pkg: os_packages
+  file_ext.managed:
+    - name: {{ redis.init_location }}
+    - source: {{ redis.init }}
+    - require:
+      - pkg: {{ redis.pkg_name }}
+
+{% else %}
+
+redis_in_docker_prerequisites:
+  pkg.latest:
+    - name: redis_os_packages_prerequisites
+    - pkgs: {{ redis.prerequisites }}
+    - require:
+      - pkg: os_packages
+  pip.installed:
+    - name: redis_pip_prerequisites
+    - pkgs: {{ redis.pip_packages }}
+    - reload_modules: True
+    - require:
+      - pkg: redis_os_packages_prerequisites
+redis:
+  docker_image.present:
+    - name: {{ redis.image }}
+{% endif %}
+{%- endmacro %}
+
 {% macro redis_configure(redis, bind, cluster_enabled) -%}
 {% if redis.install_type == "repo" %}
 {% set instance = redis.service + '-' + bind.port|string %}
@@ -55,6 +88,8 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
       service_name: {{ redis.service }}
       cluster_enabled: {{ cluster_enabled }}
       install_type: {{ redis.install_type }}
+    - require:
+      - docker_image: {{ redis.image }}
   docker_container.running:
     - name: redis_{{ bind.host }}_{{ bind.port }}
     - image: {{ redis.image }}
@@ -66,39 +101,5 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
       - /usr/local/etc/redis/:/etc/redis/
     - require:
       - file: /usr/local/etc/redis/redis_{{ bind.host }}_{{ bind.port }}.conf
-{% endif %}
-{%- endmacro %}
-
-{% macro redis_install(redis) -%}
-{% if redis.install_type == "repo" %}
-redis:
-  pkg.latest:
-    - name: {{ redis.pkg_name }}
-    - refresh: True
-    - require:
-      - pkg: os_packages
-  file_ext.managed:
-    - name: {{ redis.init_location }}
-    - source: {{ redis.init }}
-    - require:
-      - pkg: {{ redis.pkg_name }}
-
-{% else %}
-
-redis_in_docker_prerequisites:
-  pkg.latest:
-    - name: redis_os_packages_prerequisites
-    - pkgs: {{ redis.prerequisites }}
-    - require:
-      - pkg: os_packages
-  pip.installed:
-    - name: redis_pip_prerequisites
-    - pkgs: {{ redis.pip_packages }}
-    - reload_modules: True
-    - require:
-      - pkg: redis_os_packages_prerequisites
-redis:
-  docker_image.present:
-    - name: {{ redis.image }}
 {% endif %}
 {%- endmacro %}
