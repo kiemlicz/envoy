@@ -19,7 +19,7 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
         port: {{ bind.port }}
       service_name: {{ redis.service }}
       cluster_enabled: {{ cluster_enabled }}
-      virtual_subtype: {{ grains['virtual_subtype'] }}
+      install_type: {{ redis.install_type }}
     - require:
       - file_ext: {{ redis.init_location }}
 {% if salt['grains.get']("init") != 'systemd' %}
@@ -54,7 +54,7 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
         port: {{ bind.port }}
       service_name: {{ redis.service }}
       cluster_enabled: {{ cluster_enabled }}
-      virtual_subtype: {{ grains['virtual_subtype'] }}
+      install_type: {{ redis.install_type }}
   docker_container.running:
     - name: redis_{{ bind.host }}_{{ bind.port }}
     - image: {{ redis.image }}
