@@ -1,4 +1,5 @@
-{% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces', default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
+{% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces',
+    default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
 {% set interfaces = salt['pillar.get']('mongodb:settings:interfaces', default=foreman_discovered_interfaces) %}
 {% set port = salt['pillar.get']('mongodb:settings:port', default=27017) %}
 

@@ -3,7 +3,6 @@
 {%- endmacro %}
 
 {% macro redis_install(redis) -%}
-{% if redis.install_type == "repo" %}
 redis:
   pkg.latest:
     - name: {{ redis.pkg_name }}
@@ -14,29 +13,9 @@ redis:
     - source: {{ redis.init }}
     - require:
       - pkg: {{ redis.pkg_name }}
-
-{% else %}
-
-redis_in_docker_prerequisites:
-  pkg.latest:
-    - name: redis_os_packages_prerequisites
-    - pkgs: {{ redis.prerequisites }}
-    - require:
-      - pkg: os_packages
-  pip.installed:
-    - name: redis_pip_prerequisites
-    - pkgs: {{ redis.pip_packages }}
-    - reload_modules: True
-    - require:
-      - pkg: redis_os_packages_prerequisites
-redis:
-  docker_image.present:
-    - name: {{ redis.image }}
-{% endif %}
 {%- endmacro %}
 
 {% macro redis_configure(redis, bind, cluster_enabled) -%}
-{% if redis.install_type == "repo" %}
 {% set instance = redis.service + '-' + bind.port|string %}
 {% set service = redis.service + '@' + instance %}
 
@@ -72,12 +51,27 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
 {% endif %}
     - require:
       - file_ext: /etc/redis/{{ instance }}.conf
+{%- endmacro %}
 
-{% else %}
+{% macro redis_docker_prerequisites(redis) -%}
+redis_in_docker_prerequisites:
+  pkg.latest:
+    - name: redis_os_packages_prerequisites
+    - pkgs: {{ redis.prerequisites }}
+    - require:
+      - pkg: os_packages
+  pip.installed:
+    - name: redis_pip_prerequisites
+    - pkgs: {{ redis.pip_packages }}
+    - reload_modules: True
+    - require:
+      - pkg: redis_os_packages_prerequisites
+{%- endmacro %}
 
+{% macro redis_docker(redis, bind, cluster_enabled) -%}
 redis_config_{{ bind.host }}_{{ bind.port }}:
   file.managed:
-    - name: /usr/local/etc/redis/redis_{{ bind.host }}_{{ bind.port }}.conf
+    - name: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/redis.conf
     - source: {{ redis.config }}
     - makedirs: True
     - template: jinja
@@ -89,17 +83,32 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
       cluster_enabled: {{ cluster_enabled }}
       install_type: {{ redis.install_type }}
     - require:
-      - docker_image: {{ redis.image }}
+      - pip: redis_pip_prerequisites
+
+redis_dockerfile_{{ bind.host }}_{{ bind.port }}:
+  file.managed:
+    - name: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/Dockerfile
+    - source: {{ redis.dockerfile }}
+    - makedirs: True
+    - require:
+      - file: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/redis.conf
+
+redis_{{ bind.host }}_{{ bind.port }}:
+  docker_image.present:
+    - name: {{ redis.image }}_{{ bind.host }}_{{ bind.port }}
+    - build: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/
+    - require:
+      - file: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/Dockerfile
   docker_container.running:
     - name: redis_{{ bind.host }}_{{ bind.port }}
-    - image: {{ redis.image }}
+    - image: {{ redis.image }}_{{ bind.host }}_{{ bind.port }}
+{% if salt['grains.get']("virtual_subtype") == "Docker" %}
     - network_mode: host
-#    - port_bindings:
-#      - {{ bind.host|dns_check(4505) }}:{{ bind.port }}:{{ redis.container_port }}
-    - command: redis-server /etc/redis/redis_{{ bind.host }}_{{ bind.port }}.conf
-    - binds:
-      - /usr/local/etc/redis/:/etc/redis/
-    - require:
-      - file: /usr/local/etc/redis/redis_{{ bind.host }}_{{ bind.port }}.conf
+{% else %}
+    - port_bindings:
+      - {{ bind.host|dns_check(4505) }}:{{ bind.port }}:{{ redis.container_port }}
 {% endif %}
+    - require:
+      - file: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/Dockerfile
+      - docker_image: {{ redis.image }}_{{ bind.host }}_{{ bind.port }}
 {%- endmacro %}

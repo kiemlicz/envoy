@@ -1,20 +1,17 @@
 {% from "redis/server/single/map.jinja" import redis as redis_single with context %}
-{% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces', default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
-{% set interface = salt['pillar.get']('redis:settings:interfaces', default=foreman_discovered_interfaces)|first %}
-{# inteface ports - it is useless - it must be pure pillar fetech - impossible to automate as mulitple nodes involved #}
-{% set ports = salt['pillar.get']('redis:settings:ports', default=[6379]) %}
+
 {# host_id == hostname by default #}
 {% set host_id = salt['grains.get']('id') %}
 
 {% set redis = salt['grains.filter_by']({
     'Debian': {
         'config': 'salt://redis/server/redis.conf',
-        'master_bind_list': [{
+        'masters': [{
           'host_id': host_id,
           'host': '127.0.0.1',
           'port': 6379,
         }],
-        'slave_bind_list': [{
+        'slaves': [{
           'master_host': '127.0.0.1',
           'master_port': 6379,
           'host_id': host_id,

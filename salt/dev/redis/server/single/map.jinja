@@ -1,4 +1,5 @@
-{% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces', default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
+{% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces',
+    default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
 {% set interface = salt['pillar.get']('redis:settings:interfaces', default=foreman_discovered_interfaces)|first %}
 {% set port = salt['pillar.get']('redis:settings:port', default="6379") %}
 
@@ -7,11 +8,12 @@
   'Debian': {
     'pkg_name': 'redis-server',
     'config': 'salt://redis/server/redis.conf',
+    'dockerfile': 'salt://redis/server/Dockerfile',
     'host': interface,
     'port': port,
     'container_port': 6379,
     'install_type': "docker",
-    'image': 'redis',
+    'image': 'redis-cluster',
     'prerequisites': ["python-pip", "redis-tools"],
     'pip_packages': ["docker-py"]
   },

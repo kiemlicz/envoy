@@ -5,5 +5,5 @@ start_orchestration:
   runner.state.orchestrate:
     - args:
       - mods:
-        - _orchestrate.redis.server.cluster.orch
+        - redis.server.cluster._orchestrate.orch
       - saltenv: {{ saltenv }}
