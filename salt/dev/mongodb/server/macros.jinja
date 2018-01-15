@@ -1,0 +1,36 @@
+{% macro mongodb_install(mongodb) -%}
+mongodb:
+{% if grains['os'] != 'Windows' %}
+  pkgrepo.managed:
+    - names: {{ mongodb.repo_entries }}
+    - file: {{ mongodb.file }}
+    - keyid: {{ mongodb.keyid }}
+    - keyserver: {{ mongodb.keyserver }}
+    - require:
+      - pkg: os_packages
+    - require_in:
+      - pkg: {{ mongodb.pkg_name }}
+{% endif %}
+  pkg.latest:
+    - name: {{ mongodb.pkg_name }}
+    - require:
+      - pkg: os_packages
+#  file_ext.managed:
+#    - name: {{ mongodb.init_location }}
+#    - source: {{ mongodb.init }}
+#    - require:
+#      - pkg: {{ mongodb.pkg_name }}
+
+{%- endmacro %}
+
+{% macro mongodb_configure(mongodb, bind) -%}
+mongodb_config_{{ bind.host }}_{{ bind.port }}:
+  service.running:
+    - name: {{ mongodb.service }}
+{% if salt['grains.get']("virtual_subtype") != "Docker" %}
+    - enable: True
+{% endif %}
+    - require:
+      - pkg: {{ mongodb.pkg_name }}
+
+{%- endmacro %}
