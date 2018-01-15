@@ -22,6 +22,8 @@ dev:
     - docker
     - virtualbox
     - projects
+    - redis.client
+    - mongodb.client
 
   'I@redis:setup_type:cluster and I@redis:install_type:repo':
     - match: compound
