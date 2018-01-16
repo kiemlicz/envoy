@@ -40,13 +40,15 @@
        },
    }, grain='oscodename', merge=salt['grains.filter_by']({
         'default': {
-          'init': 'salt://mongodb/server/mongodb.upstart',
+          'init': 'salt://mongodb/server/mongodb.init',
           'init_location': '/etc/init.d/mongod',
           'service': 'mongod',
+          'mode': "755"
         },
         'systemd': {
           'init': 'salt://mongodb/server/mongodb.service',
           'init_location': '/lib/systemd/system/mongodb@.service',
           'service': 'mongod',
+          'mode': "644",
         }
       }, grain='init', merge=salt['pillar.get']('mongodb')))) %}

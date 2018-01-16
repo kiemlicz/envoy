@@ -15,12 +15,12 @@ mongodb:
     - name: {{ mongodb.pkg_name }}
     - require:
       - pkg: os_packages
-#  file_ext.managed:
-#    - name: {{ mongodb.init_location }}
-#    - source: {{ mongodb.init }}
-#    - require:
-#      - pkg: {{ mongodb.pkg_name }}
-
+  file_ext.managed:
+    - name: {{ mongodb.init_location }}
+    - source: {{ mongodb.init }}
+    - mode: {{ mongodb.mode }}
+    - require:
+      - pkg: {{ mongodb.pkg_name }}
 {%- endmacro %}
 
 {% macro mongodb_configure(mongodb, bind) -%}
@@ -31,6 +31,5 @@ mongodb_config_{{ bind.host }}_{{ bind.port }}:
     - enable: True
 {% endif %}
     - require:
-      - pkg: {{ mongodb.pkg_name }}
-
+      - file_ext: {{ mongodb.init_location }}
 {%- endmacro %}
