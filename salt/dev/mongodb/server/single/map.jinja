@@ -20,10 +20,13 @@
         'name': 'mongo',
         'host': interface,
         'port': port,
+        'user': "mongodb",
+        'group': "mongodb",
         'config': {
+          'source': "salt://mongodb/server/mongod.conf",
           'db_path': "/var/lib/mongodb",
-          'log_file': "/var/log/mongodb/mongod.log",
-          'pid_file': "/var/run/mongodb.pid",
+          'log_path': "/var/log/mongodb",
+          'pid_path': "/var/run/mongodb",
         }
     },
 }, merge=salt['grains.filter_by']({
@@ -40,13 +43,13 @@
        },
    }, grain='oscodename', merge=salt['grains.filter_by']({
         'default': {
-          'init': 'salt://mongodb/server/mongodb.init',
+          'init': 'salt://mongodb/server/mongod.init',
           'init_location': '/etc/init.d/mongod',
           'service': 'mongod',
           'mode': "755"
         },
         'systemd': {
-          'init': 'salt://mongodb/server/mongodb.service',
+          'init': 'salt://mongodb/server/mongod.service',
           'init_location': '/lib/systemd/system/mongodb@.service',
           'service': 'mongod',
           'mode': "644",
