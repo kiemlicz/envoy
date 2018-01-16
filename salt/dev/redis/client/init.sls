@@ -1,4 +1,4 @@
-{% from "redis/client/map.jinja" import redis_client with context as redis %}
+{% from "redis/client/map.jinja" import redis_client as redis with context %}
 
 include:
   - pkgs

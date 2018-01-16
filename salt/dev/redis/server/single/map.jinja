@@ -22,10 +22,12 @@
       'init': 'salt://redis/server/redis.init',
       'init_location': '/etc/init.d/redis-server',
       'service': 'redis-server',
+      'mode': "755",
     },
     'systemd': {
       'init': 'salt://redis/server/redis.service',
       'init_location': '/lib/systemd/system/redis@.service',
       'service': 'redis',
+      'mode': "644",
     }
   }, grain='init', merge=salt['pillar.get']('redis'))) %}

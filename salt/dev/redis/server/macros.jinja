@@ -11,6 +11,7 @@ redis:
   file_ext.managed:
     - name: {{ redis.init_location }}
     - source: {{ redis.init }}
+    - mode: {{ redis.mode }}
     - require:
       - pkg: {{ redis.pkg_name }}
 {%- endmacro %}
