@@ -99,6 +99,7 @@ redis_{{ bind.host }}_{{ bind.port }}:
     - name: {{ redis.image }}_{{ bind.host }}_{{ bind.port }}
     - build: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/
     - require:
+      - service: {{ docker.service_name }}
       - file: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/Dockerfile
   docker_container.running:
     - name: redis_{{ bind.host }}_{{ bind.port }}

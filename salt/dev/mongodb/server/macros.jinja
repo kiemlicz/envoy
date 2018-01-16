@@ -70,3 +70,46 @@ mongodb_start_{{ bind.host }}_{{ bind.port }}:
     - require:
       - file: mongodb_config_{{ bind.host }}_{{ bind.port }}
 {%- endmacro %}
+
+{% macro mongodb_docker_prerequisites(mongodb) -%}
+mongo_in_docker_prerequisites:
+  pkg.latest:
+    - name: mongo_os_packages_requisites
+    - pkgs: {{ mongodb.prerequisites }}
+    - require:
+      - pkg: os_packages
+  pip.installed:
+    - name: mongodb_pip_prerequisites
+    - pkgs: {{ mongodb.pip_packages }}
+    - reload_modules: True
+    - require:
+      - pkg: mongo_os_packages_requisites
+{%- endmacro %}
+
+{% macro mongodb_docker(mongodb, bind) -%}
+mongodb_config_{{ bind.host }}_{{ bind.port }}:
+  file.managed:
+    - name: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/{{ mongodb.service }}.conf
+    - source: {{ mongodb.config.source }}
+    - makedirs: True
+    - template: jinja
+    - context:
+      bind:
+        host: {{ bind.host }}
+        port: {{ bind.port }}
+      mongodb: {{ mongodb }}
+    - require:
+      - pip: mongodb_pip_prerequisites
+
+mongodb:
+  docker_container.running:
+    - name: {{ mongodb.name }}
+    - image: {{ mongodb.image }}
+    {% for host in mongodb.bind_addresses %}
+    - port_bindings:
+      - {{ host }}:{{ mongodb.bind_port }}:{{ mongodb.container_port }}
+    {% endfor %}
+    - require:
+      - service: {{ docker.service_name }}
+      - pkg: mongo_in_docker_prerequisites
+{%- endmacro %}
