@@ -19,7 +19,7 @@
   },
 }, merge=salt['grains.filter_by']({
     'default': {
-      'init': 'salt://redis/server/redis.upstart',
+      'init': 'salt://redis/server/redis.init',
       'init_location': '/etc/init.d/redis-server',
       'service': 'redis-server',
     },
