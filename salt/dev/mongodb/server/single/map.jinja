@@ -13,7 +13,7 @@
         'file': '/etc/apt/sources.list.d/mongodb-org-3.6.list',
         'pkg_name': "mongodb-org",
         'install_type': "docker",
-        'prerequisites': ['python-pip'],
+        'prerequisites': ["python-pip", "mongodb-clients"],
         'pip_packages': ['docker-py'],
         'image': 'mongo:latest',
         'dockerfile': 'salt://mongodb/server/Dockerfile',

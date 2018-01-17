@@ -1,4 +1,4 @@
-FROM mongodb
+FROM mongo
 
 COPY mongod.conf /etc
 

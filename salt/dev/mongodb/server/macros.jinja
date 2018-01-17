@@ -114,7 +114,6 @@ mongodb_{{ bind.host }}_{{ bind.port }}:
     - name: {{ mongodb.image }}_{{ bind.host }}_{{ bind.port }}
     - build: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/
     - require:
-      - service: {{ docker.service_name }}
       - file_ext: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/Dockerfile
   docker_container.running:
     - name: mongodb_{{ bind.host }}_{{ bind.port }}
