@@ -101,6 +101,9 @@ mongodb_dockerfile_{{ bind.host }}_{{ bind.port }}:
   file_ext.managed:
     - name: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/Dockerfile
     - source: {{ mongodb.dockerfile }}
+    - template: jinja
+    - context:
+      mongodb: {{ mongodb }}
     - makedirs: True
     - require:
       - file_ext: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/{{ mongodb.service }}.conf
