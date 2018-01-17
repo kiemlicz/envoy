@@ -1,16 +1,18 @@
 {% from "mongodb/server/single/map.jinja" import mongodb as mongodb_single with context %}
 
+{% set host_id = salt['grains.get']('id') %}
+
 {% set mongodb = salt['grains.filter_by']({
     'Debian': {
-        'masters': [{
+        'shards': [{
           'host_id': host_id,
           'host': '127.0.0.1',
           'port': 27017,
           'replica_name': ""
         }],
-        'slaves': [{
+        'replicas': [{
           'master_host': '127.0.0.1',
-          'master_port': 6379,
+          'master_port': 27017,
           'host_id': host_id,
           'host': '127.0.0.1',
           'port': 28017,

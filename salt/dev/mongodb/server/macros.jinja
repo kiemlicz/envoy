@@ -34,9 +34,7 @@ mongodb_config_{{ bind.host }}_{{ bind.port }}:
     - makedirs: True
     - template: jinja
     - context:
-      bind:
-        host: {{ bind.host }}
-        port: {{ bind.port }}
+      bind: {{ bind }}
       mongodb: {{ mongodb }}
     - require:
       - file_ext: {{ mongodb.init_location }}
@@ -94,9 +92,7 @@ mongodb_config_{{ bind.host }}_{{ bind.port }}:
     - makedirs: True
     - template: jinja
     - context:
-      bind:
-        host: {{ bind.host }}
-        port: {{ bind.port }}
+      bind: {{ bind }}
       mongodb: {{ mongodb }}
     - require:
       - pip: mongodb_pip_prerequisites
