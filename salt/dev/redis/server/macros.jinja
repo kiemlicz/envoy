@@ -27,9 +27,7 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
     - makedirs: True
     - template: jinja
     - context:
-      bind:
-        host: {{ bind.host }}
-        port: {{ bind.port }}
+      bind: {{ bind }}
       redis: {{ redis }}
     - require:
       - file_ext: {{ redis.init_location }}
@@ -75,9 +73,7 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
     - makedirs: True
     - template: jinja
     - context:
-      bind:
-        host: {{ bind.host }}
-        port: {{ bind.port }}
+      bind: {{ bind }}
       redis: {{ redis }}
     - require:
       - pip: redis_pip_prerequisites
@@ -95,7 +91,6 @@ redis_{{ bind.host }}_{{ bind.port }}:
     - name: {{ redis.image }}_{{ bind.host }}_{{ bind.port }}
     - build: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/
     - require:
-      - service: {{ docker.service_name }}
       - file_ext: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/Dockerfile
   docker_container.running:
     - name: redis_{{ bind.host }}_{{ bind.port }}

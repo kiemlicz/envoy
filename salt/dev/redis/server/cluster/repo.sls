@@ -4,10 +4,6 @@
 
 {% set this_host = grains['id'] %}
 {% set all_instances = redis.masters + redis.slaves %}
-{% set bind = {
-  'host': redis.host,
-  'port': redis.port
-} %}
 
 {% if this_host in all_instances|map(attribute='host_id')|list %}
 
