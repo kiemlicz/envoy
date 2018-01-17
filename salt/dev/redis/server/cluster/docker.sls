@@ -14,7 +14,7 @@ include:
 
 {% for bind in all_instances|selectattr("host_id", "equalto", this_host)|list %}
 
-{{ redis_docker(redis, bind, True) }}
+{{ redis_docker(redis, bind) }}
 
 {% endfor %}
 

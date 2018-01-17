@@ -16,7 +16,7 @@ redis:
       - pkg: {{ redis.pkg_name }}
 {%- endmacro %}
 
-{% macro redis_configure(redis, bind, cluster_enabled) -%}
+{% macro redis_configure(redis, bind) -%}
 {% set instance = redis.service + '-' + bind.port|string %}
 {% set service = redis.service + '@' + instance %}
 
@@ -30,9 +30,7 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
       bind:
         host: {{ bind.host }}
         port: {{ bind.port }}
-      service_name: {{ redis.service }}
-      cluster_enabled: {{ cluster_enabled }}
-      install_type: {{ redis.install_type }}
+      redis: {{ redis }}
     - require:
       - file_ext: {{ redis.init_location }}
 {% if salt['grains.get']("init") != 'systemd' %}
@@ -69,9 +67,9 @@ redis_in_docker_prerequisites:
       - pkg: redis_os_packages_prerequisites
 {%- endmacro %}
 
-{% macro redis_docker(redis, bind, cluster_enabled) -%}
+{% macro redis_docker(redis, bind) -%}
 redis_config_{{ bind.host }}_{{ bind.port }}:
-  file.managed:
+  file_ext.managed:
     - name: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/redis.conf
     - source: {{ redis.config }}
     - makedirs: True
@@ -80,19 +78,17 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
       bind:
         host: {{ bind.host }}
         port: {{ bind.port }}
-      service_name: {{ redis.service }}
-      cluster_enabled: {{ cluster_enabled }}
-      install_type: {{ redis.install_type }}
+      redis: {{ redis }}
     - require:
       - pip: redis_pip_prerequisites
 
 redis_dockerfile_{{ bind.host }}_{{ bind.port }}:
-  file.managed:
+  file_ext.managed:
     - name: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/Dockerfile
     - source: {{ redis.dockerfile }}
     - makedirs: True
     - require:
-      - file: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/redis.conf
+      - file_ext: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/redis.conf
 
 redis_{{ bind.host }}_{{ bind.port }}:
   docker_image.present:
@@ -100,7 +96,7 @@ redis_{{ bind.host }}_{{ bind.port }}:
     - build: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/
     - require:
       - service: {{ docker.service_name }}
-      - file: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/Dockerfile
+      - file_ext: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/Dockerfile
   docker_container.running:
     - name: redis_{{ bind.host }}_{{ bind.port }}
     - image: {{ redis.image }}_{{ bind.host }}_{{ bind.port }}
@@ -111,6 +107,5 @@ redis_{{ bind.host }}_{{ bind.port }}:
       - {{ bind.host|dns_check(4505) }}:{{ bind.port }}:{{ redis.container_port }}
 {% endif %}
     - require:
-      - file: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/Dockerfile
       - docker_image: {{ redis.image }}_{{ bind.host }}_{{ bind.port }}
 {%- endmacro %}

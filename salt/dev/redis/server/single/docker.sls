@@ -12,4 +12,4 @@ include:
   - pkgs
 
 {{ redis_docker_prerequisites(redis) }}
-{{ redis_docker(redis, bind, False) }}
+{{ redis_docker(redis, bind) }}

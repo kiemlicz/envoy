@@ -11,4 +11,4 @@ include:
   - pkgs
 
 {{ redis_install(redis) }}
-{{ redis_configure(redis, bind, False) }}
+{{ redis_configure(redis, bind) }}
