@@ -2,18 +2,18 @@
 
 {% set mongodb = salt['grains.filter_by']({
     'Debian': {
-        'config': 'salt://redis/server/redis.conf',
         'masters': [{
           'host_id': host_id,
           'host': '127.0.0.1',
-          'port': 6379,
+          'port': 27017,
+          'replica_name': ""
         }],
         'slaves': [{
           'master_host': '127.0.0.1',
           'master_port': 6379,
           'host_id': host_id,
           'host': '127.0.0.1',
-          'port': 6390,
+          'port': 28017,
         }],
     },
 }, merge=salt['pillar.get']('mongodb')) %}

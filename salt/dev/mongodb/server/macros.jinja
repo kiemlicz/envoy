@@ -88,7 +88,7 @@ mongo_in_docker_prerequisites:
 
 {% macro mongodb_docker(mongodb, bind) -%}
 mongodb_config_{{ bind.host }}_{{ bind.port }}:
-  file.managed:
+  file_ext.managed:
     - name: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/{{ mongodb.service }}.conf
     - source: {{ mongodb.config.source }}
     - makedirs: True
@@ -101,15 +101,32 @@ mongodb_config_{{ bind.host }}_{{ bind.port }}:
     - require:
       - pip: mongodb_pip_prerequisites
 
-mongodb:
+mongodb_dockerfile_{{ bind.host }}_{{ bind.port }}:
+  file_ext.managed:
+    - name: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/Dockerfile
+    - source: {{ mongodb.dockerfile }}
+    - makedirs: True
+    - require:
+      - file_ext: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/{{ mongodb.service }}.conf
+
+mongodb_{{ bind.host }}_{{ bind.port }}:
+  docker_image.present:
+    - name: {{ mongodb.image }}_{{ bind.host }}_{{ bind.port }}
+    - build: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/
+    - require:
+      - service: {{ docker.service_name }}
+      - file_ext: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/Dockerfile
   docker_container.running:
-    - name: {{ mongodb.name }}
+    - name: mongodb_{{ bind.host }}_{{ bind.port }}
     - image: {{ mongodb.image }}
+{% if salt['grains.get']("virtual_subtype") == "Docker" %}
+    - network_mode: host
+{% else %}
     {% for host in mongodb.bind_addresses %}
     - port_bindings:
       - {{ host }}:{{ mongodb.bind_port }}:{{ mongodb.container_port }}
     {% endfor %}
+{% endif %}
     - require:
-      - service: {{ docker.service_name }}
-      - pkg: mongo_in_docker_prerequisites
+      - docker_image: {{ mongodb.image }}_{{ bind.host }}_{{ bind.port }}
 {%- endmacro %}
