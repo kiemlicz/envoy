@@ -116,7 +116,7 @@ mongodb_{{ bind.host }}_{{ bind.port }}:
       - file_ext: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/Dockerfile
   docker_container.running:
     - name: mongodb_{{ bind.host }}_{{ bind.port }}
-    - image: {{ mongodb.image }}
+    - image: {{ mongodb.image }}_{{ bind.host }}_{{ bind.port }}
 {% if salt['grains.get']("virtual_subtype") == "Docker" %}
     - network_mode: host
 {% else %}
