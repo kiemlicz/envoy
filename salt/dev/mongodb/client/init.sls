@@ -1,4 +1,4 @@
-{% from "mongodb/client/map.jinja" import mongodb_client with context as mongodb %}
+{% from "mongodb/client/map.jinja" import mongodb_client as mongodb with context  %}
 
 include:
   - pkgs
