@@ -1,12 +1,12 @@
 {% from "mongodb/server/cluster/map.jinja" import mongodb with context %}
 
-{% set replica_initializer = mongodb.replicas|selectattr('init')|first %}
+{% set master = mongodb.replicas|selectattr('master')|first %}
 
 mongodb_replica_set:
   salt.state:
-    - tgt: {{ replica_initializer.host }}
+    - tgt: {{ master.host }}
     - sls:
       - "mongodb.server.cluster._orchestrate.replicate"
-    - saltenv: saltenv
+    - saltenv: {{ saltenv }}
     - pillar:
-        initializer: {{ replica_initializer }}
+        master: {{ master }}

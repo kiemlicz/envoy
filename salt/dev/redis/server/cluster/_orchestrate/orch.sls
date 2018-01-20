@@ -1,16 +1,21 @@
 #!py
 
 
+#no easy way to import map.jinja in py renderer
+#https://github.com/saltstack/salt/issues/45521
+def _map():
+  return __salt__.grains.filter_by({
+        'default': {
+          'total_slots': 16384,
+        }
+      }, merge=__salt__.pillar.get('redis'))
+
 def run():
-  masters = [e["host_id"] for e in __pillar__["redis"]["masters"]]
-  slaves = [e["host_id"] for e in __pillar__["redis"]["slaves"]]
+  redis = _map()
+  masters = [e["host_id"] for e in redis["masters"]]
+  slaves = [e["host_id"] for e in redis["slaves"]]
   redis_minions = list(set(masters + slaves))
-  #todo come up with idea how to import in #!py jinja template
-  redis_cluster = __salt__['grains.filter_by']({
-    'default': {
-      'total_slots': 16384,
-    }
-  }, merge=__salt__['pillar.get']('redis'))
+
   slots = {}
   state = {}
 
@@ -25,7 +30,7 @@ def run():
     }
     return state
 
-  for i in range(0, redis_cluster['total_slots']):
+  for i in range(0, redis['total_slots']):
     slots.setdefault(masters[i%len(masters)], []).append(i)
 
   state['redis_cluster_reset'] = {
