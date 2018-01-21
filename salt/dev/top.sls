@@ -20,6 +20,7 @@ dev:
     - intellij
     - robomongo
     - docker
+    - docker.compose
     - virtualbox
     - projects
     - redis.client
