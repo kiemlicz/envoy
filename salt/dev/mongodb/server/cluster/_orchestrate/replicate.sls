@@ -26,14 +26,14 @@ def run():
   state['mongodb_initiate_replica_set'] = {
     'cmd.run': [
       { 'name': "mongo --host {} --port {} --eval 'rs.initiate({})'".format(master['host'], master['port'], replica_config) },
-      { 'unless': "mongo --host {} --port {} --eval 'rs.status()' | grep 'errmsg'" }
+      { 'onlyif': "mongo --host {} --port {} --eval 'rs.status()' | grep 'errmsg'".format(master['host'], master['port']) }
     ]
   }
 
   state['mongodb_reconfig_replica_set'] = {
     'cmd.run': [
       { 'name': "mongo --host {} --port {} --eval 'rs.reconfig({})'".format(master['host'], master['port'], replica_config) },
-      { 'onlyif': "mongo --host {} --port {} --eval 'rs.status()' | grep 'errmsg'" }
+      { 'unless': "mongo --host {} --port {} --eval 'rs.status()' | grep 'errmsg'".format(master['host'], master['port']) }
     ]
   }
 
