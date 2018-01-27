@@ -10,6 +10,7 @@ docker_compose:
     - source: {{ docker.compose.url }}
     - mode: 755
     - user: {{ docker.compose.owner }}
+    - skip_verify: True
     - require:
       - service: {{ docker.service_name }}
 docker_compose_link:
