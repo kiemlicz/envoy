@@ -13,4 +13,4 @@ docker_compose:
     - require:
       - service: {{ docker.service_name }}
 docker_compose_link:
-{{ link_to_bin(docker.owner_link_location, docker.compose.location, docker.compose.owner) }}
+{{ link_to_bin(docker.compose.owner_link_location, docker.compose.location, docker.compose.owner) }}
