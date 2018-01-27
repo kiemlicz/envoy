@@ -3,7 +3,7 @@
 include:
   - pkgs
 
-{% if spotify.required_pkgs_urls is defined %}
+{% if spotify.required_pkgs_urls %}
 spotify_prerequisites:
   pkg.installed:
     - sources:
