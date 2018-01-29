@@ -19,8 +19,5 @@
         'repo_entries': [
             "deb http://repository.spotify.com testing non-free"
         ],
-        'required_pkgs_urls': {
-          "libssl1.0.0": "http://ftp.de.debian.org/debian/pool/main/o/openssl/libssl1.0.0_1.0.1t-1+deb8u6_amd64.deb"
-        }
     }
 }, grain='oscodename', merge=salt['pillar.get']('spotify'))) %}
