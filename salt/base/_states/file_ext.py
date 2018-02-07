@@ -8,6 +8,7 @@ import salt.utils.locales
 from salt.exceptions import CommandExecutionError
 from salt.ext import six
 from salt.ext.six.moves.urllib.parse import urlparse
+import salt.version
 
 try:
     from google.auth.transport.urllib3 import AuthorizedHttp
@@ -21,6 +22,9 @@ log = logging.getLogger(__name__)
 
 
 def __virtual__():
+    salt_version = salt.version.__saltstack_version__.string
+    if salt_version != "2017.7.3":
+        return False, "Cannot load file.ext, install: salt version 2017.7.3"
     return True if HAS_GOOGLE_AUTH else (False, "Cannot load file.ext, install: google-auth library")
 
 
@@ -28,6 +32,7 @@ def managed(name,
             source=None,
             source_hash='',
             source_hash_name=None,
+            keep_source=True,
             user=None,
             group=None,
             mode=None,
@@ -71,7 +76,7 @@ def managed(name,
     '''
 
     def delegate_to_file_managed(source, contents):
-        return __states__['file.managed'](name, source, source_hash, source_hash_name, user, group, mode, template,
+        return __states__['file.managed'](name, source, source_hash, source_hash_name, keep_source, user, group, mode, template,
                                           makedirs, dir_mode, context, replace, defaults, backup, show_changes, create,
                                           contents, tmp_ext, contents_pillar, contents_grains, contents_newline,
                                           contents_delimiter, encoding, encoding_errors, allow_empty, follow_symlinks,
@@ -95,7 +100,7 @@ def managed(name,
 
 def recurse(name,
             source,
-            keep_source=True,  # not yet supported in 2017.7
+            keep_source=True,
             clean=False,
             require=None,
             user=None,
@@ -128,7 +133,7 @@ def recurse(name,
     }
 
     def delegate_to_file_recurse():
-        return __states__['file.recurse'](name, source, clean, require, user, group, dir_mode, file_mode, sym_mode,
+        return __states__['file.recurse'](name, source, keep_source, clean, require, user, group, dir_mode, file_mode, sym_mode,
                                           template, context, defaults, include_empty, backup, include_pat,
                                           exclude_pat, maxdepth, keep_symlinks, force_symlinks, **kwargs)
 
