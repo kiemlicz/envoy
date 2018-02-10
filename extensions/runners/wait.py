@@ -7,20 +7,20 @@ import salt.syspaths as syspaths
 log = logging.getLogger(__name__)
 
 
-def until(expected_minions_list, action_type, data, sls=None):
+def until(expected_minions_list, triggering_minion, action_type, fun_args, sls=None):
     """
     Checks if all `expected_minions_list` have completed their jobs
     If so propagates event with tag: salt/$action_type/ret
 
     :param expected_minions_list: minion ids list that must complete jobs
+    :param triggering_minion: minion id that returned
     :param action_type: arbitrary string to distinguish multiple checks
-    :param data: full event data
+    :param fun_args: fun_args from event data
     :param sls: state.sls (string) name to wait for
     :return:
     """
 
-    triggering_minion = data['id']
-    triggering_sls = next((e for e in data['fun_args'] if isinstance(e, str)), None)  # state.highstate will receive None here
+    triggering_sls = next((e for e in fun_args if isinstance(e, str)), None)  # state.highstate will receive None here
 
     if triggering_sls == sls:
         bank = "{}_finished".format(action_type) if sls is None else "{}_{}_finished".format(action_type, sls)
