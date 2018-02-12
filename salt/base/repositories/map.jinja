@@ -19,7 +19,14 @@
                 "deb-src http://ftp.pl.debian.org/debian/ experimental main contrib non-free"
             ],
             'file': '/etc/apt/sources.list.d/experimental.list'
-        }],
+        },{
+            'names': [
+               "deb http://dl.google.com/linux/chrome/deb/ stable main"
+             ],
+            'file': '/etc/apt/sources.list.d/google-chrome.list',
+            'key_url': 'https://dl.google.com/linux/linux_signing_key.pub'
+        }
+        ],
         'preferences': [{
             'file': '/etc/apt/preferences.d/experimental.pref',
             'pin': 'release a=experimental',
@@ -57,6 +64,12 @@
                 "deb http://security.debian.org/ testing/updates main contrib non-free"
             ],
             'file': '/etc/apt/sources.list.d/security.list'
+        },{
+            'names': [
+                "deb http://dl.google.com/linux/chrome/deb/ stable main"
+            ],
+            'file': '/etc/apt/sources.list.d/google-chrome.list',
+            'key_url': 'https://dl.google.com/linux/linux_signing_key.pub'
         }
         ],
         'preferences': [{
