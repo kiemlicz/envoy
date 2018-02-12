@@ -11,4 +11,7 @@
       'yakkety': {
         'pkgs': ["lxc", "bridge-utils", "debootstrap"],
       },
+      'artful': {
+        'pkgs': ["lxc", "bridge-utils", "debootstrap"],
+      }
 }, merge=salt['pillar.get']('lxc', default=defaults.lxc, merge=True))) %}
