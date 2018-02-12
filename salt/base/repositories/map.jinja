@@ -159,6 +159,23 @@
              'key_url': 'https://dl.google.com/linux/linux_signing_key.pub'
         }]
     },
+    'artful':{
+          'list': [{
+              'names': [
+               "deb http://pl.archive.ubuntu.com/ubuntu/ artful main restricted",
+               "deb http://pl.archive.ubuntu.com/ubuntu/ artful-updates main restricted",
+               "deb http://pl.archive.ubuntu.com/ubuntu/ artful universe",
+               "deb http://pl.archive.ubuntu.com/ubuntu/ artful-updates universe",
+               "deb http://pl.archive.ubuntu.com/ubuntu/ artful multiverse",
+               "deb http://pl.archive.ubuntu.com/ubuntu/ artful-updates multiverse",
+               "deb http://pl.archive.ubuntu.com/ubuntu/ artful-backports main restricted universe multiverse",
+               "deb http://security.ubuntu.com/ubuntu artful-security main restricted",
+               "deb http://security.ubuntu.com/ubuntu artful-security universe",
+               "deb http://security.ubuntu.com/ubuntu artful-security multiverse"
+            ],
+          'file': '/etc/apt/sources.list.d/artful.list'
+          }]
+        },
 }, grain='oscodename', merge=salt['pillar.get']('repositories'))) %}
 {% block repositories_filter %}
 {% endblock %}
