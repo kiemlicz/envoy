@@ -14,4 +14,4 @@
       'artful': {
         'pkgs': ["lxc", "bridge-utils", "debootstrap"],
       }
-}, merge=salt['pillar.get']('lxc', default=defaults.lxc, merge=True))) %}
+}, grain='oscodename', merge=salt['pillar.get']('lxc', default=defaults.lxc, merge=True))) %}
