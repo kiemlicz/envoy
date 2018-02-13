@@ -52,8 +52,8 @@ dev:
     - match: compound
     - mongodb.server.single.docker
 
-  'gpus:vendor:nvidia':
-    - match: grain
+  'G@gpus:vendor:nvidia and G@os:Debian':
+    - match: compound
     - nvidia
 
   'not G@os:Windows':
