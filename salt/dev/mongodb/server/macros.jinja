@@ -1,0 +1,130 @@
+{% macro mongodb_install(mongodb) -%}
+mongodb:
+{% if grains['os'] != 'Windows' %}
+  pkgrepo.managed:
+    - names: {{ mongodb.repo_entries }}
+    - file: {{ mongodb.file }}
+    - keyid: {{ mongodb.keyid }}
+    - keyserver: {{ mongodb.keyserver }}
+    - require:
+      - pkg: os_packages
+    - require_in:
+      - pkg: {{ mongodb.pkg_name }}
+{% endif %}
+  pkg.latest:
+    - name: {{ mongodb.pkg_name }}
+    - require:
+      - pkg: os_packages
+  file_ext.managed:
+    - name: {{ mongodb.init_location }}
+    - source: {{ mongodb.init }}
+    - mode: {{ mongodb.mode }}
+    - require:
+      - pkg: {{ mongodb.pkg_name }}
+{%- endmacro %}
+
+{% macro mongodb_configure(mongodb, bind) -%}
+{% set instance = mongodb.service + '-' + bind.port|string %}
+{% set service = mongodb.service + '@' + instance %}
+
+mongodb_config_{{ bind.host }}_{{ bind.port }}:
+  file_ext.managed:
+    - name: /etc/{{ instance }}.conf
+    - source: {{ mongodb.config.source }}
+    - makedirs: True
+    - template: jinja
+    - context:
+      bind: {{ bind }}
+      mongodb: {{ mongodb }}
+    - require:
+      - file_ext: {{ mongodb.init_location }}
+  file.directory:
+    - names:
+      - {{ mongodb.config.db_path }}/{{ mongodb.service }}-{{ bind.port }}
+      - {{ mongodb.config.pid_path }}
+      - {{ mongodb.config.log_path }}
+    - user: {{ mongodb.user }}
+    - group: {{ mongodb.group }}
+    - makedirs: True
+    - require:
+      - file_ext: /etc/{{ instance }}.conf
+
+mongodb_start_{{ bind.host }}_{{ bind.port }}:
+{% if salt['grains.get']("init") != 'systemd' %}
+{% set service = instance %}
+  file.symlink:
+    - name: /etc/init.d/{{ instance }}
+    - target: {{ mongodb.init_location }}
+    - require:
+      - file: mongodb_config_{{ bind.host }}_{{ bind.port }}
+    - require_in:
+      - service: {{ service }}
+{% endif %}
+  service.running:
+    - name: {{ service }}
+{% if salt['grains.get']("virtual_subtype") != "Docker" %}
+    - enable: True
+{% endif %}
+    - require:
+      - file: mongodb_config_{{ bind.host }}_{{ bind.port }}
+{%- endmacro %}
+
+{% macro mongodb_docker_prerequisites(mongodb) -%}
+mongo_in_docker_prerequisites:
+  pkg.latest:
+    - name: mongo_os_packages_requisites
+    - pkgs: {{ mongodb.prerequisites }}
+    - require:
+      - pkg: os_packages
+  pip.installed:
+    - name: mongodb_pip_prerequisites
+    - pkgs: {{ mongodb.pip_packages }}
+    - reload_modules: True
+    - require:
+      - pkg: mongo_os_packages_requisites
+{%- endmacro %}
+
+{% macro mongodb_docker(mongodb, bind) -%}
+mongodb_config_{{ bind.host }}_{{ bind.port }}:
+  file_ext.managed:
+    - name: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/{{ mongodb.service }}.conf
+    - source: {{ mongodb.config.source }}
+    - makedirs: True
+    - template: jinja
+    - context:
+      bind: {{ bind }}
+      mongodb: {{ mongodb }}
+    - require:
+      - pip: mongodb_pip_prerequisites
+
+mongodb_dockerfile_{{ bind.host }}_{{ bind.port }}:
+  file_ext.managed:
+    - name: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/Dockerfile
+    - source: {{ mongodb.dockerfile }}
+    - template: jinja
+    - context:
+      mongodb: {{ mongodb }}
+    - makedirs: True
+    - require:
+      - file_ext: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/{{ mongodb.service }}.conf
+
+mongodb_{{ bind.host }}_{{ bind.port }}:
+  docker_image.present:
+    - name: {{ mongodb.image }}_{{ bind.host }}_{{ bind.port }}
+    - build: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/
+    - require:
+      - file_ext: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/Dockerfile
+  docker_container.running:
+    - name: mongodb_{{ bind.host }}_{{ bind.port }}
+    - image: {{ mongodb.image }}_{{ bind.host }}_{{ bind.port }}
+{% if salt['grains.get']("virtual_subtype") == "Docker" %}
+    - network_mode: host
+{% else %}
+    {% for host in mongodb.bind_addresses %}
+    - port_bindings:
+      - {{ host }}:{{ mongodb.bind_port }}:{{ mongodb.container_port }}
+    {% endfor %}
+{% endif %}
+    - require:
+      - docker_image: {{ mongodb.image }}_{{ bind.host }}_{{ bind.port }}
+{%- endmacro %}

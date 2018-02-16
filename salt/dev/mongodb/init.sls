@@ -1,3 +1,0 @@
-include:
-  - pkgs
-  - mongodb.server

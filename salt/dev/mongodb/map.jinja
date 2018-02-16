@@ -1,3 +1,0 @@
-{% import_yaml "mongodb/defaults.yaml" as defaults %}
-
-{% set setup_type = salt['pillar.get']('mongodb:setup_type', default=defaults.mongodb.setup_type) %}

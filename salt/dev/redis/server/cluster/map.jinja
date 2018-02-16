@@ -1,39 +1,24 @@
-{% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces', default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
-{% set interface = salt['pillar.get']('redis:settings:interfaces', default=foreman_discovered_interfaces)|first %}
-{% set ports = salt['pillar.get']('redis:settings:ports', default=[6379]) %}
+{% from "redis/server/single/map.jinja" import redis as redis_single with context %}
+
+{# host_id == hostname by default #}
 {% set host_id = salt['grains.get']('id') %}
-{% set total_slots = 16383 %}
 
 {% set redis = salt['grains.filter_by']({
     'Debian': {
-        'name': 'redis',
-        'pkg_name': 'redis-server',
-        'service': 'redis',
-        'user': 'redis',
         'config': 'salt://redis/server/redis.conf',
-        'init': 'salt://redis/server/redis.service',
-        'init_location': '/lib/systemd/system/redis@.service',
-        'master_bind_list': [{
+        'masters': [{
           'host_id': host_id,
           'host': '127.0.0.1',
           'port': 6379,
         }],
-        'slave_bind_list': [{
+        'slaves': [{
           'master_host': '127.0.0.1',
           'master_port': 6379,
           'host_id': host_id,
           'host': '127.0.0.1',
           'port': 6390,
         }],
-        'prerequisites': [],
-        'pip_packages': []
     },
 }, merge=salt['pillar.get']('redis')) %}
 
-{% set redis_cluster = salt['grains.filter_by']({
-    'default': {
-      'total_slots': total_slots,
-      'range': total_slots // redis.master_bind_list|count,
-      'remaining_slots': total_slots % redis.master_bind_list|count,
-    },
-}, merge=salt['pillar.get']('redis_cluster')) %}
+{% do redis.update(redis_single) %}

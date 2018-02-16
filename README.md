@@ -1,10 +1,20 @@
 # Basics 
 [SaltStack](https://saltstack.com/) _states_ for provisioning machines in the most generic way possible.  
 The goal is to create _salt environments_ usable by developers as well as admins during the setup of either server or 'client' machines.
+
 ## Setup  
-Either refer to SaltStack documentation of [gitfs](https://docs.saltstack.com/en/latest/topics/tutorials/gitfs.html) 
+There are multiple options to deploy **envoy**.  
+They depend on how you want to provision machines:  
+ 1. Separate `salt-master` process provisioning `salt-minions`:  
+Refer to SaltStack documentation of [gitfs](https://docs.saltstack.com/en/latest/topics/tutorials/gitfs.html) 
 (if you prefer local filesystem then familiarize with [multienv](https://docs.saltstack.com/en/latest/ref/states/top.html)) or use 
 fully automated setup of SaltStack via associated [project ambassador](https://github.com/kiemlicz/ambassador)
+
+ 2. Master-less provisioning (machine provisions itself):  
+ **Steps**
+    1. `curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com`
+    2. `sh /tmp/bootstrap-salt.sh stable 2017.7.1`
+    3. Use `config/masterless.conf` (put under `/etc/salt/minion.d/`) 
 
 ## Usage
 In order to run _states_ against _minions_, _pillar_ must be configured.

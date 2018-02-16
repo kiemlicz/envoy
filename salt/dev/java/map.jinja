@@ -26,4 +26,10 @@
            "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu zesty main"
          ],
    },
+   'artful': {
+        'repo_entries': [
+           "deb http://ppa.launchpad.net/webupd8team/java/ubuntu artful main",
+           "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu artful main"
+         ],
+   },
 }, grain='oscodename', merge=salt['pillar.get']('java'))) %}

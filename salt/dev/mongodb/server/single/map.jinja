@@ -1,0 +1,56 @@
+{% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces',
+    default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
+{% set interface = salt['pillar.get']('mongodb:settings:interfaces', default=foreman_discovered_interfaces)|first %}
+{% set port = salt['pillar.get']('mongodb:settings:port', default=27017) %}
+
+{% set mongodb = salt['grains.filter_by']({
+    'Debian': {
+        'repo_entries': [
+          "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.6 main"
+        ],
+        'keyserver': "hkp://keyserver.ubuntu.com:80",
+        'keyid': "2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5",
+        'file': '/etc/apt/sources.list.d/mongodb-org-3.6.list',
+        'pkg_name': "mongodb-org",
+        'prerequisites': ["python-pip", "mongodb-clients"],
+        'pip_packages': ['docker-py'],
+        'image': 'mongo',
+        'dockerfile': 'salt://mongodb/server/Dockerfile',
+        'container_port': 27017,
+        'host': interface,
+        'port': port,
+        'user': "mongodb",
+        'group': "mongodb",
+        'config': {
+          'source': "salt://mongodb/server/mongod.conf",
+          'db_path': "/var/lib/mongodb",
+          'log_path': "/var/log/mongodb",
+          'pid_path': "/var/run/mongodb",
+        }
+    },
+}, merge=salt['grains.filter_by']({
+       'stretch': {
+         'repo_entries': [
+            "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.6 main",
+            "deb http://ftp.debian.org/debian jessie-backports main"
+         ]
+       },
+       'zesty': {
+         'repo_entries': [
+             "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse"
+         ],
+       },
+   }, grain='oscodename', merge=salt['grains.filter_by']({
+        'default': {
+          'init': 'salt://mongodb/server/mongod.init',
+          'init_location': '/etc/init.d/mongod',
+          'service': 'mongod',
+          'mode': "755"
+        },
+        'systemd': {
+          'init': 'salt://mongodb/server/mongod.service',
+          'init_location': '/lib/systemd/system/mongodb@.service',
+          'service': 'mongod',
+          'mode': "644",
+        }
+      }, grain='init', merge=salt['pillar.get']('mongodb')))) %}
