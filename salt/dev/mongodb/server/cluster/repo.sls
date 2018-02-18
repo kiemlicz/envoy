@@ -10,6 +10,10 @@
 include:
   - pkgs
 
+#mongodb client is installed without adding mongodb repo - thus causes conflicts with official mongo repo
+exclude:
+  - id: mongodb_client
+
 {{ mongodb_install(mongodb) }}
 
 {% for bind in all_instances|selectattr("host_id", "equalto", this_host)|list %}
