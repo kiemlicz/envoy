@@ -19,12 +19,16 @@ dev:
     - rebar
     - intellij
     - robomongo
-    - docker
-    - docker.compose
     - virtualbox
     - projects
     - redis.client
     - mongodb.client
+
+# Artful image has hard time whereas Debian does not: https://github.com/docker/for-linux/issues/230
+  'not (G@virtual_subtype:Docker and G@oscodename:artful)':
+    - match: compound
+    - docker
+    - docker.compose
 
   'I@redis:setup_type:cluster and I@redis:install_type:repo':
     - match: compound
