@@ -1,0 +1,8 @@
+{# fetching params from foreman #}
+{% set keepalived = salt['grains.filter_by']({
+    'default': {
+      'pkg_name': 'keepalived',
+      'location': '/etc/keepalived/keepalived.conf',
+      'config': 'salt://keepalived/keepalived.conf',
+    },
+}, merge=salt['pillar.get']('keepalived')) %}
