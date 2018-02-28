@@ -7,18 +7,24 @@
     'Debian': {
         'config': 'salt://redis/server/redis.conf',
         'masters': [{
-          'host_id': host_id,
-          'host': '127.0.0.1',
+          'id': host_id,
+          'ip': '127.0.0.1',
           'port': 6379,
         }],
         'slaves': [{
-          'master_host': '127.0.0.1',
+          'id': host_id,
+          'master_ip': '127.0.0.1',
           'master_port': 6379,
-          'host_id': host_id,
-          'host': '127.0.0.1',
-          'port': 6390,
+          'ip': '127.0.0.1',
+          'port': 6380,
         }],
     },
 }, merge=salt['pillar.get']('redis')) %}
 
 {% do redis.update(redis_single) %}
+
+{# fill ip addresses #}
+{% for master in redis.masters|selectattr('host', 'undefined') %}
+{% set master_ip = salt['mine.get'](tgt=master.id, fun='network.ip_addrs') %}
+{% do master.update({ "ip": master_ip[master.id][0] }) %}
+{% endfor %}

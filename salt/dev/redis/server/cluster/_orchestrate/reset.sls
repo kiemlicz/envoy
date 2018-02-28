@@ -3,10 +3,10 @@
 {% set this_host = grains['id'] %}
 {% set all_instances = redis.masters + redis.slaves %}
 
-{% for instance in all_instances|selectattr("host_id", "equalto", this_host)|list %}
+{% for instance in all_instances|selectattr("id", "equalto", this_host)|list %}
 
-redis_{{ instance.host }}_{{ instance.port }}_cluster_reset:
+redis_{{ instance.ip }}_{{ instance.port }}_cluster_reset:
   cmd.run:
-    - name: redis-cli -h {{ instance.host }} -p {{ instance.port }} CLUSTER RESET
+    - name: redis-cli -h {{ instance.ip }} -p {{ instance.port }} CLUSTER RESET
 
 {% endfor %}

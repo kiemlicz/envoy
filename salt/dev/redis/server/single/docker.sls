@@ -4,7 +4,7 @@
 {% from "docker/map.jinja" import docker with context %}
 
 {% set bind = {
-  'host': redis.host,
+  'ip': redis.ip,
   'port': redis.port
 } %}
 

@@ -1,5 +1,5 @@
-{% macro redis_master_id(host, port) -%}
-{{ salt['cmd.run']('redis-cli -h ' + host + ' -p ' + port|string + ' CLUSTER MYID') }}
+{% macro redis_master_id(ip, port) -%}
+{{ salt['cmd.run']('redis-cli -h ' + ip + ' -p ' + port|string + ' CLUSTER MYID') }}
 {%- endmacro %}
 
 {% macro redis_install(redis) -%}
@@ -20,7 +20,7 @@ redis:
 {% set instance = redis.service + '-' + bind.port|string %}
 {% set service = redis.service + '@' + instance %}
 
-redis_config_{{ bind.host }}_{{ bind.port }}:
+redis_config_{{ bind.ip }}_{{ bind.port }}:
   file_ext.managed:
     - name: /etc/redis/{{ instance }}.conf
     - source: {{ redis.config }}
@@ -66,9 +66,9 @@ redis_in_docker_prerequisites:
 {%- endmacro %}
 
 {% macro redis_docker(redis, bind) -%}
-redis_config_{{ bind.host }}_{{ bind.port }}:
+redis_config_{{ bind.ip }}_{{ bind.port }}:
   file_ext.managed:
-    - name: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/redis.conf
+    - name: /usr/local/share/redis/{{ bind.ip }}_{{ bind.port }}/redis.conf
     - source: {{ redis.config }}
     - makedirs: True
     - template: jinja
@@ -78,29 +78,29 @@ redis_config_{{ bind.host }}_{{ bind.port }}:
     - require:
       - pip: redis_pip_prerequisites
 
-redis_dockerfile_{{ bind.host }}_{{ bind.port }}:
+redis_dockerfile_{{ bind.ip }}_{{ bind.port }}:
   file_ext.managed:
-    - name: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/Dockerfile
+    - name: /usr/local/share/redis/{{ bind.ip }}_{{ bind.port }}/Dockerfile
     - source: {{ redis.dockerfile }}
     - makedirs: True
     - require:
-      - file_ext: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/redis.conf
+      - file_ext: /usr/local/share/redis/{{ bind.ip }}_{{ bind.port }}/redis.conf
 
-redis_{{ bind.host }}_{{ bind.port }}:
+redis_{{ bind.ip }}_{{ bind.port }}:
   docker_image.present:
-    - name: {{ redis.image }}_{{ bind.host }}_{{ bind.port }}
-    - build: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/
+    - name: {{ redis.image }}_{{ bind.ip }}_{{ bind.port }}
+    - build: /usr/local/share/redis/{{ bind.ip }}_{{ bind.port }}/
     - require:
-      - file_ext: /usr/local/share/redis/{{ bind.host }}_{{ bind.port }}/Dockerfile
+      - file_ext: /usr/local/share/redis/{{ bind.ip }}_{{ bind.port }}/Dockerfile
   docker_container.running:
-    - name: redis_{{ bind.host }}_{{ bind.port }}
-    - image: {{ redis.image }}_{{ bind.host }}_{{ bind.port }}
+    - name: redis_{{ bind.ip }}_{{ bind.port }}
+    - image: {{ redis.image }}_{{ bind.ip }}_{{ bind.port }}
 {% if salt['grains.get']("virtual_subtype") == "Docker" %}
     - network_mode: host
 {% else %}
     - port_bindings:
-      - {{ bind.host|dns_check(4505) }}:{{ bind.port }}:{{ redis.container_port }}
+      - {{ bind.ip }}:{{ bind.port }}:{{ redis.container_port }}
 {% endif %}
     - require:
-      - docker_image: {{ redis.image }}_{{ bind.host }}_{{ bind.port }}
+      - docker_image: {{ redis.image }}_{{ bind.ip }}_{{ bind.port }}
 {%- endmacro %}

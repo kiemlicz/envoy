@@ -3,7 +3,7 @@
 {% from "redis/server/macros.jinja" import redis_configure with context %}
 
 {% set bind = {
-  'host': redis.host,
+  'ip': redis.ip,
   'port': redis.port
 } %}
 

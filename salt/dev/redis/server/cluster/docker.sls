@@ -5,14 +5,14 @@
 {% set this_host = grains['id'] %}
 {% set all_instances = redis.masters + redis.slaves %}
 
-{% if this_host in all_instances|map(attribute='host_id')|list %}
+{% if this_host in all_instances|map(attribute='id')|list %}
 
 include:
   - pkgs
 
 {{ redis_docker_prerequisites(redis) }}
 
-{% for bind in all_instances|selectattr("host_id", "equalto", this_host)|list %}
+{% for bind in all_instances|selectattr("id", "equalto", this_host)|list %}
 
 {{ redis_docker(redis, bind) }}
 

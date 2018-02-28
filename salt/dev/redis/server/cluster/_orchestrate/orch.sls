@@ -12,8 +12,8 @@ def _map():
 
 def run():
   redis = _map()
-  masters = [e["host_id"] for e in redis["masters"]]
-  slaves = [e["host_id"] for e in redis["slaves"]]
+  masters = [e["id"] for e in redis["masters"]]
+  slaves = [e["id"] for e in redis["slaves"]]
   redis_minions = list(set(masters + slaves))
 
   slots = {}
