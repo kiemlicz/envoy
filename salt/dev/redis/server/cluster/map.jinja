@@ -13,7 +13,7 @@
         }],
         'slaves': [{
           'id': host_id,
-          'master_ip': '127.0.0.1',
+          'master_id': host_id,
           'master_port': 6379,
           'ip': '127.0.0.1',
           'port': 6380,
@@ -24,7 +24,17 @@
 {% do redis.update(redis_single) %}
 
 {# fill ip addresses #}
-{% for master in redis.masters|selectattr('host', 'undefined') %}
+{% for master in redis.masters|selectattr('ip', 'undefined') %}
 {% set master_ip = salt['mine.get'](tgt=master.id, fun='network.ip_addrs') %}
 {% do master.update({ "ip": master_ip[master.id][0] }) %}
+{% endfor %}
+
+{% for slave in redis.slaves|selectattr('ip', 'undefined') %}
+{% set slave_ip = salt['mine.get'](tgt=slave.id, fun='network.ip_addrs') %}
+{% do slave.update({ "ip": slave_ip[slave.id][0] }) %}
+{% endfor %}
+
+{% for slave in redis.slaves|selectattr('ip', 'undefined') %}
+{% set master_ip = salt['mine.get'](tgt=slave.master_id, fun='network.ip_addrs') %}
+{% do slave.update({ "master_ip": master_ip[slave.master_id][0] }) %}
 {% endfor %}
