@@ -34,7 +34,7 @@
 {% do slave.update({ "ip": slave_ip[slave.id][0] }) %}
 {% endfor %}
 
-{% for slave in redis.slaves|selectattr('ip', 'undefined') %}
+{% for slave in redis.slaves|selectattr('master_ip', 'undefined') %}
 {% set master_ip = salt['mine.get'](tgt=slave.master_id, fun='network.ip_addrs') %}
 {% do slave.update({ "master_ip": master_ip[slave.master_id][0] }) %}
 {% endfor %}
