@@ -7,7 +7,7 @@ import json
 # this state run on existing replica will reconfigure it
 def run():
   mongodb = __pillar__["mongodb"]
-  master = __pillar__["master"]
+  master = mongodb["master"]
   state = {}
   members = []
 
@@ -15,7 +15,7 @@ def run():
     replica = mongodb['replicas'][i]
     members.append({
       '_id': i,
-      'host': "{}:{}".format(replica['host'], replica['port'])
+      'host': "{}:{}".format(replica['ip'], replica['port'])
     })
 
   replica_config = json.dumps({
@@ -25,15 +25,15 @@ def run():
 
   state['mongodb_initiate_replica_set'] = {
     'cmd.run': [
-      { 'name': "mongo --host {} --port {} --eval 'rs.initiate({})'".format(master['host'], master['port'], replica_config) },
-      { 'onlyif': "mongo --host {} --port {} --eval 'rs.status()' | grep 'errmsg'".format(master['host'], master['port']) }
+      { 'name': "mongo --host {} --port {} --eval 'rs.initiate({})'".format(master['ip'], master['port'], replica_config) },
+      { 'onlyif': "mongo --host {} --port {} --eval 'rs.status()' | grep 'errmsg'".format(master['ip'], master['port']) }
     ]
   }
 
   state['mongodb_reconfig_replica_set'] = {
     'cmd.run': [
-      { 'name': "mongo --host {} --port {} --eval 'rs.reconfig({})'".format(master['host'], master['port'], replica_config) },
-      { 'unless': "mongo --host {} --port {} --eval 'rs.status()' | grep 'errmsg'".format(master['host'], master['port']) }
+      { 'name': "mongo --host {} --port {} --eval 'rs.reconfig({})'".format(master['ip'], master['port'], replica_config) },
+      { 'unless': "mongo --host {} --port {} --eval 'rs.status()' | grep 'errmsg'".format(master['ip'], master['port']) }
     ]
   }
 

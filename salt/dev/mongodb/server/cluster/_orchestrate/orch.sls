@@ -9,4 +9,5 @@ mongodb_replica_set:
       - "mongodb.server.cluster._orchestrate.replicate"
     - saltenv: {{ saltenv }}
     - pillar:
-        master: {{ master }}
+        mongodb:
+          master: {{ master }}

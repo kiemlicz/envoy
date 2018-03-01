@@ -1,8 +1,3 @@
-{% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces',
-    default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
-{% set interface = salt['pillar.get']('mongodb:settings:interfaces', default=foreman_discovered_interfaces)|first %}
-{% set port = salt['pillar.get']('mongodb:settings:port', default=27017) %}
-
 {% set mongodb = salt['grains.filter_by']({
     'Debian': {
         'repo_entries': [
@@ -17,8 +12,8 @@
         'image': 'mongo',
         'dockerfile': 'salt://mongodb/server/Dockerfile',
         'container_port': 27017,
-        'host': interface,
-        'port': port,
+        'ip': salt['mine.get'](tgt=salt['grains.get']("id"), fun='network.ip_addrs'),
+        'port': salt['pillar.get']('mongodb:port', default=27017),
         'user': "mongodb",
         'group': "mongodb",
         'config': {
@@ -37,9 +32,14 @@
        },
        'zesty': {
          'repo_entries': [
-             "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse"
+             "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse"
          ],
        },
+       'xenial': {
+          'repo_entries': [
+             "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse"
+          ],
+       }
    }, grain='oscodename', merge=salt['grains.filter_by']({
         'default': {
           'init': 'salt://mongodb/server/mongod.init',

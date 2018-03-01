@@ -3,7 +3,7 @@
 {% from "mongodb/server/macros.jinja" import mongodb_configure with context %}
 
 {% set bind = {
-  'host': mongodb.host,
+  'ip': mongodb.ip,
   'port': mongodb.port
 } %}
 

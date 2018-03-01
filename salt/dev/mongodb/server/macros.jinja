@@ -27,7 +27,7 @@ mongodb:
 {% set instance = mongodb.service + '-' + bind.port|string %}
 {% set service = mongodb.service + '@' + instance %}
 
-mongodb_config_{{ bind.host }}_{{ bind.port }}:
+mongodb_config_{{ bind.ip }}_{{ bind.port }}:
   file_ext.managed:
     - name: /etc/{{ instance }}.conf
     - source: {{ mongodb.config.source }}
@@ -49,14 +49,14 @@ mongodb_config_{{ bind.host }}_{{ bind.port }}:
     - require:
       - file_ext: /etc/{{ instance }}.conf
 
-mongodb_start_{{ bind.host }}_{{ bind.port }}:
+mongodb_start_{{ bind.ip }}_{{ bind.port }}:
 {% if salt['grains.get']("init") != 'systemd' %}
 {% set service = instance %}
   file.symlink:
     - name: /etc/init.d/{{ instance }}
     - target: {{ mongodb.init_location }}
     - require:
-      - file: mongodb_config_{{ bind.host }}_{{ bind.port }}
+      - file: mongodb_config_{{ bind.ip }}_{{ bind.port }}
     - require_in:
       - service: {{ service }}
 {% endif %}
@@ -66,7 +66,7 @@ mongodb_start_{{ bind.host }}_{{ bind.port }}:
     - enable: True
 {% endif %}
     - require:
-      - file: mongodb_config_{{ bind.host }}_{{ bind.port }}
+      - file: mongodb_config_{{ bind.ip }}_{{ bind.port }}
 {%- endmacro %}
 
 {% macro mongodb_docker_prerequisites(mongodb) -%}
@@ -85,9 +85,9 @@ mongo_in_docker_prerequisites:
 {%- endmacro %}
 
 {% macro mongodb_docker(mongodb, bind) -%}
-mongodb_config_{{ bind.host }}_{{ bind.port }}:
+mongodb_config_{{ bind.ip }}_{{ bind.port }}:
   file_ext.managed:
-    - name: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/{{ mongodb.service }}.conf
+    - name: /usr/local/share/mongodb/{{ bind.ip }}_{{ bind.port }}/{{ mongodb.service }}.conf
     - source: {{ mongodb.config.source }}
     - makedirs: True
     - template: jinja
@@ -97,26 +97,26 @@ mongodb_config_{{ bind.host }}_{{ bind.port }}:
     - require:
       - pip: mongodb_pip_prerequisites
 
-mongodb_dockerfile_{{ bind.host }}_{{ bind.port }}:
+mongodb_dockerfile_{{ bind.ip }}_{{ bind.port }}:
   file_ext.managed:
-    - name: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/Dockerfile
+    - name: /usr/local/share/mongodb/{{ bind.ip }}_{{ bind.port }}/Dockerfile
     - source: {{ mongodb.dockerfile }}
     - template: jinja
     - context:
       mongodb: {{ mongodb }}
     - makedirs: True
     - require:
-      - file_ext: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/{{ mongodb.service }}.conf
+      - file_ext: /usr/local/share/mongodb/{{ bind.ip }}_{{ bind.port }}/{{ mongodb.service }}.conf
 
-mongodb_{{ bind.host }}_{{ bind.port }}:
+mongodb_{{ bind.ip }}_{{ bind.port }}:
   docker_image.present:
-    - name: {{ mongodb.image }}_{{ bind.host }}_{{ bind.port }}
-    - build: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/
+    - name: {{ mongodb.image }}_{{ bind.ip }}_{{ bind.port }}
+    - build: /usr/local/share/mongodb/{{ bind.ip }}_{{ bind.port }}/
     - require:
-      - file_ext: /usr/local/share/mongodb/{{ bind.host }}_{{ bind.port }}/Dockerfile
+      - file_ext: /usr/local/share/mongodb/{{ bind.ip }}_{{ bind.port }}/Dockerfile
   docker_container.running:
-    - name: mongodb_{{ bind.host }}_{{ bind.port }}
-    - image: {{ mongodb.image }}_{{ bind.host }}_{{ bind.port }}
+    - name: mongodb_{{ bind.ip }}_{{ bind.port }}
+    - image: {{ mongodb.image }}_{{ bind.ip }}_{{ bind.port }}
 {% if salt['grains.get']("virtual_subtype") == "Docker" %}
     - network_mode: host
 {% else %}
@@ -126,5 +126,5 @@ mongodb_{{ bind.host }}_{{ bind.port }}:
     {% endfor %}
 {% endif %}
     - require:
-      - docker_image: {{ mongodb.image }}_{{ bind.host }}_{{ bind.port }}
+      - docker_image: {{ mongodb.image }}_{{ bind.ip }}_{{ bind.port }}
 {%- endmacro %}

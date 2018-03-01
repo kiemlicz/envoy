@@ -5,18 +5,25 @@
 {% set mongodb = salt['grains.filter_by']({
     'Debian': {
         'shards': [{
-          'host_id': host_id,
-          'host': '127.0.0.1',
+          'id': host_id,
+          'ip': '127.0.0.1',
           'port': 27017,
         }],
         'replicas': [{
           'master': True,
           'replica_name': "",
-          'host_id': host_id,
-          'host': '127.0.0.1',
+          'id': host_id,
+          'ip': '127.0.0.1',
           'port': 28017,
         }],
     },
 }, merge=salt['pillar.get']('mongodb')) %}
 
 {% do mongodb.update(mongodb_single) %}
+
+{% for replica in mongodb.replicas|selectattr('ip', 'undefined') %}
+{% set replica_ip = salt['mine.get'](tgt=replica.id, fun='network.ip_addrs') %}
+{% do replica.update({ "ip": replica_ip[replica.id][0] }) %}
+{% endfor %}
+
+{# todo add shards once it is integrated #}
