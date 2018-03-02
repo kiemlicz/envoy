@@ -7,6 +7,8 @@ from salt.exceptions import SaltRenderError
 
 log = logging.getLogger(__name__)
 
+# https://github.com/saltstack/salt/issues/45521
+# this is "workaround"
 def render(template, saltenv='base', sls='', **kwargs):
     if not isinstance(template, string_types):
         template = template.read()
