@@ -12,6 +12,9 @@ redis:
     - name: {{ redis.init_location }}
     - source: {{ redis.init }}
     - mode: {{ redis.mode }}
+    - template: jinja
+    - context:
+      redis: {{ redis }}
     - require:
       - pkg: {{ redis.pkg_name }}
 {%- endmacro %}

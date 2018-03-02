@@ -1,17 +1,9 @@
-#!py
+#!jinja|stringpy
 
-
-#no easy way to import map.jinja in py renderer
-#https://github.com/saltstack/salt/issues/45521
-def _map():
-  return __salt__.grains.filter_by({
-        'default': {
-          'total_slots': 16384,
-        }
-      }, merge=__salt__.pillar.get('redis'))
+{% from "redis/server/cluster/map.jinja" import redis with context %}
 
 def run():
-  redis = _map()
+  redis = {{ redis|json }}
   masters = [e["id"] for e in redis["masters"]]
   slaves = [e["id"] for e in redis["slaves"]]
   redis_minions = list(set(masters + slaves))
@@ -19,7 +11,7 @@ def run():
   slots = {}
   state = {}
 
-  if __pillar__["redis"]["setup_type"] == "single":
+  if redis["setup_type"] == "single":
     # no orchestration for single install type
     state['redis_orchestrate_disabled'] = {
       "salt.function": [

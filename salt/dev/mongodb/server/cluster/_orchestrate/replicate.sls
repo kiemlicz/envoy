@@ -8,7 +8,6 @@ import json
 # this state must execute on one minion only
 # this state run on existing replica will reconfigure it
 def run():
-
   mongodb = {{ mongodb|json }}
   master = mongodb["master"]
   state = {}

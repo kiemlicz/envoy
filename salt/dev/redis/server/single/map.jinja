@@ -9,7 +9,9 @@
     'install_type': "docker",
     'image': 'redis-cluster',
     'prerequisites': ["python-pip", "redis-tools"],
-    'pip_packages': ["docker-py"]
+    'pip_packages': ["docker-py"],
+    'pidfile_dir': '/var/run/redis/',
+    'run_dir': '/var/lib/redis/',
   },
 }, merge=salt['grains.filter_by']({
     'default': {
