@@ -1,12 +1,15 @@
-#!py
+#!py|stringpy
 
 import json
+
+{% from "mongodb/server/cluster/map.jinja" import mongodb with context %}
 
 # according to https://docs.mongodb.com/manual/tutorial/deploy-replica-set/
 # this state must execute on one minion only
 # this state run on existing replica will reconfigure it
 def run():
-  mongodb = __pillar__["mongodb"]
+
+  mongodb = {{ mongodb|json }}
   master = mongodb["master"]
   state = {}
   members = []
