@@ -6,10 +6,11 @@ Documentation=http://redis.io/documentation, man:redis-server(1)
 [Service]
 Type=forking
 #uses %i variable that allows multiple instances per node
+RuntimeDirectory=redis
 Environment=statedir=/var/lib/redis/%i
 ExecStart=/usr/bin/redis-server /etc/redis/%i.conf
 ExecStop=/usr/bin/redis-cli shutdown
-PIDFile=${statedir}/redis.pid
+PIDFile=/var/run/redis/redis-%i.pid
 ExecStartPre=/bin/mkdir -p ${statedir}
 ExecStartPre=/bin/chown -R redis:redis ${statedir}
 TimeoutStopSec=0
