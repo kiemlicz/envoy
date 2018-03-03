@@ -22,6 +22,7 @@ def render(template, saltenv='base', sls='', **kwargs):
     if '__env__' not in kwargs:
         setattr(mod, '__env__', saltenv)
 
+    setattr(mod, "saltenv", saltenv)
     setattr(mod, "__salt__", __salt__)
     setattr(mod, "salt", __salt__)
     setattr(mod, "__grains__", __grains__)

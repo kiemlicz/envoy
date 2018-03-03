@@ -5,7 +5,7 @@
 
 {% set redis = salt['grains.filter_by']({
     'Debian': {
-        'total_slots': '16384',
+        'total_slots': 16384,
         'masters': [{
           'id': host_id,
           'ip': '127.0.0.1',
