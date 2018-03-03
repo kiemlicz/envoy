@@ -20,10 +20,3 @@
 }, merge=salt['pillar.get']('mongodb')) %}
 
 {% do mongodb.update(mongodb_single) %}
-
-{% for replica in mongodb.replicas|selectattr('ip', 'undefined') %}
-{% set replica_ip = salt['mine.get'](tgt=replica.id, fun='network.ip_addrs') %}
-{% do replica.update({ "ip": replica_ip[replica.id][0] }) %}
-{% endfor %}
-
-{# todo add shards once it is integrated #}

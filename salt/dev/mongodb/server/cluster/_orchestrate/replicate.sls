@@ -10,14 +10,19 @@ import json
 def run():
   mongodb = {{ mongodb|json }}
   master = mongodb["master"]
+  master_ip = master.get("ip", get_ip(master.id))
   state = {}
   members = []
 
+  def get_ip(id):
+    salt['mine.get'](id, 'network.ip_addrs').values()[0]
+
   for i in xrange(0, len(mongodb['replicas'])):
     replica = mongodb['replicas'][i]
+    replica_ip = replica.get("ip", get_ip(replica.id))
     members.append({
       '_id': i,
-      'host': "{}:{}".format(replica['ip'], replica['port'])
+      'host': "{}:{}".format(replica_ip, replica['port'])
     })
 
   replica_config = json.dumps({
@@ -27,15 +32,15 @@ def run():
 
   state['mongodb_initiate_replica_set'] = {
     'cmd.run': [
-      { 'name': "mongo --host {} --port {} --eval 'rs.initiate({})'".format(master['ip'], master['port'], replica_config) },
-      { 'onlyif': "mongo --host {} --port {} --eval 'rs.status()' | grep 'errmsg'".format(master['ip'], master['port']) }
+      { 'name': "mongo --host {} --port {} --eval 'rs.initiate({})'".format(master_ip, master['port'], replica_config) },
+      { 'onlyif': "mongo --host {} --port {} --eval 'rs.status()' | grep 'errmsg'".format(master_ip, master['port']) }
     ]
   }
 
   state['mongodb_reconfig_replica_set'] = {
     'cmd.run': [
-      { 'name': "mongo --host {} --port {} --eval 'rs.reconfig({})'".format(master['ip'], master['port'], replica_config) },
-      { 'unless': "mongo --host {} --port {} --eval 'rs.status()' | grep 'errmsg'".format(master['ip'], master['port']) }
+      { 'name': "mongo --host {} --port {} --eval 'rs.reconfig({})'".format(master_ip, master['port'], replica_config) },
+      { 'unless': "mongo --host {} --port {} --eval 'rs.status()' | grep 'errmsg'".format(master_ip, master['port']) }
     ]
   }
 

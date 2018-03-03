@@ -18,6 +18,12 @@ exclude:
 
 {% for bind in all_instances|selectattr("id", "equalto", this_host)|list %}
 
+{% set ip_addrs = salt['mine.get'](bind.id, 'network.ip_addrs') %}
+{% do bind.update({
+  "ip_addrs": ip_addrs.values(),
+  "ip": bind.ip|default(ip_addrs.values()[0])
+}) %}
+
 {{ mongodb_configure(mongodb, bind) }}
 
 {% endfor %}
