@@ -2,7 +2,6 @@
 {% from "mongodb/server/macros.jinja" import mongodb_install with context %}
 {% from "mongodb/server/macros.jinja" import mongodb_configure with context %}
 
-{#todo move to macro# }
 {% set ip_addrs = salt['mine.get'](mongodb.id, 'network.ip_addrs') %}
 {% set bind = {
   'ip_addrs': ip_addrs.values(),
