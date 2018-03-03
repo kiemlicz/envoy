@@ -1,4 +1,4 @@
-#!py|stringpy
+#!jinja|stringpy
 
 import json
 

@@ -4,7 +4,7 @@
 
 mongodb_replica_set:
   salt.state:
-    - tgt: {{ master.host }}
+    - tgt: {{ master.id }}
     - sls:
       - "mongodb.server.cluster._orchestrate.replicate"
     - saltenv: {{ saltenv }}
