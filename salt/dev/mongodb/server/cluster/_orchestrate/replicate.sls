@@ -10,7 +10,7 @@ import json
 def run():
   def get_ip(id):
       # it is impossible to use ip.jinja in stringpy (id is not known in jinja renderer)
-      salt['mine.get'](id, 'network.ip_addrs').values()[0]
+      return salt['mine.get'](id, 'network.ip_addrs').values()[0][0]
 
   mongodb = {{ mongodb|json }}
   master = mongodb["master"]
