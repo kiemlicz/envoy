@@ -5,8 +5,8 @@
 
 
 {% set bind = {
-  'port': redis.port,
-  'ip': redis.ip|default(ip())
+  'port': mongodb.port,
+  'ip': mongodb.ip|default(ip())
 } %}
 
 include:
