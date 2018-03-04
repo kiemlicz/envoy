@@ -2,6 +2,7 @@
 
 {% from "redis/server/cluster/map.jinja" import redis with context %}
 
+
 def run():
   redis = {{ redis|json }}
   masters = [e["id"] for e in redis["masters"]]
@@ -30,9 +31,23 @@ def run():
       { 'tgt': redis_minions },
       { 'tgt_type': "list" },
       { 'sls': [
-          "redis.server.cluster._orchestrate.reset"
+        "redis.server.cluster._orchestrate.reset"
       ]},
       { 'saltenv': saltenv }
+    ]
+  }
+
+  state['redis_cluster_meet'] = {
+    'salt.state': [
+      { 'tgt': redis_minions },
+      { 'tgt_type': "list" },
+      { 'sls': [
+        "redis.server.cluster._orchestrate.meet"
+      ]},
+      { 'saltenv': saltenv },
+      { 'require': [
+         {'salt': "redis_cluster_reset"}
+      ]}
     ]
   }
 
@@ -41,7 +56,7 @@ def run():
       { 'tgt': redis_minions },
       { 'tgt_type': "list" },
       { 'sls': [
-        "redis.server.cluster._orchestrate.meet",
+        "redis.server.cluster._orchestrate.slots",
         "redis.server.cluster._orchestrate.replicate"
       ]},
       { 'saltenv': saltenv },
@@ -52,7 +67,7 @@ def run():
         }
       },
       { 'require': [
-        {'salt': "redis_cluster_reset"}
+        {'salt': "redis_cluster_meet"}
       ]}
     ]
   }
