@@ -14,13 +14,13 @@ def run():
 
   mongodb = {{ mongodb|json }}
   master = mongodb["master"]
-  master_ip = master.get("ip", get_ip(master.id))
+  master_ip = master.get("ip", get_ip(master['id']))
   state = {}
   members = []
 
   for i in xrange(0, len(mongodb['replicas'])):
     replica = mongodb['replicas'][i]
-    replica_ip = replica.get("ip", get_ip(replica.id))
+    replica_ip = replica.get("ip", get_ip(replica['id']))
     members.append({
       '_id': i,
       'host': "{}:{}".format(replica_ip, replica['port'])
