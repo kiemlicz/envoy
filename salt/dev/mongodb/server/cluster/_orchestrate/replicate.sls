@@ -8,15 +8,15 @@ import json
 # this state must execute on one minion only
 # this state run on existing replica will reconfigure it
 def run():
+  def get_ip(id):
+      # it is impossible to use ip.jinja in stringpy (id is not known in jinja renderer)
+      salt['mine.get'](id, 'network.ip_addrs').values()[0]
+
   mongodb = {{ mongodb|json }}
   master = mongodb["master"]
   master_ip = master.get("ip", get_ip(master.id))
   state = {}
   members = []
-
-  def get_ip(id):
-    # it is impossible to use ip.jinja in stringpy (id is not known in jinja renderer)
-    salt['mine.get'](id, 'network.ip_addrs').values()[0]
 
   for i in xrange(0, len(mongodb['replicas'])):
     replica = mongodb['replicas'][i]
