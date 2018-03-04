@@ -7,7 +7,7 @@
 
 {% set master_ip = master.ip|default(ip()) %}
 
-redis_master_{{ master.ip }}_{{ master.port }}_assign_slots:
+redis_master_{{ master_ip }}_{{ master.port }}_assign_slots:
   cmd.run:
     - name: redis-cli -h {{ master_ip }} -p {{ master.port }} CLUSTER ADDSLOTS {{ salt['pillar.get']('redis:slots:' + this_host)|join(" ") }}
 
