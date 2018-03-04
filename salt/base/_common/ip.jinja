@@ -1,6 +1,8 @@
 {# if the IP is not specified, then this method is used (it doesn't return loopback) #}
 {# intended to be run on minion, not on master (as runner) #}
 {# in case of mine.get - configure own alias for cidr #}
+{# while refactoring - mind other mine.get usages (linke in mongodb/.../replicate.sls) #}
+
 {% macro ip(subnet=None, id=grains['id'], mine_fun='network.ip_addrs') -%}
 {%- if grains['id'] == id -%}
 {{ salt['network.ip_addrs'](cidr=subnet)[0] }}

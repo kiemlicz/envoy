@@ -15,6 +15,7 @@ def run():
   members = []
 
   def get_ip(id):
+    # it is impossible to use ip.jinja in stringpy (id is not known in jinja renderer)
     salt['mine.get'](id, 'network.ip_addrs').values()[0]
 
   for i in xrange(0, len(mongodb['replicas'])):

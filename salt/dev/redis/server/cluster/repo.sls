@@ -3,6 +3,7 @@
 {% from "redis/server/macros.jinja" import redis_configure with context %}
 {% from "_common/ip.jinja" import ip with context %}
 
+
 {% set this_host = grains['id'] %}
 {% set all_instances = redis.masters + redis.slaves %}
 

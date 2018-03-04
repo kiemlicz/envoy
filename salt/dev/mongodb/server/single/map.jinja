@@ -12,8 +12,7 @@
         'image': 'mongo',
         'dockerfile': 'salt://mongodb/server/Dockerfile',
         'container_port': 27017,
-        'ip': salt['mine.get'](tgt=salt['grains.get']("id"), fun='network.ip_addrs'),
-        'port': salt['pillar.get']('mongodb:port', default=27017),
+        'port': 27017,
         'user': "mongodb",
         'group': "mongodb",
         'config': {
