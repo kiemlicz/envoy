@@ -12,15 +12,10 @@ env:
     - SALT_VER="" # latest
   matrix:
     - DOCKER_IMAGE=debian-sid
-      TEST_CASE=salt-masterless-dry
     - DOCKER_IMAGE=debian-jessie
-      TEST_CASE=salt-masterless-dry
     - DOCKER_IMAGE=debian-stretch
-      TEST_CASE=salt-masterless-dry
     - DOCKER_IMAGE=ubuntu-xenial
-      TEST_CASE=salt-masterless-dry
     - DOCKER_IMAGE=ubuntu-artful
-      TEST_CASE=salt-masterless-dry
 
 before_install:
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
