@@ -4,5 +4,12 @@
       'pkg_name': 'keepalived',
       'location': '/etc/keepalived/keepalived.conf',
       'config': 'salt://keepalived/keepalived.conf',
+      'instances': [{
+          'state': "MASTER",
+          'interface':
+        }, {
+          'state': "BACKUP",
+        }
+      ]
     },
 }, merge=salt['pillar.get']('keepalived')) %}

@@ -3,9 +3,6 @@
 include:
   - pkgs
 
-#fixme the keepalived config file requires minions upfront,
-#consider orchestrator usage
-
 keepalived:
   pkg.latest:
     - name: {{ keepalived.pkg_name }}
