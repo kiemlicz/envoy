@@ -8,3 +8,6 @@ lvs_lb:
     - name:
 
     #use lvs_service, does it assert kmod?
+
+
+    #file managed file append - depending on keepalived existence
