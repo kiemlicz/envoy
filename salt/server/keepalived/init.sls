@@ -12,25 +12,20 @@ keepalived:
     - require:
       - pkg: os_packages
 
-keepalived_root_config:
-  file.directory:
-    - name {{ keepalived.config.include }}
-    -
+{% for config in keepalived.configs.values() %}
+{% set instances = keepalived[grains["id"]] %}
+{# fill interfaces #}
+
+keepalived_config_{{ config.location }}:
   file_ext.managed:
-    - name: {{ keepalived.location }}
-    - source: {{ keepalived.config }}
+    - name: {{ config.location }}
+    - source: {{ config.source }}
+    - makedirs: True
     - template: jinja
     - context:
-      keepalived: {{ keepalived }}
+      instances: {{ instances }}
+
     - require:
       - pkg: {{ keepalived.pkg_name }}
 
-keepalived_instances_config:
-  file_ext.managed:
-    - name: {{ keepalived.location }}
-    - source: {{ keepalived.config }}
-    - template: jinja
-    - context:
-      keepalived: {{ keepalived }}
-    - require:
-      - file_ext: {{ keepalived.location }}
+{% endfor %}
