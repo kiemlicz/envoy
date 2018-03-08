@@ -1,6 +1,7 @@
 {% set keepalived = salt['grains.filter_by']({
     'default': {
       'pkg_name': 'keepalived',
+      'service': 'keepalived',
       'configs': {
         'root': {
           'location': "/etc/keepalived/keepalived.conf",
@@ -11,16 +12,5 @@
           'source': "salt://keepalived/instances.conf",
         },
       },
-{#     'minion1': {
-        'instances':[{
-           'name': "service1",
-           'state': "MASTER",
-           'priority': 100,
-           'virtual_router_id': 1,
-           'virtual_ipaddress': [],
-        },{
-           'state': "BACKUP",
-        }],
-     } #}
     },
 }, merge=salt['pillar.get']('keepalived')) %}
