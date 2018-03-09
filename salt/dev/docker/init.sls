@@ -16,7 +16,7 @@ docker:
     - require_in:
       - pkg: {{ docker.pkg_name }}
 {% endif %}
-{% if grains['virtual_subtype'] == 'Docker' %}
+{% if salt['grains.get']("virtual_subtype") == 'Docker' %}
 # this is workaround for docker-in-docker: "Error response from daemon: error creating aufs mount ... invalid argument"
   file.managed:
     - name: {{ docker.config }}
