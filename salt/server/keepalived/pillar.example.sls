@@ -9,19 +9,21 @@ keepalived:
       auth_pass: somepass
     virtual_ipaddress:
       - 10.10.253.99 dev eth0
+  virtual_server: &virtual_server
+    delay_loop: 6
+    lb_algo: sh
+    lb_kind: dr
+    protocol: TCP
+    quorum: 1
+  real_server: &real_server
+    weight: 1
+    TCP_CHECK:
+      connect_timeout: 3
+      connect_port: 22 #todo <- should not be there
   virtual_servers:
-    "192.168.1.20 22":
-      delay_loop: 6
-      lb_algo: sh
-      lb_kind: dr
-      protocol: TCP
-      quorum: 1
+    192.168.1.20: *virtual_server
   real_servers:
-    "192.168.1.66 22":
-      weight: 1
-      TCP_CHECK:
-        connect_timeout: 3
-        connect_port: 22
+    "192.168.1.66 20": *real_server
   minion1:
     vrrp_instances:
       service1:
