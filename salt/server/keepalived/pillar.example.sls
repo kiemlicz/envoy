@@ -19,11 +19,13 @@ keepalived:
     weight: 1
     TCP_CHECK:
       connect_timeout: 3
-      connect_port: 22 #todo <- should not be there
+      #real server port by default
   virtual_servers:
-    192.168.1.20: *virtual_server
-  real_servers:
-    "192.168.1.66 20": *real_server
+    "10.10.253.99 80":
+      <<: *virtual_server
+      real_servers:
+        "192.168.1.20 80": *real_server
+        "192.168.1.29 80": *real_server
   minion1:
     vrrp_instances:
       service1:
@@ -36,4 +38,3 @@ keepalived:
         <<:  *service1
         state: BACKUP
         priority: 50
-

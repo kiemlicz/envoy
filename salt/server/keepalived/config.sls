@@ -10,7 +10,7 @@ keepalived_config_{{ config.location }}:
     - makedirs: True
     - template: jinja
     - context:
-      config: {{ keepalived.get(grains['id'], {}) }}
+      keepalived: {{ keepalived }}
     - watch_in:
       - service: {{ keepalived.service }}
 
