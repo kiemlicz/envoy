@@ -1,3 +1,11 @@
 {% macro is_container() -%}
-{{ salt['grains.get']("virtual_subtype") == "Docker" or salt['grains.get']("virtual") == "LXC" }}
+{{ is_lxc() or is_docker() }}
+{%- endmacro %}
+
+{% macro is_lxc() -%}
+{{ salt['grains.get']("virtual") == "LXC" }}
+{%- endmacro %}
+
+{% macro is_docker() -%}
+{{ salt['grains.get']("virtual_subtype") == "Docker" }}
 {%- endmacro %}
