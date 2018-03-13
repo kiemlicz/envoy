@@ -17,16 +17,16 @@ def run():
         # speed up - filter out RIPs that don't belong to this minion
         virtual_addresses.setdefault(rip, []).append(vip)
 
-  state["lvs_read_server_default_rp_filter"] = {
-      'sysctl.present': [
-          { 'name': "net.ipv4.conf.default.rp_filter" },
-          { 'value': "2" },
-        ]
-  }
+  #state["lvs_read_server_default_rp_filter"] = {
+  #    'sysctl.present': [
+  #        { 'name': "net.ipv4.conf.default.rp_filter" },
+  #        { 'value': "2" },
+  #      ]
+  #}
 
-  state["lvs_read_server_all_rp_filter"] = {
+  state["lvs_read_server_lo_rp_filter"] = {
       'sysctl.present': [
-          { 'name': "net.ipv4.conf.all.rp_filter" },
+          { 'name': "net.ipv4.conf.lo.rp_filter" },
           { 'value': "2" },
         ]
   }
@@ -57,8 +57,8 @@ def run():
          { 'require': [
           { 'sysctl': "lvs_real_server_ip_{}_arp_ignore".format(rip) },
           { 'sysctl': "lvs_real_server_ip_{}_arp_announce".format(rip) },
-          { 'sysctl': "lvs_read_server_default_rp_filter" },
-          { 'sysctl': "lvs_read_server_all_rp_filter" }
+#          { 'sysctl': "lvs_read_server_default_rp_filter" },
+          { 'sysctl': "lvs_read_server_lo_rp_filter" }
          ]}
         ]
       }

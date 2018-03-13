@@ -27,6 +27,7 @@ lvs_director_ip_forward:
     - require:
       - kmod: {{ lvs.module }}
 
+# http://www.austintek.com/LVS/LVS-HOWTO/HOWTO/LVS-HOWTO.LVS-DR.html#set_rp_filter
 lvs_director_rp_filter:
   sysctl.present:
     - name: "net.ipv4.conf.all.rp_filter"
