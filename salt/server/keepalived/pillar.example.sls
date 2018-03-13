@@ -17,6 +17,7 @@ keepalived:
     quorum: 1
   real_server: &real_server
     weight: 1
+    inhibit_on_failure: ""
     TCP_CHECK:
       connect_timeout: 3
       #real server port by default
