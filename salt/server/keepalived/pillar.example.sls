@@ -2,7 +2,7 @@ keepalived:
   service1:  &service1
     virtual_router_id: 11
     interface: eth0
-    lvs_sync_daemon_inteface: eth1
+    lvs_sync_daemon_interface: eth1
     advert_int: 1
     authentication:
       auth_type: PASS
@@ -12,7 +12,7 @@ keepalived:
   virtual_server: &virtual_server
     delay_loop: 6
     lb_algo: sh
-    lb_kind: dr
+    lb_kind: DR
     protocol: TCP
     quorum: 1
   real_server: &real_server

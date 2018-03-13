@@ -4,7 +4,6 @@
 
 include:
   - pkgs
-# -sls: keepalived
 
 lvs_director:
   pkg.latest:
@@ -18,16 +17,19 @@ lvs_director:
 {% endif %}
     - require:
       - pkg: {{ lvs.pkg_name }}
-  #opts
 
-{# to be used as sh fallback #}
-{% for name,service in lvs.director.services.items() %}
-lvs_director_{{ name }}:
-  lvs_service.present:
-    - name: {{ name }}
-    - protocol: {{ service.protocol }}
-    - service_address: {{ service.address }}
-    - scheduler: {{ service.scheduler }}
+# todo assert this is needed
+
+lvs_director_ip_forward:
+  sysctl.present:
+    - name: "net.ipv4.ip_forward"
+    - value: 1
     - require:
       - kmod: {{ lvs.module }}
-{% endfor %}
+
+lvs_director_rp_filter:
+  sysctl.present:
+    - name: "net.ipv4.conf.all.rp_filter"
+    - value: 0
+    - require:
+      - kmod: {{ lvs.module }}
