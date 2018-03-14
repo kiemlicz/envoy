@@ -1,5 +1,3 @@
-{% import_yaml "lxc/defaults.yaml" as defaults %}
-
 {% set lxc = salt['grains.filter_by']({
     'Debian': {
         'pkgs': ["lxc", "bridge-utils", "debootstrap", "ubuntu-archive-keyring"],
