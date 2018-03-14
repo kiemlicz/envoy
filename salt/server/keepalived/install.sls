@@ -4,8 +4,6 @@
 keepalived:
   pkg.latest:
     - name: {{ keepalived.pkg_name }}
-    - require:
-      - pkg: os_packages
   service.running:
     - name: {{ keepalived.service }}
     - enable: True

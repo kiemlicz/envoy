@@ -2,14 +2,9 @@
 {% from "_common/util.jinja" import is_container with context %}
 
 
-include:
-  - pkgs
-
 lvs_director:
   pkg.latest:
     - name: {{ lvs.pkg_name }}
-    - require:
-      - pkg: os_packages
   kmod.present:
     - name: {{ lvs.module }}
 {% if not is_container()|to_bool %}
