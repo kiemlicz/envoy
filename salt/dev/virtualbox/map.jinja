@@ -1,5 +1,3 @@
-{# {% import_yaml "defaults.yaml" as defaults %} #}
-
 {% set os = salt['grains.get']('lsb_distrib_id') %}
 {% set dist_codename = salt['grains.get']('lsb_distrib_codename') %}
 {# ubuntu uses "/debian" as well #}
