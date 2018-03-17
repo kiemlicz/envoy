@@ -1,23 +1,11 @@
 {% set pkgs = salt['grains.filter_by']({
     'Debian': {
         'pip_packages': ["google-auth"],
-        'os_packages': [
-           "sudo",
-           "apt-transport-https",
-           "man",
-           "rsync",
-           "git",
-           "curl",
-           "locales",
-           "ntp",
-           "python-pip",
-           "zsh"
-        ],
+        'os_packages': [],
+        'post_install': [],
     },
     'Windows': {
         'pip_packages': ["google-auth"],
-        'os_packages': [
-           "git"
-        ],
+        'os_packages': [],
     }
 }, merge=salt['pillar.get']('pkgs')) %}

@@ -1,8 +1,8 @@
-{% import_yaml "locale/defaults.yaml" as defaults %}
-
 {% set locale = salt['grains.filter_by']({
     'Debian': {
         'required_pkgs': ["locales"],
+        'system_default': 'en_US.UTF-8',
+        'locales': ["en_US.UTF-8"]
     },
     'Windows': {
     }
@@ -10,4 +10,4 @@
       'jessie': {
           'required_pkgs': ["dbus"],
       },
- }, grain='oscodename', merge=salt['pillar.get']('locale', default=defaults.locale, merge=True))) %}
+ }, grain='oscodename', merge=salt['pillar.get']('locale'))) %}

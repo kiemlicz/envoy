@@ -1,6 +1,7 @@
 {% from "locale/map.jinja" import locale with context %}
 {% from "_common/util.jinja" import is_lxc with context %}
 
+
 required_pkgs:
   pkg.latest:
     - pkgs: {{ locale.required_pkgs }}

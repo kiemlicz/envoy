@@ -1,227 +1,29 @@
 {% set repositories = salt['grains.filter_by']({
     'Debian': {
-        'sources_list_location': '/etc/apt/sources.list',
-        'preferences_template' : 'salt://repositories/template.pref',
+        'preferences_template': 'salt://repositories/template.pref',
         'list':[],
         'preferences': [],
     },
 }, merge=salt['grains.filter_by']({
     'sid': {
-        'list': [{
-            'names': [
-                "deb http://ftp.pl.debian.org/debian/ unstable main contrib non-free",
-                "deb-src http://ftp.pl.debian.org/debian/ unstable main contrib non-free"
-            ],
-            'file': '/etc/apt/sources.list.d/unstable.list'
-        },{
-            'names': [
-                "deb http://ftp.pl.debian.org/debian/ experimental main contrib non-free",
-                "deb-src http://ftp.pl.debian.org/debian/ experimental main contrib non-free"
-            ],
-            'file': '/etc/apt/sources.list.d/experimental.list'
-        },{
-            'names': [
-               "deb http://dl.google.com/linux/chrome/deb/ stable main"
-             ],
-            'file': '/etc/apt/sources.list.d/google-chrome.list',
-            'key_url': 'https://dl.google.com/linux/linux_signing_key.pub'
-        }
-        ],
-        'preferences': [{
-            'file': '/etc/apt/preferences.d/experimental.pref',
-            'pin': 'release a=experimental',
-            'priority': '1'
-        }]
+        'list': [],
+        'preferences': []
     },
     'stretch': {
-        'list': [{
-            'names': [
-                "deb http://ftp.pl.debian.org/debian/ experimental main contrib non-free",
-                "deb-src http://ftp.pl.debian.org/debian/ experimental main contrib non-free"
-            ],
-            'file': '/etc/apt/sources.list.d/experimental.list'
-        },{
-            'names': [
-                "deb http://ftp.pl.debian.org/debian/ unstable main contrib non-free",
-                "deb-src http://ftp.pl.debian.org/debian/ unstable main contrib non-free"
-            ],
-            'file': '/etc/apt/sources.list.d/unstable.list'
-        },{
-            'names': [
-                "deb http://ftp.pl.debian.org/debian/ testing main contrib non-free",
-                "deb-src http://ftp.pl.debian.org/debian/ testing main contrib non-free"
-            ],
-            'file': '/etc/apt/sources.list.d/testing.list'
-        },{
-            'names': [
-                "deb http://ftp.pl.debian.org/debian/ stable main contrib non-free",
-                "deb-src http://ftp.pl.debian.org/debian/ stable main contrib non-free"
-            ],
-            'file': '/etc/apt/sources.list.d/stable.list'
-        },{
-            'names': [
-                "deb http://security.debian.org/ stable/updates main contrib non-free",
-                "deb http://security.debian.org/ testing/updates main contrib non-free"
-            ],
-            'file': '/etc/apt/sources.list.d/security.list'
-        },{
-            'names': [
-                "deb http://dl.google.com/linux/chrome/deb/ stable main"
-            ],
-            'file': '/etc/apt/sources.list.d/google-chrome.list',
-            'key_url': 'https://dl.google.com/linux/linux_signing_key.pub'
-        }
-        ],
-        'preferences': [{
-            'file': '/etc/apt/preferences.d/experimental.pref',
-            'pin': 'release a=experimental',
-            'priority': '1'
-        },{
-            'file': '/etc/apt/preferences.d/unstable.pref',
-            'pin': 'release a=unstable',
-            'priority': '50'
-        },{
-            'file': '/etc/apt/preferences.d/testing.pref',
-            'pin': 'release a=testing',
-            'priority': '750'
-        },{
-            'file': '/etc/apt/preferences.d/stable.pref',
-            'pin': 'release a=stable',
-            'priority': '990'
-        },{
-            'file': '/etc/apt/preferences.d/security.pref',
-            'pin': 'release l=Debian-Security',
-            'priority': '1000'
-        }]
+        'list': [],
+        'preferences': []
     },
     'jessie': {
-        'list': [{
-            'names': [
-                "deb http://ftp.pl.debian.org/debian/ experimental main contrib non-free",
-                "deb-src http://ftp.pl.debian.org/debian/ experimental main contrib non-free"
-            ],
-            'file': '/etc/apt/sources.list.d/experimental.list'
-        },{
-            'names': [
-                "deb http://ftp.pl.debian.org/debian/ unstable main contrib non-free",
-                "deb-src http://ftp.pl.debian.org/debian/ unstable main contrib non-free"
-            ],
-            'file': '/etc/apt/sources.list.d/unstable.list'
-        },{
-            'names': [
-                "deb http://ftp.pl.debian.org/debian/ testing main contrib non-free",
-                "deb-src http://ftp.pl.debian.org/debian/ testing main contrib non-free"
-            ],
-            'file': '/etc/apt/sources.list.d/testing.list'
-        },{
-            'names': [
-                "deb http://ftp.pl.debian.org/debian/ stable main contrib non-free",
-                "deb-src http://ftp.pl.debian.org/debian/ stable main contrib non-free"
-            ],
-            'file': '/etc/apt/sources.list.d/stable.list'
-        },{
-            'names': [
-                "deb http://security.debian.org/ stable/updates main contrib non-free",
-                "deb http://security.debian.org/ testing/updates main contrib non-free"
-            ],
-            'file': '/etc/apt/sources.list.d/security.list'
-        }
-        ],
-        'preferences': [{
-            'file': '/etc/apt/preferences.d/experimental.pref',
-            'pin': 'release a=experimental',
-            'priority': '1'
-        },{
-            'file': '/etc/apt/preferences.d/unstable.pref',
-            'pin': 'release a=unstable',
-            'priority': '50'
-        },{
-            'file': '/etc/apt/preferences.d/testing.pref',
-            'pin': 'release a=testing',
-            'priority': '750'
-        },{
-            'file': '/etc/apt/preferences.d/stable.pref',
-            'pin': 'release a=stable',
-            'priority': '990'
-        },{
-            'file': '/etc/apt/preferences.d/security.pref',
-            'pin': 'release l=Debian-Security',
-            'priority': '1000'
-        }]
+        'list': [],
+        'preferences': []
     },
     'xenial': {
-      'list': [{
-        'names': [
-          "deb http://nova.clouds.archive.ubuntu.com/ubuntu/ xenial main restricted",
-          "deb-src http://nova.clouds.archive.ubuntu.com/ubuntu/ xenial main restricted",
-          "deb http://nova.clouds.archive.ubuntu.com/ubuntu/ xenial-updates main restricted",
-          "deb-src http://nova.clouds.archive.ubuntu.com/ubuntu/ xenial-updates main restricted",
-          "deb http://nova.clouds.archive.ubuntu.com/ubuntu/ xenial universe",
-          "deb-src http://nova.clouds.archive.ubuntu.com/ubuntu/ xenial universe",
-          "deb http://nova.clouds.archive.ubuntu.com/ubuntu/ xenial-updates universe",
-          "deb-src http://nova.clouds.archive.ubuntu.com/ubuntu/ xenial-updates universe",
-          "deb http://nova.clouds.archive.ubuntu.com/ubuntu/ xenial multiverse",
-          "deb-src http://nova.clouds.archive.ubuntu.com/ubuntu/ xenial multiverse",
-          "deb http://nova.clouds.archive.ubuntu.com/ubuntu/ xenial-updates multiverse",
-          "deb-src http://nova.clouds.archive.ubuntu.com/ubuntu/ xenial-updates multiverse",
-          "deb http://nova.clouds.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse",
-          "deb-src http://nova.clouds.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse",
-          "deb http://security.ubuntu.com/ubuntu xenial-security main restricted",
-          "deb-src http://security.ubuntu.com/ubuntu xenial-security main restricted",
-          "deb http://security.ubuntu.com/ubuntu xenial-security universe",
-          "deb-src http://security.ubuntu.com/ubuntu xenial-security universe",
-          "deb http://security.ubuntu.com/ubuntu xenial-security multiverse",
-          "deb-src http://security.ubuntu.com/ubuntu xenial-security multiverse",
-        ],
-        'file': "/etc/apt/sources.list.d/xenial.list"
-      }]
+      'list': []
     },
     'zesty': {
-        'list': [{
-            'names': [
-              "deb http://archive.ubuntu.com:80/ubuntu zesty main restricted",
-              "deb http://archive.ubuntu.com:80/ubuntu zesty-updates main restricted",
-              "deb http://archive.ubuntu.com:80/ubuntu zesty universe",
-              "deb http://archive.ubuntu.com:80/ubuntu zesty-updates universe",
-              "deb http://archive.ubuntu.com:80/ubuntu zesty multiverse",
-              "deb http://archive.ubuntu.com:80/ubuntu zesty-updates multiverse",
-              "deb http://archive.ubuntu.com:80/ubuntu zesty-backports main restricted universe multiverse",
-              "deb http://security.ubuntu.com/ubuntu zesty-security main restricted",
-              "deb http://security.ubuntu.com/ubuntu zesty-security universe",
-              "deb http://security.ubuntu.com/ubuntu zesty-security multiverse"
-           ],
-           'file': '/etc/apt/sources.list.d/zesty.list'
-        },{
-            'names': [
-             "deb http://dl.google.com/linux/chrome/deb/ stable main"
-             ],
-             'file': '/etc/apt/sources.list.d/google-chrome.list',
-             'key_url': 'https://dl.google.com/linux/linux_signing_key.pub'
-        }]
+        'list': []
     },
     'artful':{
-          'list': [{
-              'names': [
-               "deb http://pl.archive.ubuntu.com/ubuntu/ artful main restricted",
-               "deb http://pl.archive.ubuntu.com/ubuntu/ artful-updates main restricted",
-               "deb http://pl.archive.ubuntu.com/ubuntu/ artful universe",
-               "deb http://pl.archive.ubuntu.com/ubuntu/ artful-updates universe",
-               "deb http://pl.archive.ubuntu.com/ubuntu/ artful multiverse",
-               "deb http://pl.archive.ubuntu.com/ubuntu/ artful-updates multiverse",
-               "deb http://pl.archive.ubuntu.com/ubuntu/ artful-backports main restricted universe multiverse",
-               "deb http://security.ubuntu.com/ubuntu artful-security main restricted",
-               "deb http://security.ubuntu.com/ubuntu artful-security universe",
-               "deb http://security.ubuntu.com/ubuntu artful-security multiverse"
-            ],
-          'file': '/etc/apt/sources.list.d/artful.list'
-          },{
-              'names': [
-                  "deb http://dl.google.com/linux/chrome/deb/ stable main"
-              ],
-              'file': '/etc/apt/sources.list.d/google-chrome.list',
-              'key_url': 'https://dl.google.com/linux/linux_signing_key.pub'
-          }]
+          'list': []
         },
 }, grain='oscodename', merge=salt['pillar.get']('repositories'))) %}
-{% block repositories_filter %}
-{% endblock %}

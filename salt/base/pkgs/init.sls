@@ -18,9 +18,11 @@ pkgs:
     - reload_modules: True
     - require:
       - pkg: os_packages
-{% if pkgs.post_install is defined %}
+{% if pkgs.post_install is defined and pkgs.post_install %}
   cmd.wait:
     - names: {{ pkgs.post_install }}
+    - require:
+      - pip: pip_packages
     - watch:
       - pkg: os_packages
 {% endif %}
