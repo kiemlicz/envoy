@@ -2,46 +2,30 @@
 {{ salt['cmd.run']('redis-cli -h ' + ip + ' -p ' + port|string + ' CLUSTER MYID') }}
 {%- endmacro %}
 
-{% macro redis_install(redis) -%}
-redis:
-  pkg.latest:
-    - name: {{ redis.pkg_name }}
-    - require:
-      - pkg: os_packages
-  file_ext.managed:
-    - name: {{ redis.init_location }}
-    - source: {{ redis.init }}
-    - mode: {{ redis.mode }}
-    - template: jinja
-    - context:
-      redis: {{ redis }}
-    - require:
-      - pkg: {{ redis.pkg_name }}
-{%- endmacro %}
+{% macro redis_configure(redis, bind, discriminator) -%}
 
-{% macro redis_configure(redis, bind) -%}
-{% set instance = redis.service + '-' + bind.port|string %}
 {% set service = redis.service + '@' + bind.port|string %}
 
 redis_config_{{ bind.ip }}_{{ bind.port }}:
   file_ext.managed:
-    - name: /etc/redis/{{ instance }}.conf
+    - name: /etc/redis/{{ discriminator }}.conf
     - source: {{ redis.config }}
     - makedirs: True
     - template: jinja
     - context:
       bind: {{ bind }}
       redis: {{ redis }}
+      discriminator: {{ discriminator }}
     - require:
       - file_ext: {{ redis.init_location }}
 {% if salt['grains.get']("init") != 'systemd' %}
-{% set service = instance %}
+{% set service = discriminator %}
   file.symlink:
-    - name: /etc/init.d/{{ instance }}
+    - name: /etc/init.d/{{ discriminator }}
     - target: {{ redis.init_location }}
     - require:
-      - file_ext: /etc/redis/{{ instance }}.conf
-    - require_in:
+      - file_ext: /etc/redis/{{ discriminator }}.conf
+    - watch_in:
       - service: {{ service }}
 {% endif %}
   service.running:
@@ -49,10 +33,11 @@ redis_config_{{ bind.ip }}_{{ bind.port }}:
 {% if salt['grains.get']("virtual_subtype") != "Docker" %}
     - enable: True
 {% endif %}
-    - require:
-      - file_ext: /etc/redis/{{ instance }}.conf
+    - watch:
+      - file_ext: /etc/redis/{{ discriminator }}.conf
 {%- endmacro %}
 
+{# deprecated #}
 {% macro redis_docker_prerequisites(redis) -%}
 redis_in_docker_prerequisites:
   pkg.latest:

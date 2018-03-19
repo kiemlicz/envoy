@@ -27,18 +27,12 @@ server:
     - docker
     - docker.compose
 
-  'I@redis:setup_type:cluster and I@redis:install_type:repo':
+  'I@redis:setup_type:cluster':
     - match: compound
     - redis.server.cluster.repo
-  'I@redis:setup_type:cluster and I@redis:install_type:docker':
+  'I@redis:setup_type:single':
     - match: compound
-    - redis.server.cluster.docker
-  'I@redis:setup_type:single and I@redis:install_type:repo':
-    - match: compound
-    - redis.server.single.repo
-  'I@redis:setup_type:single and I@redis:install_type:docker':
-    - match: compound
-    - redis.server.single.docker
+    - redis.server.single
 
   'I@mongodb:setup_type:cluster and I@mongodb:install_type:repo':
     - match: compound

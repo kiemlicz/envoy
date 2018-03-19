@@ -20,6 +20,10 @@
           'port': 6380,
         }],
     },
-}, merge=salt['pillar.get']('redis')) %}
+}, merge=salt['grains.filter_by']({
+       'systemd': {
+         'init_location': '/lib/systemd/system/redis@.service',
+       }
+     }, grain='init', merge=salt['pillar.get']('redis'))) %}
 
 {% do redis.update(redis_single) %}
