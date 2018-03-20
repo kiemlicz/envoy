@@ -7,6 +7,7 @@ repositories:
     - names:
        - other rpeo
       file: /etc/apt/soures.list.d/somefile.list
+      key_url: http://key.com
   preferences:
     - file: /etc/apt/preferences.d/experimental.pref
       pin: 'release a=experimental'
