@@ -34,18 +34,12 @@ server:
     - match: compound
     - redis.server.single
 
-  'I@mongodb:setup_type:cluster and I@mongodb:install_type:repo':
+  'I@mongodb:setup_type:cluster':
     - match: compound
-    - mongodb.server.cluster.repo
-  'I@mongodb:setup_type:cluster and I@mongodb:install_type:docker':
+    - mongodb.server.cluster
+  'I@mongodb:setup_type:single':
     - match: compound
-    - mongodb.server.cluster.docker
-  'I@mongodb:setup_type:single and I@mongodb:install_type:repo':
-    - match: compound
-    - mongodb.server.single.repo
-  'I@mongodb:setup_type:single and I@mongodb:install_type:docker':
-    - match: compound
-    - mongodb.server.single.docker
+    - mongodb.server.single
 
   'not G@os:Windows':
     - match: compound
