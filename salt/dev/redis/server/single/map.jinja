@@ -2,13 +2,7 @@
   'Debian': {
     'pkg_name': 'redis-server',
     'config': 'salt://redis/server/redis.conf',
-    'dockerfile': 'salt://redis/server/Dockerfile',
     'port': 6379,
-    'container_port': 6379,
-    'install_type': "docker",
-    'image': 'redis-cluster',
-    'prerequisites': ["python-pip", "redis-tools"],
-    'pip_packages': ["docker-py"],
     'pidfile_dir': '/var/run/redis/',
     'run_dir': '/var/lib/redis/',
   },

@@ -6,9 +6,9 @@
 {% set this_host = grains['id'] %}
 
 {% for slave in redis.slaves|selectattr("id", "equalto", this_host)|list %}
-{% set slave_ip = ip() %}
-{% set master_ip = ip(id=slave.master_id) %}
-{% set redis_master_id = redis_master_id(master_ip, slave.master_port) %}
+{% set slave_ip = slave.ip|default(ip()) %}
+{% set master_ip = slave.master.ip|default(ip(id=slave.master.id)) %}
+{% set redis_master_id = redis_master_id(master_ip, slave.master.port) %}
 
 redis_slave_{{ slave_ip }}_{{ slave.port }}_replicate_master:
   cmd.run:
