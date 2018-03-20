@@ -1,5 +1,4 @@
 {% from "redis/server/single/map.jinja" import redis with context %}
-{% from "redis/server/macros.jinja" import redis_configure with context %}
 {% from "_common/ip.jinja" import ip with context %}
 {% from "_common/util.jinja" import is_docker with context %}
 
