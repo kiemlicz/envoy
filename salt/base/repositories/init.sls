@@ -32,3 +32,11 @@ include:
       pin: {{ pref.pin }}
       priority : {{ pref.priority }}
 {% endfor %}
+
+{% if not repositories.list or not repositories.preferences %}
+{# mandatory, otherwise require: empty sls will fail #}
+repositories-notification:
+  test.show_notification:
+    - name: No repositories
+    - text: "No repositories configured as none specified"
+{% endif %}
