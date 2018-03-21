@@ -11,3 +11,11 @@
     - mkmnt: True
     - persist: True
 {% endfor %}
+
+{% if not mounts %}
+{# mandatory, otherwise require: empty sls will fail #}
+mounts-notification:
+  test.show_notification:
+    - name: No mounts
+    - text: "No mount points configured as none specified"
+{% endif %}
