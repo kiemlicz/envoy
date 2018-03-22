@@ -9,7 +9,7 @@
 redis_config_{{ bind.ip }}_{{ bind.port }}:
   file_ext.managed:
     - name: /etc/redis/{{ discriminator }}.conf
-    - source: {{ redis.config }}
+    - source: {{ redis.config.source }}
     - makedirs: True
     - template: jinja
     - context:
@@ -17,12 +17,12 @@ redis_config_{{ bind.ip }}_{{ bind.port }}:
       redis: {{ redis }}
       discriminator: {{ discriminator }}
     - require:
-      - file_ext: {{ redis.init_location }}
+      - file_ext: {{ redis.config.init_location }}
 {% if salt['grains.get']("init") != 'systemd' %}
 {% set service = discriminator %}
   file.symlink:
     - name: /etc/init.d/{{ discriminator }}
-    - target: {{ redis.init_location }}
+    - target: {{ redis.config.init_location }}
     - require:
       - file_ext: /etc/redis/{{ discriminator }}.conf
     - watch_in:

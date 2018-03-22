@@ -10,20 +10,20 @@
 
 redis_config_{{ bind.ip }}_{{ bind.port }}:
   file_ext.managed:
-    - name: /etc/redis/{{ redis.service }}.conf
-    - source: {{ redis.config }}
+    - name: /etc/redis/{{ redis.config.service }}.conf
+    - source: {{ redis.config.source }}
     - makedirs: True
     - template: jinja
     - context:
       bind: {{ bind }}
       redis: {{ redis }}
-      discriminator: {{ redis.service }}
+      discriminator: {{ redis.config.service }}
     - require:
-      - file_ext: {{ redis.init_location }}
+      - file_ext: {{ redis.config.init_location }}
   service.running:
-    - name: {{ redis.service }}
+    - name: {{ redis.config.service }}
 {% if not is_docker() %}
     - enable: True
 {% endif %}
     - watch:
-      - file_ext: /etc/redis/{{ redis.service }}.conf
+      - file_ext: /etc/redis/{{ redis.config.service }}.conf

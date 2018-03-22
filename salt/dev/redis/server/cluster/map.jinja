@@ -24,7 +24,9 @@
     },
 }, merge=salt['grains.filter_by']({
        'systemd': {
-         'init_location': '/lib/systemd/system/redis@.service',
+         'config': {
+           'init_location': '/lib/systemd/system/redis@.service',
+         }
        }
      }, grain='init', merge=salt['pillar.get']('redis'))) %}
 

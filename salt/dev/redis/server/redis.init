@@ -18,8 +18,8 @@ NAME=$(basename ${0})
 DAEMON_ARGS=/etc/redis/${NAME}.conf
 DESC=${NAME}
 
-RUNDIR={{ redis.run_dir }}/${NAME}/
-PIDFILE={{ redis.pidfile_dir }}/${NAME}.pid
+RUNDIR={{ redis.db_path }}/${NAME}/
+PIDFILE={{ redis.pid_path }}/${NAME}.pid
 
 test -x $DAEMON || exit 0
 

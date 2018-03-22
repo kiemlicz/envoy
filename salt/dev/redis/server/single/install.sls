@@ -7,9 +7,9 @@ redis:
     - require:
       - pkg: os_packages
   file_ext.managed:
-    - name: {{ redis.init_location }}
-    - source: {{ redis.init }}
-    - mode: {{ redis.mode }}
+    - name: {{ redis.config.init_location }}
+    - source: {{ redis.config.init }}
+    - mode: {{ redis.config.mode }}
     - template: jinja
     - context:
       redis: {{ redis }}
