@@ -10,13 +10,26 @@
         'port': 27017,
         'user': "mongodb",
         'group': "mongodb",
-        'config': {
-          'source': "salt://mongodb/server/mongod.conf",
-          'db_path': "/var/lib/mongodb",
-          'log_path': "/var/log/mongodb",
-          'pid_path': "/var/run/mongodb",
-        }
-    },
+        'config': salt['grains.filter_by']({
+            'default': {
+                'source': "salt://mongodb/server/mongod.conf",
+                'db_path': "/var/lib",
+                'log_path': "/var/log",
+                'pid_path': "/var/run",
+                'init': 'salt://mongodb/server/mongod.init',
+                'init_location': '/etc/init.d/mongod',
+                'service': 'mongod',
+                'mode': "755"
+            }
+        }, merge=salt['grains.filter_by']({
+                 'systemd': {
+                   'init': 'salt://mongodb/server/mongod.service',
+                   'init_location': '/lib/systemd/system/mongod@.service',
+                   'service': 'mongod',
+                   'mode': "644",
+                 }
+               }, grain='init')
+    })
 }, merge=salt['grains.filter_by']({
        'stretch': {
          'repo_entries': [
@@ -34,17 +47,4 @@
              "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse"
           ],
        }
-   }, grain='oscodename', merge=salt['grains.filter_by']({
-        'default': {
-          'init': 'salt://mongodb/server/mongod.init',
-          'init_location': '/etc/init.d/mongod',
-          'service': 'mongod',
-          'mode': "755"
-        },
-        'systemd': {
-          'init': 'salt://mongodb/server/mongod.service',
-          'init_location': '/lib/systemd/system/mongod@.service',
-          'service': 'mongod',
-          'mode': "644",
-        }
-      }, grain='init', merge=salt['pillar.get']('mongodb')))) %}
+   }, grain='oscodename', merge=salt['pillar.get']('mongodb')))) %}

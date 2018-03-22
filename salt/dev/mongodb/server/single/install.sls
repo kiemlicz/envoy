@@ -22,8 +22,8 @@ mongodb:
     - require:
       - pkg: os_packages
   file_ext.managed:
-    - name: {{ mongodb.init_location }}
-    - source: {{ mongodb.init }}
-    - mode: {{ mongodb.mode }}
+    - name: {{ mongodb.config.init_location }}
+    - source: {{ mongodb.config.init }}
+    - mode: {{ mongodb.config.mode }}
     - require:
       - pkg: {{ mongodb.pkg_name }}

@@ -9,17 +9,18 @@
 } %}
 mongodb_config_{{ bind.ip }}_{{ bind.port }}:
   file_ext.managed:
-    - name: /etc/{{ mongodb.service }}.conf
+    - name: /etc/{{ mongodb.config.service }}.conf
     - source: {{ mongodb.config.source }}
     - makedirs: True
     - template: jinja
     - context:
       bind: {{ bind }}
       mongodb: {{ mongodb }}
+      discriminator: {{ mongodb.config.service }}
     - require:
-      - file_ext: {{ mongodb.init_location }}
+      - file_ext: {{ mongodb.config.init_location }}
   service.running:
-    - name: {{ mongodb.service }}
+    - name: {{ mongodb.config.service }}
 {% if not is_docker() %}
     - enable: True
 {% endif %}

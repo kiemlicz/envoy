@@ -10,6 +10,6 @@
 {% do bind.update({
   "ip": bind.ip|default(ip())
 }) %}
-{{ mongodb_configure(mongodb, bind, mongodb.service + '-' + bind.port|string) }}
+{{ mongodb_configure(mongodb, bind, mongodb.config.service + '-' + bind.port|string) }}
 
 {% endfor %}

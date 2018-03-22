@@ -1,6 +1,6 @@
 {% macro mongodb_configure(mongodb, bind, discriminator) -%}
 
-{% set service = mongodb.service + '@' + bind.port|string %}
+{% set service = mongodb.config.service + '@' + bind.port|string %}
 
 mongodb_config_{{ bind.ip }}_{{ bind.port }}:
   file_ext.managed:
@@ -13,7 +13,7 @@ mongodb_config_{{ bind.ip }}_{{ bind.port }}:
       mongodb: {{ mongodb }}
       discriminator: {{ discriminator }}
     - require:
-      - file_ext: {{ mongodb.init_location }}
+      - file_ext: {{ mongodb.config.init_location }}
   file.directory:
     - names:
       - {{ mongodb.config.db_path }}/{{ discriminator }}
@@ -30,7 +30,7 @@ mongodb_start_{{ bind.ip }}_{{ bind.port }}:
 {% set service = discriminator %}
   file.symlink:
     - name: /etc/init.d/{{ discriminator }}
-    - target: {{ mongodb.init_location }}
+    - target: {{ mongodb.config.init_location }}
     - require:
       - file: mongodb_config_{{ bind.ip }}_{{ bind.port }}
     - watch_in:
