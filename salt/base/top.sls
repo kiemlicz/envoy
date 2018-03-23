@@ -80,7 +80,8 @@ def run():
   server = {
     'not G@os:Windows': [
       "keepalived",
-      "lvs"
+      "lvs.director",
+      "lvs.realserver"
     ]
   }
 
