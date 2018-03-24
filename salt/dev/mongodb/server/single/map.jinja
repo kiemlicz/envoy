@@ -24,7 +24,7 @@
         }, merge=salt['grains.filter_by']({
                  'systemd': {
                    'init': 'salt://mongodb/server/mongod.service',
-                   'init_location': '/lib/systemd/system/mongod@.service',
+                   'init_location': '/lib/systemd/system/mongod.service',
                    'service': 'mongod',
                    'mode': "644",
                  }

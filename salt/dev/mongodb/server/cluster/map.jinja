@@ -17,6 +17,12 @@
           'port': 28017,
         }],
     },
-}, merge=salt['pillar.get']('mongodb')) %}
+}, merge=salt['grains.filter_by']({
+  'systemd': {
+    'config': {
+      'init_location': '/lib/systemd/system/mongod@.service',
+    }
+  }
+}, grain='init', merge=salt['pillar.get']('mongodb')))  %}
 
 {% do mongodb.update(mongodb_single) %}

@@ -25,4 +25,4 @@ mongodb_config_{{ bind.ip }}_{{ bind.port }}:
     - enable: True
 {% endif %}
     - require:
-      - file: /etc/{{ mongodb.config.service }}.conf
+      - file_ext: /etc/{{ mongodb.config.service }}.conf
