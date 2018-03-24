@@ -37,7 +37,7 @@ git_global_config_{{ username }}_{{ k }}:
   git.config_set:
     - name: {{ k }}
     - value: {{ v }}
-    - user: {{ user.fullname|default(username) }}
+    - user: {{ username }}
     - global: True
     - require:
       - user: {{ username }}
