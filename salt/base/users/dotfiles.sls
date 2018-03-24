@@ -1,5 +1,4 @@
-{% for username in pillar['users'].keys() %}
-{% set user = pillar['users'][username] %}
+{% for username, user in salt['pillar.get']("users", {}).items() if user.dotfile is defined %}
 
 {{ username }}_dotfiles:
   dotfile.managed:
@@ -15,6 +14,8 @@
     - target: {{ user.dotfile.root }}
     - identity: {{ user.sec.ssh|selectattr("name", "equalto", "dotfile")|map(attribute='privkey_location')|first }}
     - saltenv: {{ saltenv }}
+    - require:
+      - sls: user.keys
 #todo fallback location = home
 {% if user.dotfile.post_cmds is defined %}
   cmd.run:

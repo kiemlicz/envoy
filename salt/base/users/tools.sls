@@ -1,5 +1,4 @@
-{% for username in pillar['users'].keys() %}
-{% set user = pillar['users'][username] %}
+{% for username, user in salt['pillar.get']("users", {}).items() if user.tools is defined %}
 
 {{ username }}_setup_oh_my_zsh:
   git.latest:
@@ -9,6 +8,7 @@
     - force_fetch: True
     - require:
       - user: {{ username }}
+
 {{ username }}_setup_oh_my_zsh_syntax_highlighting:
   git.latest:
     - user: {{ username }}
@@ -40,6 +40,7 @@
     - refresh: True
     - require:
       - user: {{ username }}
+
 {{ username }}_powerline_python2:
   pip.installed:
     - name: {{ user.tools.powerline.pip }}
@@ -48,6 +49,7 @@
       - --user
     - require:
       - pkg: {{ username }}_powerline_requirements
+
 {{ username }}_powerline_python3:
   pip.installed:
     - name: {{ user.tools.powerline.pip }}

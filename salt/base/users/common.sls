@@ -1,5 +1,4 @@
-{% for username in pillar['users'].keys() %}
-{% set user = pillar['users'][username] %}
+{% for username, user in salt['pillar.get']("users", {}).items() %}
 
 {{ username }}_setup_user:
   user.present:
@@ -38,7 +37,7 @@ git_global_config_{{ username }}_{{ k }}:
   git.config_set:
     - name: {{ k }}
     - value: {{ v }}
-    - user: {{ username }}
+    - user: {{ user.fullname|default(username) }}
     - global: True
     - require:
       - user: {{ username }}
