@@ -28,5 +28,6 @@ mongodb:
     - template: jinja
     - context:
       mongodb: {{ mongodb }}
+      discriminator: {{ mongodb.config.service }}
     - require:
       - pkg: {{ mongodb.pkg_name }}
