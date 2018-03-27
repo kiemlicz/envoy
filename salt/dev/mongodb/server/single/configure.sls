@@ -19,10 +19,20 @@ mongodb_config_{{ bind.ip }}_{{ bind.port }}:
       discriminator: {{ mongodb.config.service }}
     - require:
       - file_ext: {{ mongodb.config.init_location }}
+  file.directory:
+    - names:
+      - {{ mongodb.config.db_path }}/{{ discriminator }}
+      - {{ mongodb.config.pid_path }}
+      - {{ mongodb.config.log_path }}
+    - user: {{ mongodb.user }}
+    - group: {{ mongodb.group }}
+    - makedirs: True
+    - require:
+      - file_ext: /etc/{{ mongodb.config.service }}.conf
+    - require_in:
+      - service: {{ mongodb.config.service }}
   service.running:
     - name: {{ mongodb.config.service }}
 {% if not is_docker() %}
     - enable: True
 {% endif %}
-    - require:
-      - file_ext: /etc/{{ mongodb.config.service }}.conf
