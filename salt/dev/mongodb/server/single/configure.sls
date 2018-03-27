@@ -3,6 +3,7 @@
 {% from "_common/util.jinja" import is_docker with context %}
 
 
+{% set discriminator = mongodb.config.service %}
 {% set bind = {
   'port': mongodb.port,
   'ip': mongodb.ip|default(ip())
@@ -16,7 +17,7 @@ mongodb_config_{{ bind.ip }}_{{ bind.port }}:
     - context:
       bind: {{ bind }}
       mongodb: {{ mongodb }}
-      discriminator: {{ mongodb.config.service }}
+      discriminator: {{ discriminator }}
     - require:
       - file_ext: {{ mongodb.config.init_location }}
   file.directory:
