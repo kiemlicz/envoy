@@ -1,7 +1,7 @@
 {% from "redis/server/single/map.jinja" import redis as redis_single with context %}
 
 {# host_id == hostname by default #}
-{% set host_id = salt['grains.get']('id') %}
+{% set host_id = grains["id"] %}
 
 {% set redis = salt['grains.filter_by']({
     'Debian': {
