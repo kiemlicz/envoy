@@ -1,5 +1,6 @@
 {% from "maven/map.jinja" import maven with context %}
 {% from "_macros/dev_tool.macros.jinja" import add_environmental_variable,add_to_path with context %}
+{% from "_common/util.jinja" import retry with context %}
 
 include:
   - users
@@ -12,11 +13,7 @@ maven:
     - user: {{ maven.owner }}
     - group: {{ maven.owner }}
     - saltenv: {{ saltenv }}
-    - retry:
-        until: True
-        attempts: 3
-        interval: 5
-        splay: 5
+{{ retry()| indent(4) }}
     - require:
       - sls: users.common
 {{ add_environmental_variable(maven.environ_variable, maven.generic_link, maven.exports_file) }}

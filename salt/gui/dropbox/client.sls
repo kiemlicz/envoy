@@ -1,4 +1,5 @@
 {% from "dropbox/map.jinja" import dropbox with context %}
+{% from "_common/util.jinja" import retry with context %}
 
 dropbox:
 {% if grains['os'] != 'Windows' %}
@@ -7,11 +8,7 @@ dropbox:
     - keyid: {{ dropbox.keyid }}
     - keyserver: {{ dropbox.keyserver }}
     - file: {{ dropbox.file }}
-    - retry:
-        until: True
-        attempts: 3
-        interval: 5
-        splay: 5
+{{ retry()| indent(4) }}
     - require_in:
       - pkg: {{ dropbox.pkg_name }}
 {% endif %}

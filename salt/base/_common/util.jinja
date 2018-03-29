@@ -9,3 +9,11 @@
 {% macro is_docker() -%}
 {{ salt['grains.get']("virtual_subtype") == "Docker" }}
 {%- endmacro %}
+
+{% macro retry(attempts=5, interval=30) -%}
+- retry:
+    until: True
+    attempts: {{ attempts }}
+    interval: {{ interval }}
+    splay: 15
+{%- endmacro %}
