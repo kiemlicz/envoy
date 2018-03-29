@@ -7,6 +7,11 @@ dropbox:
     - keyid: {{ dropbox.keyid }}
     - keyserver: {{ dropbox.keyserver }}
     - file: {{ dropbox.file }}
+    - retry:
+        until: True
+        attempts: 3
+        interval: 5
+        splay: 5
     - require_in:
       - pkg: {{ dropbox.pkg_name }}
 {% endif %}

@@ -12,6 +12,11 @@ maven:
     - user: {{ maven.owner }}
     - group: {{ maven.owner }}
     - saltenv: {{ saltenv }}
+    - retry:
+        until: True
+        attempts: 3
+        interval: 5
+        splay: 5
     - require:
       - sls: users.common
 {{ add_environmental_variable(maven.environ_variable, maven.generic_link, maven.exports_file) }}
