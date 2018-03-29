@@ -10,6 +10,6 @@
 {% do bind.update({
   "ip": bind.ip|default(ip())
 }) %}
-{{ redis_configure(redis, bind, redis.service + '-' + bind.port|string) }}
+{{ redis_configure(redis, bind, redis.config.service + '-' + bind.port|string) }}
 
 {% endfor %}
