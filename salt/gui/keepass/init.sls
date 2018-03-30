@@ -3,12 +3,14 @@
 include:
   - pkgs
 
-# todo gpgcheck:1 in pkgrepo.managed
-# todo mind windows
 
 keepass:
   pkg.installed:
+{% if keepass.url is defined %}
     - sources:
       - {{ keepass.pkg_name }}: {{ keepass.url }}
+{% else %}
+    - name: {{ keepass.pkg_name }}
+{% endif %}
     - require:
-      - sls: pkgs
+      - pkg: os_packages
