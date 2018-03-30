@@ -7,7 +7,7 @@ required_pkgs:
   pkg.latest:
     - pkgs: {{ locale.required_pkgs }}
     - require_in:
-      - locale: {{ locale.locales }}
+      - locale: gen_locale
 {% endif %}
 
 gen_locale:

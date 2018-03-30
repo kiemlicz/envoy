@@ -25,7 +25,7 @@ docker:
     - require_in:
       - pkg: {{ docker.pkg_name }}
 {% endif %}
-{% if is_docker() %}
+{% if is_docker()|to_bool %}
 # this is workaround for docker-in-docker: "Error response from daemon: error creating aufs mount ... invalid argument"
   file.managed:
     - name: {{ docker.config }}
