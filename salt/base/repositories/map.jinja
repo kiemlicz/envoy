@@ -1,4 +1,8 @@
 {% set repositories = salt['grains.filter_by']({
+    'default': {
+        'list':[],
+        'preferences': [],
+    },
     'Debian': {
         'preferences_template': 'salt://repositories/template.pref',
         'list':[],

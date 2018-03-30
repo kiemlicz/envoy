@@ -33,7 +33,7 @@ include:
       priority : {{ pref.priority }}
 {% endfor %}
 
-{% if not repositories.list or not repositories.preferences %}
+{% if not (repositories.list or repositories.preferences) %}
 {# mandatory, otherwise require: empty sls will fail #}
 repositories-notification:
   test.show_notification:
