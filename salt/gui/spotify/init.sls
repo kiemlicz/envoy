@@ -25,7 +25,6 @@ spotify:
     - file: {{ spotify.file }}
     - keyserver: {{ spotify.keyserver }}
     - keyid: {{ spotify.keyid }}
-    - refresh_db: True
     - require_in:
       - pkg: {{ spotify.pkg_name }}
 {% endif %}

@@ -24,7 +24,8 @@ virtualbox:
     - require_in:
       - pkg: {{ virtualbox.pkg_name }}
 {% endif %}
-  pkg.installed:
+  pkg.latest:
     - name: {{ virtualbox.pkg_name }}
+    - refresh: True
     - require:
       - sls: pkgs

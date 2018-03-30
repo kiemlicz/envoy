@@ -27,6 +27,7 @@ mongodb:
 {% endif %}
   pkg.latest:
     - name: {{ mongodb.pkg_name }}
+    - refresh: True
     - require:
       - pkg: os_packages
   file_ext.managed:

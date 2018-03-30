@@ -6,7 +6,6 @@ owncloud:
     - names: {{ owncloud.repo_entries }}
     - file: {{ owncloud.file }}
     - key_url: {{ owncloud.key_url }}
-    - refresh_db: True
     - require:
       - pkg: os_packages
     - require_in:

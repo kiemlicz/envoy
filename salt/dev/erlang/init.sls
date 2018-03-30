@@ -10,7 +10,6 @@ erlang:
     - names: {{ erlang.repo_entries }}
     - file: {{ erlang.file }}
     - key_url: {{ erlang.key_url }}
-    - refresh_db: True
     - require_in:
       - file: {{ erlang.apt_preferences_file }}
 {% else %}

@@ -12,7 +12,6 @@ docker:
     - names: {{ docker.repo_entries }}
     - file: {{ docker.file }}
     - key_url: {{ docker.key_url }}
-    - refresh_db: true
 {% else %}
     - name: {{ docker.repo_id }}
     - baseurl: {{ docker.baseurl }}
