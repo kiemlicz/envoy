@@ -1,7 +1,7 @@
 {% from "owncloud/client/client.map.jinja" import owncloud with context %}
 
 owncloud:
-{% if grains['os'] != 'Windows' %}
+{% if owncloud.repo_entries %}
   pkgrepo.managed:
     - names: {{ owncloud.repo_entries }}
     - file: {{ owncloud.file }}
