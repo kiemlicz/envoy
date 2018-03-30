@@ -2,7 +2,11 @@
 {% set java = salt['grains.filter_by']({
     'RedHat': {
         'pkg_name': "java-" + version_major + "-openjdk",
-        'ext_pkgs': []
+        'ext_pkgs': [],
+        'exports_file': '/etc/zsh/zshrc',
+        'environ_variable': 'JAVA_HOME',
+        'path_inside': 'bin',
+        'generic_link': '$(readlink -f /usr/bin/java | sed "s:jre/bin/java::")',
     },
     'Debian': {
         'repo_entries': [
