@@ -1,4 +1,9 @@
 {% set locale = salt['grains.filter_by']({
+    'default': {
+        'required_pkgs': [],
+        'system_default': 'en_US.UTF-8',
+        'locales': ["en_US.UTF-8"]
+    },
     'Debian': {
         'required_pkgs': ["locales"],
         'system_default': 'en_US.UTF-8',
