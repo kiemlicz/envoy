@@ -4,7 +4,7 @@
 
 {% macro redis_configure(redis, bind, discriminator) -%}
 
-{% set service = redis.service + '@' + bind.port|string %}
+{% set service = redis.config.service + '@' + bind.port|string %}
 
 redis_config_{{ bind.ip }}_{{ bind.port }}:
   file_ext.managed:
