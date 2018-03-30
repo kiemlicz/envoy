@@ -6,12 +6,20 @@ exclude:
   - id: mongodb_client
 
 mongodb:
-{% if grains['os'] != 'Windows' %}
+{% if mongodb.repo_entries is defined or mongodb.repo_id is defined %}
   pkgrepo.managed:
+{% if mongodb.repo_entries %}
     - names: {{ mongodb.repo_entries }}
     - file: {{ mongodb.file }}
     - keyid: {{ mongodb.keyid }}
     - keyserver: {{ mongodb.keyserver }}
+{% else %}
+    - name: {{ mongodb.repo_id }}
+    - baseurl: {{ mongodb.baseurl }}
+    - humanname: {{ mongodb.repo_id }}
+    - gpgcheck: 1
+    - gpgkey: {{ mongodb.gpgkey }}
+{% endif %}
     - require:
       - pkg: os_packages
     - require_in:

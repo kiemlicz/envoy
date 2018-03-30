@@ -6,9 +6,9 @@ include:
   - pkgs
 
 docker:
-{% if docker.repo_entries or docker.repo_id is defined %}
+{% if docker.repo_entries is defined or docker.repo_id is defined %}
   pkgrepo.managed:
-{% if docker.repo_entries is defined %}
+{% if docker.repo_entries %}
     - names: {{ docker.repo_entries }}
     - file: {{ docker.file }}
     - key_url: {{ docker.key_url }}

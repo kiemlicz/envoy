@@ -1,24 +1,26 @@
+{% set config = salt['grains.filter_by']({
+  'default': {
+    'source': 'salt://redis/server/redis.conf',
+    'pid_path': '/var/run/',
+    'db_path': '/var/lib/',
+    'init': 'salt://redis/server/redis.init',
+    'init_location': '/etc/init.d/redis-server',
+    'service': 'redis-server',
+    'mode': "755",
+  }
+}, merge=salt['grains.filter_by']({
+    'systemd': {
+      'init': 'salt://redis/server/redis.service',
+      'init_location': '/lib/systemd/system/redis.service',
+      'service': 'redis',
+      'mode': "644",
+    }
+}, grain='init')) %}
+
 {% set redis = salt['grains.filter_by']({
   'Debian': {
     'pkg_name': 'redis-server',
     'port': 6379,
-    'config': salt['grains.filter_by']({
-      'default': {
-        'source': 'salt://redis/server/redis.conf',
-        'pid_path': '/var/run/',
-        'db_path': '/var/lib/',
-        'init': 'salt://redis/server/redis.init',
-        'init_location': '/etc/init.d/redis-server',
-        'service': 'redis-server',
-        'mode': "755",
-      }
-    }, merge=salt['grains.filter_by']({
-        'systemd': {
-          'init': 'salt://redis/server/redis.service',
-          'init_location': '/lib/systemd/system/redis.service',
-          'service': 'redis',
-          'mode': "644",
-        }
-    }, grain='init'))
+    'config': config,
   },
 }, merge=salt['pillar.get']('redis')) %}

@@ -1,7 +1,7 @@
 {% from "owncloud/client/client.map.jinja" import owncloud with context %}
 
 owncloud:
-{% if owncloud.repo_entries %}
+{% if owncloud.repo_entries is defined or owncloud.repo_id is defined %}
   pkgrepo.managed:
     - names: {{ owncloud.repo_entries }}
     - file: {{ owncloud.file }}

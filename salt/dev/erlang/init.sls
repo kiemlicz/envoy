@@ -4,9 +4,9 @@ include:
   - pkgs
 
 erlang:
-{% if erlang.repo_entries or erlang.repo_id is defined %}
+{% if erlang.repo_entries is defined or erlang.repo_id is defined %}
   pkgrepo.managed:
-{% if erlang.repo_entries is defined %}
+{% if erlang.repo_entries %}
     - names: {{ erlang.repo_entries }}
     - file: {{ erlang.file }}
     - key_url: {{ erlang.key_url }}
