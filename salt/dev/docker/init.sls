@@ -8,7 +8,7 @@ include:
 docker:
 {% if docker.repo_entries is defined or docker.repo_id is defined %}
   pkgrepo.managed:
-{% if docker.repo_entries %}
+{% if docker.repo_entries is defined %}
     - names: {{ docker.repo_entries }}
     - file: {{ docker.file }}
     - key_url: {{ docker.key_url }}

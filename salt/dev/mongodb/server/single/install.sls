@@ -8,7 +8,7 @@ exclude:
 mongodb:
 {% if mongodb.repo_entries is defined or mongodb.repo_id is defined %}
   pkgrepo.managed:
-{% if mongodb.repo_entries %}
+{% if mongodb.repo_entries is defined %}
     - names: {{ mongodb.repo_entries }}
     - file: {{ mongodb.file }}
     - keyid: {{ mongodb.keyid }}

@@ -6,7 +6,7 @@ include:
 erlang:
 {% if erlang.repo_entries is defined or erlang.repo_id is defined %}
   pkgrepo.managed:
-{% if erlang.repo_entries %}
+{% if erlang.repo_entries is defined %}
     - names: {{ erlang.repo_entries }}
     - file: {{ erlang.file }}
     - key_url: {{ erlang.key_url }}
@@ -22,7 +22,7 @@ erlang:
 {% endif %}
     - require:
       - sls: pkgs
-{% if erlang.repo_entries %}
+{% if erlang.repo_entries is defined %}
   file.managed:
     - name: {{ erlang.apt_preferences_file }}
     - source: salt://erlang/erlang.pref

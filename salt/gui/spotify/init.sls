@@ -1,7 +1,9 @@
 {% from "spotify/map.jinja" import spotify with context %}
 
+
 include:
   - pkgs
+
 
 {% if spotify.required_pkgs_urls %}
 spotify_prerequisites:
@@ -17,7 +19,7 @@ spotify_prerequisites:
 {% endif %}
 
 spotify:
-{% if grains['os'] != 'Windows' %}
+{% if spotify.repo_entries is defined %}
   pkgrepo.managed:
     - names: {{ spotify.repo_entries }}
     - file: {{ spotify.file }}

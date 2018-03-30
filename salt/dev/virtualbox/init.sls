@@ -8,7 +8,7 @@ include:
 virtualbox:
 {% if virtualbox.repo_entries is defined or virtualbox.repo_id is defined %}
   pkgrepo.managed:
-{% if virtualbox.repo_entries %}
+{% if virtualbox.repo_entries is defined %}
     - names: {{ virtualbox.repo_entries }}
     - file: {{ virtualbox.file }}
     - key_url: {{ virtualbox.key_url }}

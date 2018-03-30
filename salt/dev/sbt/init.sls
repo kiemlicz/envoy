@@ -1,12 +1,14 @@
 {% from "sbt/map.jinja" import sbt with context %}
 {% from "_macros/dev_tool.macros.jinja" import add_environmental_variable,add_to_path with context %}
 
+
 include:
   - users
   - pkgs
 
+
 sbt:
-{% if sbt.repo_entries or sbt.repo_id is defined %}
+{% if sbt.repo_entries is defined or sbt.repo_id is defined %}
   pkgrepo.managed:
 {% if sbt.repo_entries is defined %}
     - names: {{ sbt.repo_entries }}

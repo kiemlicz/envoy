@@ -2,7 +2,13 @@
 {% set dist_codename = salt['grains.get']('lsb_distrib_codename') %}
 
 {% set dropbox = salt['grains.filter_by']({
-    'default': {
+    'RedHat': {
+        'baseurl': "http://linux.dropbox.com/fedora/\$releasever/",
+        'repo_id': "dropbox",
+        'gpgkey': "http://linux.dropbox.com/fedora/rpm-public-key.asc",
+        'pkg_name': "dropbox",
+    },
+    'Debian': {
         'repo_entries': ["deb http://linux.dropbox.com/" + os.lower() + " " + dist_codename + " main"],
         'file': '/etc/apt/sources.list.d/dropbox.list',
         'keyid': "1C61A2656FB57B7E4DE0F4C1FC918B335044912E",

@@ -8,7 +8,7 @@ include:
 
 
 java:
-{% if java.repo_entries is defined or java.repo_id is defined %}
+{% if java.repo_entries is defined %}
   pkgrepo.managed:
     - names: {{ java.repo_entries }}
     - file: {{ java.file }}
