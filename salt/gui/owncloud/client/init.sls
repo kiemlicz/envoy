@@ -10,10 +10,10 @@ owncloud:
     - require:
       - pkg: os_packages
     - require_in:
-      - pkg: {{ owncloud.pkg_name }}
+      - pkg: {{ owncloud.client.pkg_name }}
 {% endif %}
   pkg.latest:
-    - name: {{ owncloud.pkg_name }}
+    - name: {{ owncloud.client.pkg_name }}
     - refresh: True
 
 #further config via dotfiles

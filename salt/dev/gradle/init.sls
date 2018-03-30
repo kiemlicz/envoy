@@ -1,8 +1,11 @@
 {% from "gradle/map.jinja" import gradle with context %}
 {% from "_macros/dev_tool.macros.jinja" import add_environmental_variable,add_to_path with context %}
+{% from "_common/util.jinja" import retry with context %}
+
 
 include:
   - users
+
 
 gradle:
   devtool.managed:
@@ -12,6 +15,7 @@ gradle:
     - user: {{ gradle.owner }}
     - group: {{ gradle.owner }}
     - saltenv: {{ saltenv }}
+{{ retry()| indent(4) }}
     - require:
       - sls: users.common
 {{ add_environmental_variable(gradle.environ_variable, gradle.generic_link, gradle.exports_file) }}
