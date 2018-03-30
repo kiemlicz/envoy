@@ -15,4 +15,4 @@ RUN dnf -y update && dnf -y install curl && \
     curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com && \
     sh /tmp/bootstrap-salt.sh -X -n stable $SALT_VER
 
-ENTRYPOINT ["/opt/entrypoint_dry.sh"]
+ENTRYPOINT ["/opt/entrypoint_dry_systemd.sh"]
