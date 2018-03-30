@@ -2,6 +2,11 @@
 {% set dist_codename = salt['grains.get']('lsb_distrib_codename') %}
 {# ubuntu uses "/debian" as well #}
 {% set virtualbox = salt['grains.filter_by']({
+    'RedHat': {
+        'repo_id': "virtualbox",
+        'baseurl': "http://download.virtualbox.org/virtualbox/rpm/fedora/$releasever/$basearch",
+        'gpgkey': "https://www.virtualbox.org/download/oracle_vbox.asc",
+    },
     'Debian': {
         'file': '/etc/apt/sources.list.d/virtualbox.list',
         'repo_entries': ["deb http://download.virtualbox.org/virtualbox/debian " + dist_codename + " contrib"],

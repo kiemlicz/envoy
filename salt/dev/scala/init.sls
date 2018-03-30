@@ -1,8 +1,11 @@
 {% from "scala/map.jinja" import scala with context %}
 {% from "_macros/dev_tool.macros.jinja" import add_environmental_variable,add_to_path with context %}
+{% from "_common/util.jinja" import retry with context %}
+
 
 include:
   - users
+
 
 scala:
   devtool.managed:
@@ -12,6 +15,7 @@ scala:
     - user: {{ scala.owner }}
     - group: {{ scala.owner }}
     - saltenv: {{ saltenv }}
+{{ retry()| indent(4) }}
     - require:
       - sls: users.common
 {{ add_environmental_variable(scala.environ_variable, scala.generic_link, scala.exports_file) }}
