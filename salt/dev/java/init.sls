@@ -6,7 +6,7 @@ include:
   - pkgs
 
 java:
-{% if grains['os'] != 'Windows' %}
+{% if java.repo_entries %}
   pkgrepo.managed:
     - names: {{ java.repo_entries }}
     - file: {{ java.file }}

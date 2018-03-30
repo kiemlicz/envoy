@@ -10,7 +10,7 @@ COPY .travis/envoy_test.py /opt/
 COPY .travis/entrypoint_dry_systemd.sh /opt/
 COPY .travis/config/masterless.conf /etc/salt/minion.d/masterless.conf
 
-RUN dnf -y update && dnf -y install curl && \
+RUN dnf -y update && dnf -y install curl procps && \
     ln -s /srv/envoy/salt /srv/salt && \
     curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com && \
     sh /tmp/bootstrap-salt.sh -X -n stable $SALT_VER

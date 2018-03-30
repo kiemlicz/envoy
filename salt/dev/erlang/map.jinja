@@ -4,7 +4,10 @@
 {% set dist_codename = salt['grains.get']('lsb_distrib_codename') %}
 
 {% set erlang = salt['grains.filter_by']({
-    'default': {
+    'RedHat': {
+        'pkg_name': "erlang",
+    },
+    'Debian': {
         'file': '/etc/apt/sources.list.d/erlang.list',
         'repo_entries': ["deb http://packages.erlang-solutions.com/" + os.lower() +  " " + dist_codename + " contrib"],
         'apt_preferences_file': '/etc/apt/preferences.d/erlang.pref',

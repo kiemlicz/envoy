@@ -1,6 +1,10 @@
 {% set version_major = salt['pillar.get']("java:version_major", default="9") %}
 {% set java = salt['grains.filter_by']({
-    'default': {
+    'RedHat': {
+        'pkg_name': "java-" + version_major + "-openjdk",
+        'ext_pkgs': []
+    },
+    'Debian': {
         'repo_entries': [
           "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main",
           "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main"

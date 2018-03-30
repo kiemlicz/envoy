@@ -6,12 +6,19 @@ include:
   - pkgs
 
 sbt:
-{% if grains['os'] != 'Windows' %}
+{% if sbt.repo_entries or sbt.repo_id is defined %}
   pkgrepo.managed:
+{% if sbt.repo_entries is defined %}
     - names: {{ sbt.repo_entries }}
     - file: {{ sbt.file }}
     - keyid: {{ sbt.keyid }}
     - keyserver: {{ sbt.keyserver }}
+{% else %}
+    - name: {{ sbt.repo_id }}
+    - baseurl: {{ sbt.baseurl }}
+    - humanname: {{ sbt.repo_id }}
+    - gpgcheck: 0
+{% endif %}
     - require:
       - sls: pkgs
     - require_in:
