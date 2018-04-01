@@ -7,8 +7,8 @@
 
 {% for slave in redis.slaves|selectattr("id", "equalto", this_host)|list %}
 {% set slave_ip = slave.ip|default(ip()) %}
-{% set master_ip = slave.master.ip|default(ip(id=slave.master.id)) %}
-{% set redis_master_id = redis_master_id(master_ip, slave.master.port) %}
+{% set master_ip = slave.of_master.ip|default(ip(id=slave.of_master.id)) %}
+{% set redis_master_id = redis_master_id(master_ip, slave.of_master.port) %}
 
 redis_slave_{{ slave_ip }}_{{ slave.port }}_replicate_master:
   cmd.run:
