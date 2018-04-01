@@ -8,7 +8,18 @@
   'port': mongodb.port,
   'ip': mongodb.ip|default(ip())
 } %}
-mongodb_config_{{ bind.ip }}_{{ bind.port }}:
+mongodb_init:
+  file_ext.managed:
+    - name: {{ mongodb.config.init_location }}
+    - source: {{ mongodb.config.init }}
+    - mode: {{ mongodb.config.mode }}
+    - template: jinja
+    - context:
+      mongodb: {{ mongodb }}
+      discriminator: {{ discriminator }}
+    - require:
+      - pkg: {{ mongodb.pkg_name }}
+mongodb_config:
   file_ext.managed:
     - name: /etc/{{ mongodb.config.service }}.conf
     - source: {{ mongodb.config.source }}
