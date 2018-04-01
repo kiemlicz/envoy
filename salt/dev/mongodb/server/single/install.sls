@@ -30,3 +30,12 @@ mongodb:
     - refresh: True
     - require:
       - pkg: os_packages
+  file_ext.managed:
+    - name: {{ mongodb.config.init_location }}
+    - source: {{ mongodb.config.init }}
+    - mode: {{ mongodb.config.mode }}
+    - template: jinja
+    - context:
+      mongodb: {{ mongodb }}
+    - require:
+      - pkg: {{ mongodb.pkg_name }}
