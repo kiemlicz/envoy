@@ -1,6 +1,15 @@
 {# {% import_yaml "defaults.yaml" as defaults %} #}
 
 {% set sbt = salt['grains.filter_by']({
+    'RedHat': {
+        'baseurl': "https://sbt.bintray.com/rpm",
+        'repo_id': "bintray--sbt-rpm",
+        'exports_file': '/etc/zsh/zshrc',
+        'environ_variable': 'SBT_HOME',
+        'path_inside': 'bin',
+        'generic_link': '$(readlink -f /usr/bin/sbt | sed "s:bin/sbt::")',
+        'pkg_name': "sbt"
+    },
     'Debian': {
         'repo_entries': [
             "deb https://dl.bintray.com/sbt/debian /"

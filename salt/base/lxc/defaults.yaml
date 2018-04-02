@@ -1,2 +1,0 @@
-lxc:
-  net_cfg_file: /etc/default/lxc-net

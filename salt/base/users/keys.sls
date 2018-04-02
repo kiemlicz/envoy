@@ -1,5 +1,4 @@
-{% for username in pillar['users'].keys() %}
-{% set user = pillar['users'][username] %}
+{% for username, user in salt['pillar.get']("users", {}).items() if user.sec is defined %}
 
 {# either generates or copies key under given locations #}
 

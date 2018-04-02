@@ -1,3 +1,4 @@
+[![Build status](https://travis-ci.org/kiemlicz/envoy.svg?branch=master)](https://travis-ci.org/kiemlicz/envoy)
 # Basics 
 [SaltStack](https://saltstack.com/) _states_ for provisioning machines in the most generic way possible.  
 The goal is to create _salt environments_ usable by developers as well as admins during the setup of either server or 'client' machines.
@@ -16,99 +17,9 @@ fully automated setup of SaltStack via associated [project ambassador](https://g
     2. `sh /tmp/bootstrap-salt.sh stable 2017.7.1`
     3. Use `config/masterless.conf` (put under `/etc/salt/minion.d/`) 
 
-## Usage
-In order to run _states_ against _minions_, _pillar_ must be configured.
-### pillar structure
-Full _pillar_ contains following entries: 
-```
-base_pkgs:
-  names:
-    - pkg1
-    
-    
-gui_pkgs:
-  names:
-    - guipkg1
-
-hosts:
-   IP: [list of names]
-   
-mounts:
-{% if grains['host'] == 'my cool host' %}
-  - dev: /dev/sda1
-    target: /mnt/sda1
-    file_type: ext4
-    options: [user]  
-{% else %}
-  []
-{% endif %}
-
-locale:
-  locales:
-    - en_US.UTF-8
-
-{% set username = 'coolguy' %}
-{% set home_dir = '/home/' + username %}           
-           
-users:
-  {{ username }}:
-    name: {{ username }}
-    fullname: The coolest
-    nick: ql
-    home_dir: {{ home_dir }}
-    shell: /bin/zsh
-    groups:
-      - sudo
-      - wireshark
-      - docker
-      - vboxusers
-    user_dirs:
-      - {{ home_dir }}/bin
-      - {{ home_dir }}/downloads
-      - {{ home_dir }}/local
-    known_hosts:
-      - bitbucket.org
-    sec:
-      ssh:
-        - name: home
-          privkey_location: {{ home_dir }}/.ssh/id_rsa
-          pubkey_location: {{ home_dir }}/.ssh/id_rsa.pub
-          override: True
-        - name: dotfile
-          privkey: key_data
-          pubkey: key_data
-          privkey_location: {{ home_dir }}/.ssh/cfg_ro.key
-          pubkey_location: {{ home_dir }}/.ssh/cfg_ro.key.pub
-          override: False
-    tools:
-      oh_my_zsh:
-        url: https://github.com/robbyrussell/oh-my-zsh.git
-        target: {{ home_dir }}/projects/open-source/oh-my-zsh
-      oh_my_zsh_syntax_highlighting:
-        url: https://github.com/zsh-users/zsh-syntax-highlighting.git
-        target: {{ home_dir }}/projects/open-source/oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-      fzf:
-        url: https://github.com/junegunn/fzf.git
-        target: {{ home_dir }}/projects/open-source/fzf
-      powerline:
-        url: https://github.com/powerline/fonts.git
-        target: {{ home_dir }}/projects/open-source/powerline
-        pip: powerline-status
-    dotfile:
-      repo: some repo url.git
-      branch: {{ grains['host'] }}
-      root: {{ home_dir }}
-      post_cmds: 
-        - "fc-cache -vf ~/.fonts"      
-    git:
-      user.name: username for git
-      user.email: mail for git
-    projects:
-      - url: url to clone.git
-        target: {{ home_dir }}/some/path
-        identity: {{ home_dir }}/.ssh/id_rsa           
-           
-``` 
+## Components
+In order to run _states_ against _minions_, _pillar_ must be configured.  
+Refer to `pillar.example.sls` files in states themselves for particular structure.  
 _States_ must be written with assumption that given pillar entry may not exist.
 `users` dict contains data (mostly self-describing) about particular... user.
 However some sections need more description:

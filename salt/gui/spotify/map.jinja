@@ -1,5 +1,12 @@
 {% set spotify = salt['grains.filter_by']({
-    'default': {
+    'RedHat': {
+        'baseurl': "http://linux.dropbox.com/fedora/\$releasever/",
+        'repo_id': "dropbox",
+        'gpgkey': "http://linux.dropbox.com/fedora/rpm-public-key.asc",
+        'required_pkgs_urls': {},
+        'pkg_name': "spotify"
+    },
+    'Debian': {
         'repo_entries': [
             "deb http://repository.spotify.com stable non-free"
         ],

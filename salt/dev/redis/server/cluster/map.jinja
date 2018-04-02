@@ -1,24 +1,33 @@
 {% from "redis/server/single/map.jinja" import redis as redis_single with context %}
 
 {# host_id == hostname by default #}
-{% set host_id = salt['grains.get']('id') %}
+{% set host_id = salt['grains.get']("id") %}
 
 {% set redis = salt['grains.filter_by']({
     'Debian': {
-        'config': 'salt://redis/server/redis.conf',
+        'total_slots': 16384,
         'masters': [{
-          'host_id': host_id,
-          'host': '127.0.0.1',
+          'id': host_id,
+          'ip': '127.0.0.1',
           'port': 6379,
         }],
         'slaves': [{
-          'master_host': '127.0.0.1',
-          'master_port': 6379,
-          'host_id': host_id,
-          'host': '127.0.0.1',
-          'port': 6390,
+          'id': host_id,
+          'of_master': {
+            'id': host_id,
+            'ip': '127.0.0.1',
+            'port': 6379
+          },
+          'ip': '127.0.0.1',
+          'port': 6380,
         }],
     },
-}, merge=salt['pillar.get']('redis')) %}
+}, merge=salt['grains.filter_by']({
+       'systemd': {
+         'config': {
+           'init_location': '/lib/systemd/system/redis@.service',
+         }
+       }
+     }, grain='init', merge=salt['pillar.get']('redis'))) %}
 
 {% do redis.update(redis_single) %}

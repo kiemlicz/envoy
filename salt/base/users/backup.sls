@@ -1,7 +1,4 @@
-{% for username in pillar['users'].keys() %}
-{% set user = pillar['users'][username] %}
-
-{% if user.backup is defined %}
+{% for username, user in salt['pillar.get']("users", {}).items() if user.backup is defined %}
 
 {{ username }}_backup:
   file_ext.managed:
@@ -11,7 +8,7 @@
     - template: jinja
     - makedirs: True
     - mode: 775
-    - defaults:
+    - context:
 {% if user.backup.remote is defined %}
         remote: {{ user.backup.remote }}
 {% endif %}
@@ -36,7 +33,5 @@
 {% endif %}
     - require:
       - file_ext: {{ user.backup.script_location }}
-
-{% endif %}
 
 {% endfor %}

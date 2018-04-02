@@ -1,33 +1,31 @@
-{% set foreman_discovered_interfaces = salt['pillar.get']('foreman_interfaces',
-    default=[{'ip':"127.0.0.1"}])|map(attribute='ip')|list %}
-{% set interface = salt['pillar.get']('redis:settings:interfaces', default=foreman_discovered_interfaces)|first %}
-{% set port = salt['pillar.get']('redis:settings:port', default="6379") %}
-
-{# available options: repo, docker #}
-{% set redis = salt['grains.filter_by']({
-  'Debian': {
-    'pkg_name': 'redis-server',
-    'config': 'salt://redis/server/redis.conf',
-    'dockerfile': 'salt://redis/server/Dockerfile',
-    'host': interface,
-    'port': port,
-    'container_port': 6379,
-    'install_type': "docker",
-    'image': 'redis-cluster',
-    'prerequisites': ["python-pip", "redis-tools"],
-    'pip_packages': ["docker-py"]
-  },
+{% set config = salt['grains.filter_by']({
+  'default': {
+    'source': 'salt://redis/server/redis.conf',
+    'pid_path': '/var/run/',
+    'db_path': '/var/lib/',
+    'init': 'salt://redis/server/redis.init',
+    'init_location': '/etc/init.d/redis-server',
+    'service': 'redis-server',
+    'mode': "755",
+  }
 }, merge=salt['grains.filter_by']({
-    'default': {
-      'init': 'salt://redis/server/redis.init',
-      'init_location': '/etc/init.d/redis-server',
-      'service': 'redis-server',
-      'mode': "755",
-    },
     'systemd': {
       'init': 'salt://redis/server/redis.service',
-      'init_location': '/lib/systemd/system/redis@.service',
+      'init_location': '/lib/systemd/system/redis.service',
       'service': 'redis',
       'mode': "644",
     }
-  }, grain='init', merge=salt['pillar.get']('redis'))) %}
+}, grain='init')) %}
+
+{% set redis = salt['grains.filter_by']({
+  'RedHat': {
+    'pkg_name': 'redis-server',
+    'port': 6379,
+    'config': config,
+  },
+  'Debian': {
+    'pkg_name': 'redis-server',
+    'port': 6379,
+    'config': config,
+  },
+}, merge=salt['pillar.get']('redis')) %}

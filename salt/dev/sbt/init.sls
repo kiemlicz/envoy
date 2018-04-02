@@ -1,17 +1,26 @@
 {% from "sbt/map.jinja" import sbt with context %}
 {% from "_macros/dev_tool.macros.jinja" import add_environmental_variable,add_to_path with context %}
 
+
 include:
   - users
   - pkgs
 
+
 sbt:
-{% if grains['os'] != 'Windows' %}
+{% if sbt.repo_entries is defined or sbt.repo_id is defined %}
   pkgrepo.managed:
+{% if sbt.repo_entries is defined %}
     - names: {{ sbt.repo_entries }}
     - file: {{ sbt.file }}
     - keyid: {{ sbt.keyid }}
     - keyserver: {{ sbt.keyserver }}
+{% else %}
+    - name: {{ sbt.repo_id }}
+    - baseurl: {{ sbt.baseurl }}
+    - humanname: {{ sbt.repo_id }}
+    - gpgcheck: 0
+{% endif %}
     - require:
       - sls: pkgs
     - require_in:

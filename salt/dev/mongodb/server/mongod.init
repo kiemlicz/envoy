@@ -55,7 +55,7 @@ NAME=$(basename ${0})
 # Other configuration options are located in $CONF file. See here for more:
 # http://dochub.mongodb.org/core/configurationoptions
 CONF=/etc/${NAME}.conf
-PIDFILE=/var/run/mongodb/$NAME.pid
+PIDFILE={{ mongodb.config.pid_path }}/${NAME}.pid
 ENABLE_MONGOD=yes
 
 # Include mongodb defaults if available.

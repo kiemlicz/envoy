@@ -1,5 +1,4 @@
-{% for username in pillar['users'].keys() if pillar['users'][username].vpn is defined %}
-{% set user = pillar['users'][username] %}
+{% for username, user in salt['pillar.get']("users", {}).items() if user.vpn is defined %}
 
 {% for v in user.vpn %}
 {% set vpn_config = '{}_vpn_{}_config'.format(username, v.name) %}

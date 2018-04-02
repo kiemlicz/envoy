@@ -1,9 +1,15 @@
-{% import_yaml "lxc/defaults.yaml" as defaults %}
-
 {% set lxc = salt['grains.filter_by']({
     'Debian': {
-        'pkgs': ["lxc", "bridge-utils", "debootstrap", "ubuntu-archive-keyring"],
-        'sysctl_config_location': '/etc/sysctl.d/local.conf'
+        'pkgs': ["lxc", "bridge-utils", "debootstrap"],
+        'service': "lxc",
+        'config': {
+          'net_file': "/etc/default/lxc-net",
+          'net_source': "salt://lxc/lxc-net",
+          'sysctl_location': '/etc/sysctl.d/local.conf',
+        },
+        'containers': {
+
+        }
     },
     'Windows': {
     }
@@ -14,4 +20,4 @@
       'artful': {
         'pkgs': ["lxc", "bridge-utils", "debootstrap"],
       }
-}, grain='oscodename', merge=salt['pillar.get']('lxc', default=defaults.lxc, merge=True))) %}
+}, grain='oscodename', merge=salt['pillar.get']('lxc', merge=True))) %}

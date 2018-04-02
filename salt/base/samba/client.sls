@@ -1,5 +1,6 @@
 {% from "samba/map.jinja" import samba with context %}
 
+
 samba_automount:
   pkg.latest:
     - pkgs: {{ samba.pkgs }}

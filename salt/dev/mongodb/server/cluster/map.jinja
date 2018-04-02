@@ -5,18 +5,24 @@
 {% set mongodb = salt['grains.filter_by']({
     'Debian': {
         'shards': [{
-          'host_id': host_id,
-          'host': '127.0.0.1',
+          'id': host_id,
+          'ip': '127.0.0.1',
           'port': 27017,
         }],
         'replicas': [{
-          'master': True,
+          'master': "True",
           'replica_name': "",
-          'host_id': host_id,
-          'host': '127.0.0.1',
+          'id': host_id,
+          'ip': '127.0.0.1',
           'port': 28017,
         }],
     },
-}, merge=salt['pillar.get']('mongodb')) %}
+}, merge=salt['grains.filter_by']({
+  'systemd': {
+    'config': {
+      'init_location': '/lib/systemd/system/mongod@.service',
+    }
+  }
+}, grain='init', merge=salt['pillar.get']('mongodb')))  %}
 
 {% do mongodb.update(mongodb_single) %}

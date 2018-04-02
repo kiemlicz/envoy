@@ -1,21 +1,21 @@
 {% from "repositories/map.jinja" import repositories with context %}
 
+
 include:
   - locale
 
 {% for repo in repositories.list %}
-{{ repo.file }}_repository:
+{{ repo.file }}_{{ repo.names|first }}_repository:
   pkgrepo.managed:
     - names: {{ repo.names }}
     - file: {{ repo.file }}
     {% if repo.key_url is defined %}
     - key_url: {{ repo.key_url }}
     {% endif %}
-    - refresh_db: True
+    # refresh on last configured repo
+    - refresh_db: {{ True if repositories.list|last == repo else False }}
     - require:
       - sls: locale
-    - require_in:
-      - file: empty_sources_list
 {% endfor %}
 
 {% for pref in repositories.preferences %}
@@ -33,16 +33,9 @@ include:
       priority : {{ pref.priority }}
 {% endfor %}
 
-#salt has problem with managing duplicated entries...
-#this is why we wipe out useless sources.list
-{% if repositories.list %}
-empty_sources_list:
-  file.managed:
-    - name: {{ repositories.sources_list_location }}
-    - contents: ''
-    - replace: True
-{% else %}
-empty-repositories-notification:
+{% if not (repositories.list or repositories.preferences) %}
+{# mandatory, otherwise require: empty sls will fail #}
+repositories-notification:
   test.show_notification:
     - name: No repositories
     - text: "No repositories configured as none specified"
