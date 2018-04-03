@@ -81,7 +81,8 @@ def run():
     'not G@os:Windows': [
       "keepalived",
       "lvs.director",
-      "lvs.realserver"
+      "lvs.realserver",
+      "kvm"
     ]
   }
 
