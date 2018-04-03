@@ -3,6 +3,7 @@ import salt.client
 import traceback
 import unittest
 import itertools
+import json
 from salt.exceptions import CommandExecutionError
 
 
@@ -67,7 +68,7 @@ class EnvoyTest(ParametrizedTestCase):
                                     msg="rendering of: {} (saltenv={}, pillarenv={}), failed with: {}".format(state,
                                                                                                               env,
                                                                                                               self.pillarenv,
-                                                                                                              result_sls.decode('string_escape')))
+                                                                                                              json.dumps(result_sls, indent=2)))
         except CommandExecutionError:
             traceback.print_exc()
             self.fail("Unexpected error, failing...")
