@@ -1,7 +1,7 @@
 {% set kvm = salt['grains.filter_by']({
     'RedHat': {
       'prerequisites': [],
-      'groups': ["libvirt", "libvirt-qemu"]
+      'groups': ["libvirt", "libvirt-qemu"],
       'users': []
     },
     'Debian': {
