@@ -10,7 +10,7 @@ include:
 java:
 {% if java.repo_entries is defined %}
   pkgrepo.managed:
-    - names: {{ java.repo_entries }}
+    - names: {{ java.repo_entries|json_encode_list }}
     - file: {{ java.file }}
     - keyid: {{ java.keyid }}
     - keyserver: {{ java.keyserver }}

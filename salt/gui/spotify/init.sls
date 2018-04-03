@@ -21,7 +21,7 @@ spotify_prerequisites:
 spotify:
 {% if spotify.repo_entries is defined %}
   pkgrepo.managed:
-    - names: {{ spotify.repo_entries }}
+    - names: {{ spotify.repo_entries|json_encode_list }}
     - file: {{ spotify.file }}
     - keyserver: {{ spotify.keyserver }}
     - keyid: {{ spotify.keyid }}

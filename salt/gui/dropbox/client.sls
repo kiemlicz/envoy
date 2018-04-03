@@ -5,7 +5,7 @@ dropbox:
 {% if dropbox.repo_entries is defined or dropbox.repo_id is defined %}
   pkgrepo.managed:
 {% if dropbox.repo_entries is defined %}
-    - names: {{ dropbox.repo_entries }}
+    - names: {{ dropbox.repo_entries|json_encode_list }}
     - keyid: {{ dropbox.keyid }}
     - keyserver: {{ dropbox.keyserver }}
     - file: {{ dropbox.file }}
