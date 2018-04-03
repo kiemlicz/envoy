@@ -67,7 +67,7 @@ class EnvoyTest(ParametrizedTestCase):
                                     msg="rendering of: {} (saltenv={}, pillarenv={}), failed with: {}".format(state,
                                                                                                               env,
                                                                                                               self.pillarenv,
-                                                                                                              result_sls))
+                                                                                                              result_sls.decode('string_escape')))
         except CommandExecutionError:
             traceback.print_exc()
             self.fail("Unexpected error, failing...")
