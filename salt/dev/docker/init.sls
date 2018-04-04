@@ -9,7 +9,7 @@ docker:
 {% if docker.repo_entries is defined or docker.repo_id is defined %}
   pkgrepo.managed:
 {% if docker.repo_entries is defined %}
-    - names: {{ docker.repo_entries|json_encode_list }}
+    - names: {{ docker.repo_entries|json_decode_list }}
     - file: {{ docker.file }}
     - key_url: {{ docker.key_url }}
 {% else %}

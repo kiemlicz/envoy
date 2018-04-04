@@ -3,7 +3,7 @@
 owncloud:
 {% if owncloud.repo_entries is defined or owncloud.repo_id is defined %}
   pkgrepo.managed:
-    - names: {{ owncloud.repo_entries|json_encode_list }}
+    - names: {{ owncloud.repo_entries|json_decode_list }}
     - file: {{ owncloud.file }}
     - key_url: {{ owncloud.key_url }}
     - require:

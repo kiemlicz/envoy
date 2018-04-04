@@ -11,7 +11,7 @@ sbt:
 {% if sbt.repo_entries is defined or sbt.repo_id is defined %}
   pkgrepo.managed:
 {% if sbt.repo_entries is defined %}
-    - names: {{ sbt.repo_entries|json_encode_list }}
+    - names: {{ sbt.repo_entries|json_decode_list }}
     - file: {{ sbt.file }}
     - keyid: {{ sbt.keyid }}
     - keyserver: {{ sbt.keyserver }}

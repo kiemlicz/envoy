@@ -7,7 +7,7 @@ erlang:
 {% if erlang.repo_entries is defined or erlang.repo_id is defined %}
   pkgrepo.managed:
 {% if erlang.repo_entries is defined %}
-    - names: {{ erlang.repo_entries|json_encode_list }}
+    - names: {{ erlang.repo_entries|json_decode_list }}
     - file: {{ erlang.file }}
     - key_url: {{ erlang.key_url }}
     - require_in:
