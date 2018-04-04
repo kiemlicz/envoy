@@ -1,7 +1,7 @@
 FROM fedora:27
 
 # "" == latest
-ARG SALT_VER=""
+ARG SALT_VER="2018.3.0"
 
 COPY salt /srv/salt
 COPY extensions /srv/extensions
