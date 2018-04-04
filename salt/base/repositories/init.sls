@@ -7,7 +7,7 @@ include:
 {% for repo in repositories.list %}
 {{ repo.file }}_{{ repo.names|first }}_repository:
   pkgrepo.managed:
-    - names: {{ repo.names }}
+    - names: {{ repo.names|json_decode_list }}
     - file: {{ repo.file }}
     {% if repo.key_url is defined %}
     - key_url: {{ repo.key_url }}
