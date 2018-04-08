@@ -4,6 +4,8 @@ import salt.cache
 import salt.client
 import salt.syspaths as syspaths
 
+from six import string_types
+
 log = logging.getLogger(__name__)
 
 
@@ -20,7 +22,7 @@ def until(expected_minions_list, triggering_minion, action_type, fun_args, sls=N
     :return:
     """
 
-    triggering_sls = next((e for e in fun_args if isinstance(e, str)), None)  # state.highstate will receive None here
+    triggering_sls = next((e for e in fun_args if isinstance(e, string_types)), None)  # state.highstate will receive None here
 
     if triggering_sls == sls:
         bank = "{}_finished".format(action_type) if sls is None else "{}_{}_finished".format(action_type, sls)
