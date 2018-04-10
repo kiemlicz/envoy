@@ -9,7 +9,7 @@
     - require:
       - sls: mounts
       - sls: hosts
-      - pkg: os_packages
+      - sls: pkgs
 {% if user.groups is defined %}
   group.present:
     - names: {{ user.groups }}
