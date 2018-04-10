@@ -28,4 +28,4 @@ unattended_upgrades_{{ config.location }}:
 
 unattended_upgrades_reload:
   cmd.run:
-    - names: "apt-get update"
+    - name: "apt-get update"
