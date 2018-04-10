@@ -8,7 +8,7 @@ kannel_server:
     - name: kannel
     - pkgs: {{ kannel.pkgs }}
     - require:
-      - sls: pkgs
+      - pkg: os_packages
   service.running:
     - name: {{ kannel.service_name }}
     - enable: True

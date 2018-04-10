@@ -22,7 +22,7 @@ sbt:
     - gpgcheck: 0
 {% endif %}
     - require:
-      - sls: pkgs
+      - pkg: os_packages
     - require_in:
       - pkg: {{ sbt.pkg_name }}
 {% endif %}

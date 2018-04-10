@@ -5,7 +5,7 @@ samba_automount:
   pkg.latest:
     - pkgs: {{ samba.pkgs }}
     - require:
-      - sls: pkgs
+      - pkg: os_packages
     - require_in:
       - service: {{ samba.service_name }}
   service.running:

@@ -24,4 +24,4 @@ dropbox:
     - name: {{ dropbox.pkg_name }}
     - refresh: True
     - require:
-      - sls: pkgs
+      - pkg: os_packages

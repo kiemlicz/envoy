@@ -20,7 +20,7 @@ erlang:
     - gpgkey: {{ erlang.gpgkey }}
 {% endif %}
     - require:
-      - sls: pkgs
+      - pkg: os_packages
 {% if erlang.repo_entries is defined %}
   file.managed:
     - name: {{ erlang.apt_preferences_file }}
@@ -33,4 +33,4 @@ erlang:
     - name: {{ erlang.pkg_name }}
     - refresh: True
     - require:
-      - sls: pkgs
+      - pkg: os_packages

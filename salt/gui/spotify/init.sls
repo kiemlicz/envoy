@@ -13,7 +13,7 @@ spotify_prerequisites:
       - {{ k }}: {{ v }}
 {% endfor %}
     - require:
-      - sls: pkgs
+      - pkg: os_packages
     - require_in:
       - pkg: {{ spotify.pkg_name }}
 {% endif %}
@@ -32,4 +32,4 @@ spotify:
     - name: {{ spotify.pkg_name }}
     - refresh: True
     - require:
-      - sls: pkgs
+      - pkg: os_packages
