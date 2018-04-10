@@ -9,7 +9,7 @@
     - require:
       - sls: mounts
       - sls: hosts
-      - sls: pkgs.pkgs  # deliberately full sls (in case of urgent pkgs.post_install commands)
+      - sls: pkgs  # deliberately full sls (in case of urgent pkgs.post_install commands)
 {% if user.groups is defined %}
   group.present:
     - names: {{ user.groups }}

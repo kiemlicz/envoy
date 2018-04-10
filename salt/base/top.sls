@@ -22,6 +22,9 @@ def run():
       "mounts",
       "samba"
     ],
+    'G@os_family:Debian': [
+      "pkgs.unattended"
+    ],
     'not G@os:Windows and not G@virtual_subtype:Docker': [
       "lxc"
     ],
