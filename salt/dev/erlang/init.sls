@@ -1,7 +1,10 @@
 {% from "erlang/map.jinja" import erlang with context %}
+{% from "_common/util.jinja" import retry with context %}
+
 
 include:
   - pkgs
+
 
 erlang:
 {% if erlang.repo_entries is defined or erlang.repo_id is defined %}
@@ -10,6 +13,7 @@ erlang:
     - names: {{ erlang.repo_entries|json_decode_list }}
     - file: {{ erlang.file }}
     - key_url: {{ erlang.key_url }}
+{{ retry()| indent(4) }}
     - require_in:
       - file: {{ erlang.apt_preferences_file }}
 {% else %}
