@@ -1,4 +1,4 @@
-{% set version_major = salt['pillar.get']("java:version_major", default="8") %}
+{% set version_major = salt['pillar.get']("java:version_major", default="10") %}
 
 {% set java = salt['grains.filter_by']({
     'RedHat': {
