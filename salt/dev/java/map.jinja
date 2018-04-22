@@ -62,8 +62,6 @@
         'keyid': "73C3DB2A",
         'keyserver': "hkp://keyserver.ubuntu.com:80",
         'pkg_name': "oracle-java" + version_major + "-installer",
-        'ext_pkgs': [
-          "oracle-java" + version_major + "-unlimited-jce-policy"
-        ]
+        'ext_pkgs': []
     },
 }, merge=salt['pillar.get']('java')) %}
