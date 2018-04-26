@@ -20,7 +20,8 @@ def run():
       "locale",
       "pkgs",
       "mounts",
-      "samba"
+      "samba",
+      "mail",
     ],
     'G@os_family:Debian': [
       "pkgs.unattended"
