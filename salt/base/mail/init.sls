@@ -10,6 +10,7 @@ mail:
     - name: mail_pacakges
     - pkgs: {{ mail.pkgs }}
 {% for config in mail.configs %}
+mail_config_{{ config.location }}:
   file_ext.managed:
     - name: {{ config.location }}
     - source: {{ config.source }}
