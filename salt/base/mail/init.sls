@@ -27,6 +27,7 @@ mail_config_{{ config.location }}:
     - watch_in:
       - service: {{ mail.service }}
 {% endfor %}
+mail_service:
   service.running:
     - name: {{ mail.service }}
     - enable: True
