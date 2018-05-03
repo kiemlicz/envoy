@@ -6,9 +6,9 @@
   {%- endif -%}
 {%- endmacro -%}
 
-{%- macro k_v_escaped(paramname, d) -%}
+{%- macro k_v_escaped(paramname, d, separator=' ') -%}
   {%- if paramname in d -%}
-{{ paramname }} "{{ d[paramname] }}"
+{{ paramname }}{{ separator }}"{{ d[paramname] }}"
   {%- endif -%}
 {%- endmacro -%}
 
