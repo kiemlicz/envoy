@@ -9,8 +9,8 @@ mongodb_config_{{ bind.ip }}_{{ bind.port }}:
     - makedirs: True
     - template: jinja
     - context:
-      bind: {{ bind }}
-      mongodb: {{ mongodb }}
+      bind: {{ bind|json_decode_dict }}
+      mongodb: {{ mongodb|json_decode_dict }}
       discriminator: {{ discriminator }}
     - require:
       - file_ext: {{ mongodb.config.init_location }}
@@ -69,8 +69,8 @@ mongodb_config_{{ bind.ip }}_{{ bind.port }}:
     - makedirs: True
     - template: jinja
     - context:
-      bind: {{ bind }}
-      mongodb: {{ mongodb }}
+      bind: {{ bind|json_decode_dict }}
+      mongodb: {{ mongodb|json_decode_dict }}
     - require:
       - pip: mongodb_pip_prerequisites
 
@@ -80,7 +80,7 @@ mongodb_dockerfile_{{ bind.ip }}_{{ bind.port }}:
     - source: {{ mongodb.dockerfile }}
     - template: jinja
     - context:
-      mongodb: {{ mongodb }}
+      mongodb: {{ mongodb|json_decode_dict }}
     - makedirs: True
     - require:
       - file_ext: /usr/local/share/mongodb/{{ bind.ip }}_{{ bind.port }}/{{ mongodb.service }}.conf

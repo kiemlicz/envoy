@@ -23,7 +23,7 @@
     - user: {{ username }}
     - makedirs: True
 {% if config.context is defined %}
-    - context: {{ config.context }}
+    - context: {{ config.context|json_decode_dict }}
 {% endif %}
     - onchanges:
       - git: {{ project.url }}
