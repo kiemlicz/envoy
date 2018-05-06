@@ -20,7 +20,7 @@ mail_config_{{ config.location }}:
     - group: {{ config.group }}
     - mode: {{ config.mode }}
     - context:
-      settings: {{ config.settings }}
+        settings: {{ config.settings }}
     - require:
       - pkg: mail_pacakges
       - pkg: os_packages
