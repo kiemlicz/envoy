@@ -1,4 +1,5 @@
 {% from "mail/map.jinja" import mail with context %}
+{% from "_common/util.jinja" import is_docker with context %}
 
 
 include:
@@ -30,4 +31,6 @@ mail_config_{{ config.location }}:
 mail_service:
   service.running:
     - name: {{ mail.service }}
+{% if not is_docker() %}
     - enable: True
+{% endif %}
