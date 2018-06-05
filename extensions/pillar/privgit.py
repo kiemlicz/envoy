@@ -5,6 +5,7 @@ import os
 import re
 
 import salt.ext.six as six
+import salt.pillar.git_pillar as git_pillar
 import salt.utils
 import salt.utils.dictupdate
 import salt.utils.gitfs
@@ -13,6 +14,7 @@ from salt.utils.gitfs import GitPillar
 
 PER_REMOTE_OVERRIDES = ('env', 'root', 'ssl_verify', 'refspecs')
 PER_REMOTE_ONLY = ('name', 'mountpoint')
+GLOBAL_ONLY = ('base', 'branch')
 
 log = logging.getLogger(__name__)
 
@@ -121,30 +123,43 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
             {"pubkey": privgit_pubkey}]}]
 
         log.debug("generated private git configuration: {}".format(repo))
+
         try:
-            ret = salt.utils.dictupdate.merge(
-                ret,
-                _privgit_clone(minion_id, opts, repo, merge_strategy, merge_lists),
-                strategy=merge_strategy,
-                merge_lists=merge_lists
-            )
+            ret = _delegate(minion_id, opts, repo, merge_strategy, merge_lists)
+            # ret = salt.utils.dictupdate.merge(
+            #     ret,
+            #     _privgit_clone(minion_id, opts, repo, merge_strategy, merge_lists),
+            #     strategy=merge_strategy,
+            #     merge_lists=merge_lists
+            # )
         except Exception as e:
-            log.error("Fatal error in privgit, for: {} {}, repository will be omitted".format(privgit_branch, privgit_url), str(e))
+            log.exception(
+                "Fatal error in privgit, for: {} {}, repository will be omitted".format(privgit_branch, privgit_url))
 
     return ret
+
+
+def _delegate(minion_id, opts, repo_arg, merge_strategy, merge_lists):
+    return git_pillar.ext_pillar(opts, repo_arg)
 
 
 def _privgit_clone(minion_id, opts, repo_arg, merge_strategy, merge_lists):
     # this logic is shamelessly taken from: salt.pillar.git_pillar.ext_pillar
     # due to: https://github.com/saltstack/salt/issues/39978
-    privgit = GitPillar(opts)
+    privgit = GitPillar(
+        opts,
+        repo_arg,
+        per_remote_overrides=PER_REMOTE_OVERRIDES,
+        per_remote_only=PER_REMOTE_ONLY,
+        # global_only=GLOBAL_ONLY,
+        init_remotes=False
+    )
     privgit.init_remotes(repo_arg, PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY)
     if __opts__.get('__role') == 'minion':
         # If masterless, fetch the remotes. We'll need to remove this once
         # we make the minion daemon able to run standalone.
         privgit.fetch_remotes()
-    privgit.update()  # performs fetch
-    log.debug("{} fetch done".format(repo_arg))
+    log.debug("{} initialized".format(repo_arg))
     privgit.checkout()
 
     ret = {}
