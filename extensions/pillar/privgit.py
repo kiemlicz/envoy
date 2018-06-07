@@ -1,20 +1,13 @@
 import collections
-import copy
 import logging
 import os
 import re
 
-import salt.ext.six as six
-import salt.pillar.git_pillar as git_pillar
+import salt.loader
 import salt.utils
 import salt.utils.dictupdate
 import salt.utils.gitfs
 from salt.exceptions import SaltConfigurationError
-from salt.utils.gitfs import GitPillar
-
-PER_REMOTE_OVERRIDES = ('env', 'root', 'ssl_verify', 'refspecs')
-PER_REMOTE_ONLY = ('name', 'mountpoint')
-GLOBAL_ONLY = ('base', 'branch')
 
 log = logging.getLogger(__name__)
 
@@ -79,16 +72,7 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
     opt_privkey_loc = 'privkey_location'
     opt_pubkey_loc = 'pubkey_location'
 
-    opts = copy.deepcopy(__opts__)
     cachedir = __salt__['config.get']('cachedir')
-    merge_strategy = __opts__.get(
-        'pillar_source_merging_strategy',
-        'smart'
-    )
-    merge_lists = __opts__.get(
-        'pillar_merge_lists',
-        False
-    )
     repositories = collections.OrderedDict()
 
     repositories = merge(args, repositories)
@@ -116,72 +100,19 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
         privgit_root = read_configuration(opt_root, repository_opts)
         privgit_privkey = read_configuration(opt_privkey_loc, repository_opts)
         privgit_pubkey = read_configuration(opt_pubkey_loc, repository_opts)
-        repo = [{'{} {}'.format(privgit_branch, privgit_url): [
+        repo = {'{} {}'.format(privgit_branch, privgit_url): [
             {"env": privgit_env},
             {"root": privgit_root},
             {"privkey": privgit_privkey},
-            {"pubkey": privgit_pubkey}]}]
+            {"pubkey": privgit_pubkey}]}
 
         log.debug("generated private git configuration: {}".format(repo))
 
         try:
-            ret = _delegate(minion_id, opts, repo, merge_strategy, merge_lists)
-            # ret = salt.utils.dictupdate.merge(
-            #     ret,
-            #     _privgit_clone(minion_id, opts, repo, merge_strategy, merge_lists),
-            #     strategy=merge_strategy,
-            #     merge_lists=merge_lists
-            # )
+            loaded_pillar = salt.loader.pillars(__opts__, __salt__)
+            ret = loaded_pillar['git'](minion_id, pillar, repo)
         except Exception as e:
             log.exception(
                 "Fatal error in privgit, for: {} {}, repository will be omitted".format(privgit_branch, privgit_url))
 
-    return ret
-
-
-def _delegate(minion_id, opts, repo_arg, merge_strategy, merge_lists):
-    return git_pillar.ext_pillar(opts, repo_arg)
-
-
-def _privgit_clone(minion_id, opts, repo_arg, merge_strategy, merge_lists):
-    # this logic is shamelessly taken from: salt.pillar.git_pillar.ext_pillar
-    # due to: https://github.com/saltstack/salt/issues/39978
-    privgit = GitPillar(
-        opts,
-        repo_arg,
-        per_remote_overrides=PER_REMOTE_OVERRIDES,
-        per_remote_only=PER_REMOTE_ONLY,
-        # global_only=GLOBAL_ONLY,
-        init_remotes=False
-    )
-    privgit.init_remotes(repo_arg, PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY)
-    if __opts__.get('__role') == 'minion':
-        # If masterless, fetch the remotes. We'll need to remove this once
-        # we make the minion daemon able to run standalone.
-        privgit.fetch_remotes()
-    log.debug("{} initialized".format(repo_arg))
-    privgit.checkout()
-
-    ret = {}
-    for pillar_dir, env in six.iteritems(privgit.pillar_dirs):
-        log.debug(
-            'git_pillar is processing pillar SLS from %s for pillar '
-            'env \'%s\'', pillar_dir, env
-        )
-
-        if env == '__env__':
-            env = opts.get('pillarenv') \
-                  or opts.get('environment') \
-                  or opts.get('git_pillar_base')
-            log.debug('__env__ maps to %s', env)
-
-        pillar_roots = [pillar_dir]
-        opts['pillar_roots'] = {env: pillar_roots}
-        local_pillar = salt.pillar.Pillar(opts, __grains__, minion_id, env)
-        ret = salt.utils.dictupdate.merge(
-            ret,
-            local_pillar.compile_pillar(ext=False),
-            strategy=merge_strategy,
-            merge_lists=merge_lists
-        )
     return ret
