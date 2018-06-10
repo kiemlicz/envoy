@@ -1,0 +1,14 @@
+{% set kubernetes = salt['grains.filter_by']({
+
+    'Debian': {
+        'repo_entries': [
+            "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+        ],
+        'key_url': 'https://packages.cloud.google.com/apt/doc/apt-key.gpg',
+        'file': '/etc/apt/sources.list.d/kubernetes.list',
+        'client': {
+          'pkg_name': "kubectl",
+        }
+    },
+
+}, merge=salt['pillar.get']('kubernetes')) %}

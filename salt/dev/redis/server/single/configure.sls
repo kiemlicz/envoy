@@ -15,8 +15,8 @@ redis_config_{{ bind.ip }}_{{ bind.port }}:
     - makedirs: True
     - template: jinja
     - context:
-      bind: {{ bind }}
-      redis: {{ redis }}
+      bind: {{ bind|json_decode_dict }}
+      redis: {{ redis|json_decode_dict }}
       discriminator: {{ redis.config.service }}
     - require:
       - file_ext: {{ redis.config.init_location }}

@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 
 def __virtual__():
     salt_version = salt.version.__saltstack_version__.string
-    if salt_version not in ["2017.7.3", "2017.7.4"]:
+    if salt_version not in ["2018.3.0"]:
         return False, "Cannot load file.ext, install: salt version 2017.7.3/2017.7.4 (detected: {})".format(salt_version)
     return True if HAS_GOOGLE_AUTH else (False, "Cannot load file.ext, install: google-auth library")
 
@@ -36,6 +36,7 @@ def managed(name,
             user=None,
             group=None,
             mode=None,
+            attrs=None,
             template=None,
             makedirs=False,
             dir_mode=None,
@@ -61,6 +62,7 @@ def managed(name,
             win_perms=None,
             win_deny_perms=None,
             win_inheritance=True,
+            win_perms_reset=False,
             **kwargs):
     '''
     State that extends file.managed with new source scheme (`gdrive://`)
@@ -76,12 +78,12 @@ def managed(name,
     '''
 
     def delegate_to_file_managed(source, contents):
-        return __states__['file.managed'](name, source, source_hash, source_hash_name, keep_source, user, group, mode, template,
+        return __states__['file.managed'](name, source, source_hash, source_hash_name, keep_source, user, group, mode, attrs, template,
                                           makedirs, dir_mode, context, replace, defaults, backup, show_changes, create,
                                           contents, tmp_ext, contents_pillar, contents_grains, contents_newline,
                                           contents_delimiter, encoding, encoding_errors, allow_empty, follow_symlinks,
                                           check_cmd, skip_verify,
-                                          win_owner, win_perms, win_deny_perms, win_inheritance, **kwargs)
+                                          win_owner, win_perms, win_deny_perms, win_inheritance, win_perms_reset, **kwargs)
 
     if not source:
         return delegate_to_file_managed(source, contents)
@@ -110,7 +112,7 @@ def recurse(name,
             sym_mode=None,
             template=None,
             context=None,
-            replace=True,  # not yet supported in 2017.7
+            replace=True,
             defaults=None,
             include_empty=False,
             backup='',
@@ -134,7 +136,7 @@ def recurse(name,
 
     def delegate_to_file_recurse():
         return __states__['file.recurse'](name, source, keep_source, clean, require, user, group, dir_mode, file_mode, sym_mode,
-                                          template, context, defaults, include_empty, backup, include_pat,
+                                          template, context, replace, defaults, include_empty, backup, include_pat,
                                           exclude_pat, maxdepth, keep_symlinks, force_symlinks, **kwargs)
 
     def delegate_to_file_managed(path, contents, replace):

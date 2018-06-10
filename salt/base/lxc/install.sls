@@ -9,7 +9,7 @@ lxc:
     - require:
       - sls: mounts
       - sls: hosts
-      - sls: pkgs
+      - pkg: os_packages
   file.managed:
     - name: {{ lxc.config.net_file }}
     - source: {{ lxc.config.net_source }}

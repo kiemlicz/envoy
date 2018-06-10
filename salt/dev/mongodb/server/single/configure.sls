@@ -15,7 +15,7 @@ mongodb_init:
     - mode: {{ mongodb.config.mode }}
     - template: jinja
     - context:
-      mongodb: {{ mongodb }}
+      mongodb: {{ mongodb|json_decode_dict }}
       discriminator: {{ discriminator }}
     - require:
       - pkg: {{ mongodb.pkg_name }}
@@ -26,8 +26,8 @@ mongodb_config:
     - makedirs: True
     - template: jinja
     - context:
-      bind: {{ bind }}
-      mongodb: {{ mongodb }}
+      bind: {{ bind|json_decode_dict }}
+      mongodb: {{ mongodb|json_decode_dict }}
       discriminator: {{ discriminator }}
     - require:
       - file_ext: {{ mongodb.config.init_location }}

@@ -9,7 +9,7 @@ docker:
 {% if docker.repo_entries is defined or docker.repo_id is defined %}
   pkgrepo.managed:
 {% if docker.repo_entries is defined %}
-    - names: {{ docker.repo_entries }}
+    - names: {{ docker.repo_entries|json_decode_list }}
     - file: {{ docker.file }}
     - key_url: {{ docker.key_url }}
 {% else %}
@@ -20,7 +20,7 @@ docker:
     - gpgkey: {{ docker.gpgkey }}
 {% endif %}
     - require:
-      - sls: pkgs
+      - pkg: os_packages
     - require_in:
       - pkg: {{ docker.pkg_name }}
 {% endif %}
@@ -39,7 +39,7 @@ docker:
     - refresh: True
     - require:
       - sls: mounts
-      - sls: pkgs
+      - pkg: os_packages
   service.running:
     - name: {{ docker.service_name }}
     - enable: True

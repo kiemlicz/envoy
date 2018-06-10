@@ -12,6 +12,6 @@ redis:
     - mode: {{ redis.config.mode }}
     - template: jinja
     - context:
-      redis: {{ redis }}
+      redis: {{ redis|json_decode_dict }}
     - require:
       - pkg: {{ redis.pkg_name }}

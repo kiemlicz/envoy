@@ -1,4 +1,5 @@
-{% set version_major = salt['pillar.get']("java:version_major", default="9") %}
+{% set version_major = salt['pillar.get']("java:version_major", default="10") %}
+
 {% set java = salt['grains.filter_by']({
     'RedHat': {
         'pkg_name': "java-" + version_major + "-openjdk",
@@ -6,7 +7,7 @@
         'exports_file': '/etc/zsh/zshrc',
         'environ_variable': 'JAVA_HOME',
         'path_inside': 'bin',
-        'generic_link': '$(readlink -f /usr/bin/java | sed "s:jre/bin/java::")',
+        'generic_link': '$(readlink -f /usr/bin/java | sed "s:\(jre\)*/bin/java::")',
     },
     'Debian': {
         'repo_entries': [
@@ -17,7 +18,7 @@
         'exports_file': '/etc/zsh/zshrc',
         'environ_variable': 'JAVA_HOME',
         'path_inside': 'bin',
-        'generic_link': '$(readlink -f /usr/bin/java | sed "s:jre/bin/java::")',
+        'generic_link': '$(readlink -f /usr/bin/java | sed "s:\(jre\)*/bin/java::")',
         'keyid': "EEA14886",
         'keyserver': "hkp://keyserver.ubuntu.com:80",
         'pkg_name': "oracle-java" + version_major + "-installer",
@@ -39,3 +40,28 @@
          ],
    },
 }, grain='oscodename', merge=salt['pillar.get']('java'))) %}
+
+{% set java10 = salt['grains.filter_by']({
+    'RedHat': {
+        'pkg_name': "java-" + version_major + "-openjdk",
+        'ext_pkgs': [],
+        'exports_file': '/etc/zsh/zshrc',
+        'environ_variable': 'JAVA_HOME',
+        'path_inside': 'bin',
+        'generic_link': '$(readlink -f /usr/bin/java | sed "s:\(jre\)*/bin/java::")',
+    },
+    'Debian': {
+        'repo_entries': [
+           "deb http://ppa.launchpad.net/linuxuprising/java/ubuntu bionic main"
+        ],
+        'file': '/etc/apt/sources.list.d/linuxuprising-java.list',
+        'exports_file': '/etc/zsh/zshrc',
+        'environ_variable': 'JAVA_HOME',
+        'path_inside': 'bin',
+        'generic_link': '$(readlink -f /usr/bin/java | sed "s:\(jre\)*/bin/java::")',
+        'keyid': "73C3DB2A",
+        'keyserver': "hkp://keyserver.ubuntu.com:80",
+        'pkg_name': "oracle-java" + version_major + "-installer",
+        'ext_pkgs': []
+    },
+}, merge=salt['pillar.get']('java')) %}

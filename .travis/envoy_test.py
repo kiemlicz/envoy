@@ -1,8 +1,9 @@
+import itertools
 import os
-import salt.client
 import traceback
 import unittest
-import itertools
+
+import salt.client
 from salt.exceptions import CommandExecutionError
 
 
@@ -67,7 +68,7 @@ class EnvoyTest(ParametrizedTestCase):
                                     msg="rendering of: {} (saltenv={}, pillarenv={}), failed with: {}".format(state,
                                                                                                               env,
                                                                                                               self.pillarenv,
-                                                                                                              result_sls))
+                                                                                                              "".join(result_sls) if isinstance(result_sls, list) else result_sls))
         except CommandExecutionError:
             traceback.print_exc()
             self.fail("Unexpected error, failing...")
@@ -75,8 +76,8 @@ class EnvoyTest(ParametrizedTestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    saltenvs=["base", "gui", "dev"]
-    pillarenvs=["empty", "base", "gui", "dev", "orch1", "orch2"]
+    saltenvs = ["base", "gui", "dev"]
+    pillarenvs = ["empty", "base", "gui", "dev", "orch1", "orch2"]
     for saltenv, pillarenv in itertools.product(saltenvs, pillarenvs):
         suite.addTest(ParametrizedTestCase.parametrize(EnvoyTest, saltenv=saltenv, pillarenv=pillarenv))
     result = unittest.TextTestRunner(verbosity=2).run(suite)

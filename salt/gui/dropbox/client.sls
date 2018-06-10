@@ -5,7 +5,7 @@ dropbox:
 {% if dropbox.repo_entries is defined or dropbox.repo_id is defined %}
   pkgrepo.managed:
 {% if dropbox.repo_entries is defined %}
-    - names: {{ dropbox.repo_entries }}
+    - names: {{ dropbox.repo_entries|json_decode_list }}
     - keyid: {{ dropbox.keyid }}
     - keyserver: {{ dropbox.keyserver }}
     - file: {{ dropbox.file }}
@@ -16,7 +16,7 @@ dropbox:
     - gpgcheck: 1
     - gpgkey: {{ dropbox.gpgkey }}
 {% endif %}
-{{ retry()| indent(4) }}
+{{ retry(attempts=10, interval=120)| indent(4) }}
     - require_in:
       - pkg: {{ dropbox.pkg_name }}
 {% endif %}
@@ -24,4 +24,4 @@ dropbox:
     - name: {{ dropbox.pkg_name }}
     - refresh: True
     - require:
-      - sls: pkgs
+      - pkg: os_packages

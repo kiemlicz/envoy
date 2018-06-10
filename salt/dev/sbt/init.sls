@@ -11,7 +11,7 @@ sbt:
 {% if sbt.repo_entries is defined or sbt.repo_id is defined %}
   pkgrepo.managed:
 {% if sbt.repo_entries is defined %}
-    - names: {{ sbt.repo_entries }}
+    - names: {{ sbt.repo_entries|json_decode_list }}
     - file: {{ sbt.file }}
     - keyid: {{ sbt.keyid }}
     - keyserver: {{ sbt.keyserver }}
@@ -22,7 +22,7 @@ sbt:
     - gpgcheck: 0
 {% endif %}
     - require:
-      - sls: pkgs
+      - pkg: os_packages
     - require_in:
       - pkg: {{ sbt.pkg_name }}
 {% endif %}

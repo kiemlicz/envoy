@@ -9,7 +9,7 @@ virtualbox:
 {% if virtualbox.repo_entries is defined or virtualbox.repo_id is defined %}
   pkgrepo.managed:
 {% if virtualbox.repo_entries is defined %}
-    - names: {{ virtualbox.repo_entries }}
+    - names: {{ virtualbox.repo_entries|json_decode_list }}
     - file: {{ virtualbox.file }}
     - key_url: {{ virtualbox.key_url }}
 {% else %}
@@ -20,7 +20,7 @@ virtualbox:
     - gpgkey: {{ virtualbox.gpgkey }}
 {% endif %}
     - require:
-      - sls: pkgs
+      - pkg: os_packages
     - require_in:
       - pkg: {{ virtualbox.pkg_name }}
 {% endif %}
@@ -28,4 +28,4 @@ virtualbox:
     - name: {{ virtualbox.pkg_name }}
     - refresh: True
     - require:
-      - sls: pkgs
+      - pkg: os_packages

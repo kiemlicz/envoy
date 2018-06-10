@@ -13,7 +13,7 @@ spotify_prerequisites:
       - {{ k }}: {{ v }}
 {% endfor %}
     - require:
-      - sls: pkgs
+      - pkg: os_packages
     - require_in:
       - pkg: {{ spotify.pkg_name }}
 {% endif %}
@@ -21,7 +21,7 @@ spotify_prerequisites:
 spotify:
 {% if spotify.repo_entries is defined %}
   pkgrepo.managed:
-    - names: {{ spotify.repo_entries }}
+    - names: {{ spotify.repo_entries|json_decode_list }}
     - file: {{ spotify.file }}
     - keyserver: {{ spotify.keyserver }}
     - keyid: {{ spotify.keyid }}
@@ -32,4 +32,4 @@ spotify:
     - name: {{ spotify.pkg_name }}
     - refresh: True
     - require:
-      - sls: pkgs
+      - pkg: os_packages

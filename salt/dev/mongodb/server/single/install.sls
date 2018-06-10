@@ -9,7 +9,7 @@ mongodb:
 {% if mongodb.repo_entries is defined or mongodb.repo_id is defined %}
   pkgrepo.managed:
 {% if mongodb.repo_entries is defined %}
-    - names: {{ mongodb.repo_entries }}
+    - names: {{ mongodb.repo_entries|json_decode_list }}
     - file: {{ mongodb.file }}
     - keyid: {{ mongodb.keyid }}
     - keyserver: {{ mongodb.keyserver }}
@@ -36,6 +36,6 @@ mongodb:
     - mode: {{ mongodb.config.mode }}
     - template: jinja
     - context:
-      mongodb: {{ mongodb }}
+      mongodb: {{ mongodb|json_decode_dict }}
     - require:
       - pkg: {{ mongodb.pkg_name }}

@@ -1,14 +1,14 @@
 {# https://github.com/bechtoldt/saltstack-keepalived-formula/blob/master/keepalived/files/configs #}
 
-{%- macro k_v(paramname, d) -%}
+{%- macro k_v(paramname, d, separator=' ') -%}
   {%- if paramname in d -%}
-{{ paramname }} {{ d[paramname] }}
+{{ paramname }}{{ separator }}{{ d[paramname] }}
   {%- endif -%}
 {%- endmacro -%}
 
-{%- macro k_v_escaped(paramname, d) -%}
+{%- macro k_v_escaped(paramname, d, separator=' ') -%}
   {%- if paramname in d -%}
-{{ paramname }} "{{ d[paramname] }}"
+{{ paramname }}{{ separator }}"{{ d[paramname] }}"
   {%- endif -%}
 {%- endmacro -%}
 

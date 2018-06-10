@@ -13,8 +13,8 @@ redis_config_{{ bind.ip }}_{{ bind.port }}:
     - makedirs: True
     - template: jinja
     - context:
-      bind: {{ bind }}
-      redis: {{ redis }}
+      bind: {{ bind|json_decode_dict }}
+      redis: {{ redis|json_decode_dict }}
       discriminator: {{ discriminator }}
     - require:
       - file_ext: {{ redis.config.init_location }}
@@ -61,8 +61,8 @@ redis_config_{{ bind.ip }}_{{ bind.port }}:
     - makedirs: True
     - template: jinja
     - context:
-      bind: {{ bind }}
-      redis: {{ redis }}
+      bind: {{ bind|json_decode_dict }}
+      redis: {{ redis|json_decode_dict }}
     - require:
       - pip: redis_pip_prerequisites
 

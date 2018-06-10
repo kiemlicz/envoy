@@ -1,4 +1,4 @@
-{% from "java/map.jinja" import java with context %}
+{% from "java/map.jinja" import java10 as java with context %}
 {% from "_macros/dev_tool.macros.jinja" import add_environmental_variable,add_to_path with context %}
 {% from "_common/util.jinja" import retry with context %}
 
@@ -10,7 +10,7 @@ include:
 java:
 {% if java.repo_entries is defined %}
   pkgrepo.managed:
-    - names: {{ java.repo_entries }}
+    - names: {{ java.repo_entries|json_decode_list }}
     - file: {{ java.file }}
     - keyid: {{ java.keyid }}
     - keyserver: {{ java.keyserver }}
@@ -30,7 +30,7 @@ java:
     - refresh: True
 {{ retry(attempts=3)| indent(4) }}
     - require:
-      - sls: pkgs
+      - pkg: os_packages
 {{ add_environmental_variable(java.environ_variable, java.generic_link, java.exports_file) }}
 {{ add_to_path(java.environ_variable, java.path_inside, java.exports_file) }}
 

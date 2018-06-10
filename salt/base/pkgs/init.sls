@@ -1,7 +1,9 @@
 {% from "pkgs/map.jinja" import pkgs with context %}
 
+
 include:
   - repositories
+
 
 # any pkg.* that depends on this state for performance reasons, should not use refresh: True
 pkgs:
@@ -19,10 +21,10 @@ pkgs:
     - require:
       - pkg: os_packages
 {% if pkgs.post_install is defined and pkgs.post_install %}
-  cmd.wait:
+  cmd.run:
     - names: {{ pkgs.post_install }}
     - require:
       - pip: pip_packages
-    - watch:
+    - onchanges:
       - pkg: os_packages
 {% endif %}
