@@ -1,4 +1,4 @@
-{% from "java/map.jinja" import java10 as java with context %}
+{% from "java/map.jinja" import default_java as java with context %}
 {% from "_macros/dev_tool.macros.jinja" import add_environmental_variable,add_to_path with context %}
 {% from "_common/util.jinja" import retry with context %}
 

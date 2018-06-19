@@ -1,8 +1,8 @@
 {% set version_major = salt['pillar.get']("java:version_major", default="10") %}
 
-{% set java = salt['grains.filter_by']({
+{% set java8 = salt['grains.filter_by']({
     'RedHat': {
-        'pkg_name': "java-" + version_major + "-openjdk",
+        'pkg_name': "java-" ~ version_major ~ "-openjdk",
         'ext_pkgs': [],
         'exports_file': '/etc/zsh/zshrc',
         'environ_variable': 'JAVA_HOME',
@@ -21,9 +21,9 @@
         'generic_link': '$(readlink -f /usr/bin/java | sed "s:\(jre\)*/bin/java::")',
         'keyid': "EEA14886",
         'keyserver': "hkp://keyserver.ubuntu.com:80",
-        'pkg_name': "oracle-java" + version_major + "-installer",
+        'pkg_name': "oracle-java" ~ version_major ~ "-installer",
         'ext_pkgs': [
-          "oracle-java" + version_major + "-unlimited-jce-policy"
+          "oracle-java" ~ version_major ~ "-unlimited-jce-policy"
         ]
     },
 }, merge=salt['grains.filter_by']({
@@ -43,7 +43,7 @@
 
 {% set java10 = salt['grains.filter_by']({
     'RedHat': {
-        'pkg_name': "java-" + version_major + "-openjdk",
+        'pkg_name': "java-" ~ version_major ~ "-openjdk",
         'ext_pkgs': [],
         'exports_file': '/etc/zsh/zshrc',
         'environ_variable': 'JAVA_HOME',
@@ -61,7 +61,9 @@
         'generic_link': '$(readlink -f /usr/bin/java | sed "s:\(jre\)*/bin/java::")',
         'keyid': "73C3DB2A",
         'keyserver': "hkp://keyserver.ubuntu.com:80",
-        'pkg_name': "oracle-java" + version_major + "-installer",
+        'pkg_name': "oracle-java" ~ version_major ~ "-installer",
         'ext_pkgs': []
     },
 }, merge=salt['pillar.get']('java')) %}
+
+{% set default_java = java8 if version_major == "8" else java10 %}
