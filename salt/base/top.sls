@@ -60,6 +60,7 @@ def run():
       "grafana",
       "virtualbox",
       "projects",
+      "influxdb",
       "redis.client",
       "mongodb.client",
     ],
