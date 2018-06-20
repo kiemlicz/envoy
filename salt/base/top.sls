@@ -57,6 +57,7 @@ def run():
       "rebar",
       "intellij",
       "robomongo",
+      "grafana",
       "virtualbox",
       "projects",
       "redis.client",
