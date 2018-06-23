@@ -25,7 +25,7 @@
     - makedirs: True
 {% endmacro %}
 
-{% macro repo_pkg_service(state_id, conf_dict) %}
+{% macro repo_pkg_service(state_id, conf_dict, run=True) %}
 {{ state_id }}:
 {% if conf_dict.repo_entries is defined or conf_dict.repo_id is defined %}
   pkgrepo.managed:
@@ -50,9 +50,11 @@
     - refresh: True
     - require:
       - pkg: os_packages
+{% if run %}
   service.running:
     - name: {{ conf_dict.service_name }}
     - enable: True
     - require:
       - pkg: {{ conf_dict.pkg_name }}
+{% endif %}
 {% endmacro %}
