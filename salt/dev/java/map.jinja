@@ -39,6 +39,12 @@
            "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu artful main"
          ],
    },
+   'bionic': {
+        'repo_entries': [
+           "deb http://ppa.launchpad.net/webupd8team/java/ubuntu bionic main",
+           "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu bionic main"
+         ],
+   },
 }, grain='oscodename', merge=salt['pillar.get']('java'))) %}
 
 {% set java10 = salt['grains.filter_by']({
