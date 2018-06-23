@@ -13,11 +13,4 @@
     },
     'Windows': {
     }
-}, merge=salt['grains.filter_by']({
-      'yakkety': {
-        'pkgs': ["lxc", "bridge-utils", "debootstrap"],
-      },
-      'artful': {
-        'pkgs': ["lxc", "bridge-utils", "debootstrap"],
-      }
-}, grain='oscodename', merge=salt['pillar.get']('lxc', merge=True))) %}
+}, merge=salt['pillar.get']('lxc', merge=True)) %}

@@ -36,7 +36,7 @@ def manage_path(name, directory_inside, exports_file):
         for line in fileinput.input(exports_file):
             if re.search(re.escape(to_append), line) is not None:
                 ret['result'] = True
-                ret['changes'] = None
+                ret['changes'] = {}
                 ret['comment'] = "Requested: {0} is already added to PATH".format(to_append)
                 fileinput.close()
                 return ret

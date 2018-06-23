@@ -1,0 +1,21 @@
+{% set grafana = salt['grains.filter_by']({
+    'RedHat': {
+        'baseurl': "https://packagecloud.io/grafana/stable/el/7/$basearch",
+        'repo_id': "grafana",
+        'gpgkey': "https://packagecloud.io/gpg.key https://grafanarel.s3.amazonaws.com/RPM-GPG-KEY-grafana",
+        'pkg_name': "grafana",
+        'service_name': "grafana-server",
+    },
+    'Debian': {
+        'repo_entries': [
+            "deb https://packagecloud.io/grafana/stable/debian/ stretch main"
+        ],
+        'file': '/etc/apt/sources.list.d/grafana.list',
+        'key_url': "https://packagecloud.io/gpg.key",
+        'pkg_name': "grafana",
+        'service_name': "grafana-server"
+    },
+    'Windows': {
+
+    },
+}, merge=salt['pillar.get']('grafana')) %}

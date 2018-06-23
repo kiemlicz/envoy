@@ -24,3 +24,37 @@
     - user: {{ owner }}
     - makedirs: True
 {% endmacro %}
+
+{% macro repo_pkg_service(state_id, conf_dict, run=True) %}
+{{ state_id }}:
+{% if conf_dict.repo_entries is defined or conf_dict.repo_id is defined %}
+  pkgrepo.managed:
+{% if conf_dict.repo_entries is defined %}
+    - names: {{ conf_dict.repo_entries|json_decode_list }}
+    - file: {{ conf_dict.file }}
+    - key_url: {{ conf_dict.key_url }}
+{% else %}
+    - name: {{ conf_dict.repo_id }}
+    - baseurl: {{ conf_dict.baseurl }}
+    - humanname: {{ conf_dict.repo_id }}
+    - gpgcheck: 1
+    - gpgkey: {{ conf_dict.gpgkey }}
+{% endif %}
+    - require:
+      - pkg: os_packages
+    - require_in:
+      - pkg: {{ conf_dict.pkg_name }}
+{% endif %}
+  pkg.latest:
+    - name: {{ conf_dict.pkg_name }}
+    - refresh: True
+    - require:
+      - pkg: os_packages
+{% if run %}
+  service.running:
+    - name: {{ conf_dict.service_name }}
+    - enable: True
+    - require:
+      - pkg: {{ conf_dict.pkg_name }}
+{% endif %}
+{% endmacro %}

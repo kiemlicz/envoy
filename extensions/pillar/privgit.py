@@ -2,6 +2,7 @@ import collections
 import logging
 import os
 import re
+import copy
 
 import salt.loader
 import salt.utils
@@ -62,6 +63,10 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
             )
         return output_dict
 
+    def write_file(path, content, perms):
+        __salt__['file.write'](path, content)
+        __salt__['file.set_mode'](path, perms)
+
     ext_name = 'privgit'
     opt_url = 'url'
     opt_branch = 'branch'
@@ -89,8 +94,8 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
             priv_location = os.path.join(parent, 'priv.key')
             pub_location = os.path.join(parent, 'pub.key')
             # will override if already exists
-            __salt__['file.write'](priv_location, repository_opts[opt_privkey])
-            __salt__['file.write'](pub_location, repository_opts[opt_pubkey])
+            write_file(priv_location, repository_opts[opt_privkey], "600")
+            write_file(pub_location, repository_opts[opt_pubkey], "644")
             repository_opts[opt_privkey_loc] = priv_location
             repository_opts[opt_pubkey_loc] = pub_location
 
@@ -109,7 +114,10 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
         log.debug("generated private git configuration: {}".format(repo))
 
         try:
-            loaded_pillar = salt.loader.pillars(__opts__, __salt__)
+            # workaround, otherwise GitFS doesn't perform fetch and "remote ref does not exist"
+            local_opts = copy.deepcopy(__opts__)
+            local_opts['__role'] = 'minion'
+            loaded_pillar = salt.loader.pillars(local_opts, __salt__)
             ret = loaded_pillar['git'](minion_id, pillar, repo)
         except Exception as e:
             log.exception(

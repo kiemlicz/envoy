@@ -21,5 +21,8 @@
     },
     'artful': {
         'repo_entries': ["deb http://linux.dropbox.com/" ~ os.lower() ~ " xenial main"],
+    },
+    'bionic': {
+        'repo_entries': ["deb http://linux.dropbox.com/" ~ os.lower() ~ " xenial main"],
     }
 }, grain='oscodename', merge=salt['pillar.get']('dropbox'))) %}
