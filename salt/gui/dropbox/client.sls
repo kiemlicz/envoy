@@ -17,7 +17,7 @@ dropbox:
     - gpgcheck: 1
     - gpgkey: {{ dropbox.gpgkey }}
 {% endif %}
-{{ retry(attempts=10, interval=120)| indent(4) }}
+{{ retry()| indent(4) }}
     - require:
       - sls: os
     - require_in:
