@@ -20,7 +20,7 @@ def run():
       "mail",
     ],
     'G@os_family:Debian': [
-      "pkgs.unattended"
+      "os.pkgs.unattended"
     ],
     'not G@os:Windows and not G@virtual_subtype:Docker': [
       "lxc"
