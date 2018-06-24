@@ -10,12 +10,14 @@ owncloud:
     - key_url: {{ owncloud.key_url }}
 {{ retry()| indent(4) }}
     - require:
-      - pkg: os_packages
+      - sls: os
     - require_in:
       - pkg: {{ owncloud.client.pkg_name }}
 {% endif %}
   pkg.latest:
     - name: {{ owncloud.client.pkg_name }}
     - refresh: True
+    - require:
+      - sls: os
 
 #further config via dotfiles

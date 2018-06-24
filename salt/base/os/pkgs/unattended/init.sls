@@ -1,8 +1,8 @@
-{% from "pkgs/unattended/map.jinja" import unattended with context %}
+{% from "os/pkgs/unattended/map.jinja" import unattended with context %}
 
 
 include:
-  - pkgs
+  - os.pkgs
 
 
 unattended_upgrades:

@@ -3,8 +3,7 @@
 
 
 include:
-  - mounts
-  - pkgs
+  - os
 
 
 docker:
@@ -22,7 +21,7 @@ docker:
     - gpgkey: {{ docker.gpgkey }}
 {% endif %}
     - require:
-      - pkg: os_packages
+      - sls: os
     - require_in:
       - pkg: {{ docker.pkg_name }}
 {% endif %}
@@ -40,8 +39,7 @@ docker:
     - name: {{ docker.pkg_name }}
     - refresh: True
     - require:
-      - sls: mounts
-      - pkg: os_packages
+      - sls: os
   service.running:
     - name: {{ docker.service_name }}
     - enable: True

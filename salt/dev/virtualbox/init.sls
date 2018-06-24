@@ -2,7 +2,7 @@
 
 
 include:
-  - pkgs
+  - os
 
 
 virtualbox:
@@ -20,7 +20,7 @@ virtualbox:
     - gpgkey: {{ virtualbox.gpgkey }}
 {% endif %}
     - require:
-      - pkg: os_packages
+      - sls: os
     - require_in:
       - pkg: {{ virtualbox.pkg_name }}
 {% endif %}
@@ -28,4 +28,4 @@ virtualbox:
     - name: {{ virtualbox.pkg_name }}
     - refresh: True
     - require:
-      - pkg: os_packages
+      - sls: os

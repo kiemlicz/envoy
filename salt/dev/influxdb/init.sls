@@ -4,7 +4,7 @@
 
 
 include:
-  - pkgs
+  - os
 
 
 {{ repo_pkg_service('influxdb', influxdb, not (is_docker()|to_bool)) }}

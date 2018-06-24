@@ -3,7 +3,7 @@
 
 
 include:
-  - pkgs
+  - os
   - kvm
   - minikube
 
@@ -16,7 +16,7 @@ kubernetes:
     - key_url: {{ kubernetes.key_url }}
 {{ retry()| indent(4) }}
     - require:
-      - pkg: os_packages
+      - sls: os
     - require_in:
       - pkg: {{ kubernetes.client.pkg_name }}
 {% endif %}

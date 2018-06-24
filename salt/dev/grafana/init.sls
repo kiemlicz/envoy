@@ -3,7 +3,7 @@
 
 
 include:
-  - pkgs
+  - os
 
 
 {{ repo_pkg_service('grafana', grafana) }}

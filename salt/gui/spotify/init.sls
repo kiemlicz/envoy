@@ -2,7 +2,7 @@
 
 
 include:
-  - pkgs
+  - os
 
 
 {% if spotify.required_pkgs_urls %}
@@ -13,7 +13,7 @@ spotify_prerequisites:
       - {{ k }}: {{ v }}
 {% endfor %}
     - require:
-      - pkg: os_packages
+      - sls: os
     - require_in:
       - pkg: {{ spotify.pkg_name }}
 {% endif %}
@@ -27,9 +27,11 @@ spotify:
     - keyid: {{ spotify.keyid }}
     - require_in:
       - pkg: {{ spotify.pkg_name }}
+    - require:
+      - sls: os
 {% endif %}
   pkg.latest:
     - name: {{ spotify.pkg_name }}
     - refresh: True
     - require:
-      - pkg: os_packages
+      - sls: os

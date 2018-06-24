@@ -21,7 +21,7 @@ mongodb:
     - gpgkey: {{ mongodb.gpgkey }}
 {% endif %}
     - require:
-      - pkg: os_packages
+      - sls: os
     - require_in:
       - pkg: {{ mongodb.pkg_name }}
 {% endif %}
@@ -29,7 +29,7 @@ mongodb:
     - name: {{ mongodb.pkg_name }}
     - refresh: True
     - require:
-      - pkg: os_packages
+      - sls: os
   file_ext.managed:
     - name: {{ mongodb.config.init_location }}
     - source: {{ mongodb.config.init }}

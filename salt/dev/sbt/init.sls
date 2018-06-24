@@ -3,8 +3,8 @@
 
 
 include:
+  - os
   - users
-  - pkgs
 
 
 sbt:
@@ -22,7 +22,7 @@ sbt:
     - gpgcheck: 0
 {% endif %}
     - require:
-      - pkg: os_packages
+      - sls: os
     - require_in:
       - pkg: {{ sbt.pkg_name }}
 {% endif %}
@@ -30,7 +30,7 @@ sbt:
     - name: {{ sbt.pkg_name }}
     - refresh: True
     - require:
-      - sls: users.common
+      - sls: users
 {{ add_environmental_variable(sbt.environ_variable, sbt.generic_link, sbt.exports_file) }}
 {{ add_to_path(sbt.environ_variable, sbt.path_inside, sbt.exports_file) }}
 

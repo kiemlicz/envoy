@@ -3,7 +3,7 @@
 
 
 include:
-  - pkgs
+  - os
 
 
 keepass:
@@ -16,4 +16,4 @@ keepass:
     - name: {{ keepass.pkg_name }}
 {% endif %}
     - require:
-      - pkg: os_packages
+      - sls: os

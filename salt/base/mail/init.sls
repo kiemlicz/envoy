@@ -3,13 +3,15 @@
 
 
 include:
-  - pkgs
+  - os
 
 
 mail:
   pkg.latest:
     - name: mail_pacakges
     - pkgs: {{ mail.pkgs }}
+    - require:
+      - sls: os
 {% for config in mail.configs %}
 mail_config_{{ config.location }}:
   file_ext.managed:
@@ -24,7 +26,6 @@ mail_config_{{ config.location }}:
       settings: {{ config.settings|json_decode_dict }}
     - require:
       - pkg: mail_pacakges
-      - pkg: os_packages
     - watch_in:
       - service: {{ mail.service }}
 {% endfor %}

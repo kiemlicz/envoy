@@ -1,4 +1,4 @@
 include:
-  - pkgs
+  - os
   - mongodb.server.single.install
   - mongodb.server.single.configure

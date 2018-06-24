@@ -1,14 +1,14 @@
 {% from "kannel/map.jinja" import kannel with context %}
 
 include:
-  - pkgs
+  - os
 
 kannel_server:
   pkg.latest:
     - name: kannel
     - pkgs: {{ kannel.pkgs }}
     - require:
-      - pkg: os_packages
+      - sls: os
   service.running:
     - name: {{ kannel.service_name }}
     - enable: True

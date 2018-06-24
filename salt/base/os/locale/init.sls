@@ -1,11 +1,14 @@
-{% from "locale/map.jinja" import locale with context %}
+{% from "os/locale/map.jinja" import locale with context %}
 {% from "_common/util.jinja" import is_lxc with context %}
 
 
 {% if locale.required_pkgs %}
 required_pkgs:
   pkg.latest:
+    - name:
     - pkgs: {{ locale.required_pkgs }}
+    - require:
+      - sls: os.repositories
     - require_in:
       - locale: gen_locale
 {% endif %}

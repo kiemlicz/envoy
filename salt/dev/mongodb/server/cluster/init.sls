@@ -7,7 +7,7 @@
 {% if this_host in all_instances|map(attribute='id')|list %}
 
 include:
-  - pkgs
+  - os
   - mongodb.server.single.install
   - mongodb.server.cluster.configure
 

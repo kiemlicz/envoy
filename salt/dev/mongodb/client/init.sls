@@ -1,11 +1,11 @@
 {% from "mongodb/client/map.jinja" import mongodb_client as mongodb with context  %}
 
 include:
-  - pkgs
+  - os
 
 mongodb_client:
   pkg.latest:
     - name: {{ mongodb.pkg_name }}
     - refresh: True
     - require:
-      - pkg: os_packages
+      - sls: os

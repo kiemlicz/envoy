@@ -1,6 +1,4 @@
 include:
-  - mounts
-  - hosts
-  - pkgs
+  - os
   - lxc.install
 #  - lxc.containers

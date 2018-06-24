@@ -3,7 +3,7 @@
         'required_pkgs': ["apt-listchanges", "unattended-upgrades"],
         'configs': [{
           'location': "/etc/apt/apt.conf.d/02periodic",
-          'source': "salt://pkgs/unattended/templates/periodic.jinja",
+          'source': "salt://os/pkgs/unattended/templates/periodic.jinja",
           'settings': {
             'enabled': 1,
             'update_package_lists': 1,
@@ -14,7 +14,7 @@
           }
         },{
          'location': "/etc/apt/apt.conf.d/50unattended-upgrades",
-         'source': "salt://pkgs/unattended/templates/unattended-upgrades.jinja",
+         'source': "salt://os/pkgs/unattended/templates/unattended-upgrades.jinja",
          'settings': {
             'origins_patterns': ["origin=Debian,codename=${distro_codename},label=Debian-Security"],
             'package_blacklist': [],

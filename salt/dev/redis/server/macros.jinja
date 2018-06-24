@@ -44,7 +44,7 @@ redis_in_docker_prerequisites:
     - name: redis_os_packages_prerequisites
     - pkgs: {{ redis.prerequisites }}
     - require:
-      - pkg: os_packages
+      - sls: os
   pip.installed:
     - name: redis_pip_prerequisites
     - pkgs: {{ redis.pip_packages }}

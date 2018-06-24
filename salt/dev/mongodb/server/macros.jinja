@@ -52,7 +52,7 @@ mongo_in_docker_prerequisites:
     - name: mongo_os_packages_requisites
     - pkgs: {{ mongodb.prerequisites }}
     - require:
-      - pkg: os_packages
+      - sls: os
   pip.installed:
     - name: mongodb_pip_prerequisites
     - pkgs: {{ mongodb.pip_packages }}

@@ -4,7 +4,7 @@
 
 
 include:
-  - pkgs
+  - os
 
 
 java:
@@ -15,6 +15,8 @@ java:
     - keyid: {{ java.keyid }}
     - keyserver: {{ java.keyserver }}
 {{ retry()| indent(4) }}
+    - require:
+      - sls: os
     - require_in:
       - debconf: {{ java.pkg_name }}
   debconf.set:
@@ -30,7 +32,7 @@ java:
     - refresh: True
 {{ retry(attempts=3)| indent(4) }}
     - require:
-      - pkg: os_packages
+      - sls: os
 {{ add_environmental_variable(java.environ_variable, java.generic_link, java.exports_file) }}
 {{ add_to_path(java.environ_variable, java.path_inside, java.exports_file) }}
 

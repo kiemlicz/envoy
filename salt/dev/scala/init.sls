@@ -17,6 +17,6 @@ scala:
     - saltenv: {{ saltenv }}
 {{ retry()| indent(4) }}
     - require:
-      - sls: users.common
+      - sls: users
 {{ add_environmental_variable(scala.environ_variable, scala.generic_link, scala.exports_file) }}
 {{ add_to_path(scala.environ_variable, scala.path_inside, scala.exports_file) }}

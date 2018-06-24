@@ -1,3 +1,3 @@
 include:
-  - pkgs
+  - os
   - dropbox.client

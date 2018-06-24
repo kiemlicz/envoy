@@ -5,7 +5,7 @@ redis:
   pkg.latest:
     - name: {{ redis.pkg_name }}
     - require:
-      - pkg: os_packages
+      - sls: os
   file_ext.managed:
     - name: {{ redis.config.init_location }}
     - source: {{ redis.config.init }}

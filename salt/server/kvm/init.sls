@@ -2,7 +2,7 @@
 
 
 include:
-  - pkgs
+  - os
 
 
 kvm:
@@ -11,7 +11,7 @@ kvm:
     - pkgs: {{ kvm.prerequisites }}
     - refresh: True
     - require:
-      - pkg: os_packages
+      - sls: os
   group.present:
     - names: {{ kvm.groups }}
     - addusers: {{ kvm.users }}

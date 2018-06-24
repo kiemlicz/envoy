@@ -7,7 +7,7 @@
 {% if this_host in all_instances|map(attribute='id')|list %}
 
 include:
-  - pkgs
+  - os
   - redis.server.single.install
   - redis.server.cluster.configure
 

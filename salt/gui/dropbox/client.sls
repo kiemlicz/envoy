@@ -1,6 +1,7 @@
 {% from "dropbox/map.jinja" import dropbox with context %}
 {% from "_common/util.jinja" import retry with context %}
 
+
 dropbox:
 {% if dropbox.repo_entries is defined or dropbox.repo_id is defined %}
   pkgrepo.managed:
@@ -17,6 +18,8 @@ dropbox:
     - gpgkey: {{ dropbox.gpgkey }}
 {% endif %}
 {{ retry(attempts=10, interval=120)| indent(4) }}
+    - require:
+      - sls: os
     - require_in:
       - pkg: {{ dropbox.pkg_name }}
 {% endif %}
@@ -24,4 +27,4 @@ dropbox:
     - name: {{ dropbox.pkg_name }}
     - refresh: True
     - require:
-      - pkg: os_packages
+      - sls: os

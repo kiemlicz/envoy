@@ -41,7 +41,7 @@
     - gpgkey: {{ conf_dict.gpgkey }}
 {% endif %}
     - require:
-      - pkg: os_packages
+      - sls: os
     - require_in:
       - pkg: {{ conf_dict.pkg_name }}
 {% endif %}
@@ -49,7 +49,7 @@
     - name: {{ conf_dict.pkg_name }}
     - refresh: True
     - require:
-      - pkg: os_packages
+      - sls: os
 {% if run %}
   service.running:
     - name: {{ conf_dict.service_name }}

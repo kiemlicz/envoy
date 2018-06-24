@@ -15,6 +15,6 @@ maven:
     - saltenv: {{ saltenv }}
 {{ retry(attempts=5, interval=60)| indent(4) }}
     - require:
-      - sls: users.common
+      - sls: users
 {{ add_environmental_variable(maven.environ_variable, maven.generic_link, maven.exports_file) }}
 {{ add_to_path(maven.environ_variable, maven.path_inside, maven.exports_file) }}

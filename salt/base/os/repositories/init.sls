@@ -1,8 +1,5 @@
-{% from "repositories/map.jinja" import repositories with context %}
+{% from "os/repositories/map.jinja" import repositories with context %}
 
-
-include:
-  - locale
 
 {% for repo in repositories.list %}
 {{ repo.file }}_{{ repo.names|first }}_repository:
@@ -14,8 +11,6 @@ include:
     {% endif %}
     # refresh on last configured repo
     - refresh_db: {{ True if repositories.list|last == repo else False }}
-    - require:
-      - sls: locale
 {% endfor %}
 
 {% for pref in repositories.preferences %}
@@ -26,17 +21,7 @@ include:
     - template: jinja
     - makedirs: True
     - create: True
-    - require:
-      - sls: locale
     - context:
       pin: {{ pref.pin }}
       priority : {{ pref.priority }}
 {% endfor %}
-
-{% if not (repositories.list or repositories.preferences) %}
-{# mandatory, otherwise require: empty sls will fail #}
-repositories-notification:
-  test.show_notification:
-    - name: No repositories
-    - text: "No repositories configured as none specified"
-{% endif %}

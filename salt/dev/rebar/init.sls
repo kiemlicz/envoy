@@ -16,7 +16,7 @@ rebar:
     - target: {{ rebar.destination_dir }}/{{ rebar.orig_name }}
     - user: {{ rebar.owner }}
     - require:
-      - sls: users.common
+      - sls: users
       - git: {{ rebar.git_url }}
 rebar_change_owner:
   file.directory:
@@ -27,7 +27,7 @@ rebar_change_owner:
       - user
       - group
     - require:
-      - sls: users.common
+      - sls: users
       - git: {{ rebar.git_url }}
   cmd.script:
     - name: {{ rebar.generic_link }}/bootstrap
@@ -36,7 +36,7 @@ rebar_change_owner:
     - env:
       - HOME: {{ rebar.owner_home_dir }}
     - require:
-      - sls: users.common
+      - sls: users
       - file: {{ rebar.destination_dir }}/{{ rebar.orig_name }}
 
 update_environment_rebar:

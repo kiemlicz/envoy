@@ -15,11 +15,7 @@ def run():
 
   base = {
     '*': [
-      "hosts",
-      "repositories",
-      "locale",
-      "pkgs",
-      "mounts",
+      "os",
       "samba",
       "mail",
     ],

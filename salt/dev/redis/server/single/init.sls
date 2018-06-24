@@ -1,4 +1,4 @@
 include:
-  - pkgs
+  - os
   - redis.server.single.install
   - redis.server.single.configure

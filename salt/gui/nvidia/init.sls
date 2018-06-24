@@ -1,8 +1,8 @@
 {% from "nvidia/map.jinja" import nvidia with context %}
 
 include:
-  - repositories
-  - pkgs
+  - os.repositories
+  - os.pkgs
 
 
 # install nvidia proprietary driver from repo
@@ -11,6 +11,6 @@ nvidia_driver:
     - pkgs: {{ nvidia.pkgs }}
     - refresh: True
     - require:
-      - sls: repositories
+      - sls: os.repositories
     - require_in:
-      - pkg: pkgs
+      - pkg: os.pkgs

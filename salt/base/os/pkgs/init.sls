@@ -1,8 +1,4 @@
-{% from "pkgs/map.jinja" import pkgs with context %}
-
-
-include:
-  - repositories
+{% from "os/pkgs/map.jinja" import pkgs with context %}
 
 
 # any pkg.* that depends on this state for performance reasons, should not use refresh: True
@@ -13,7 +9,7 @@ pkgs:
     - refresh: True
     - reload_modules: True
     - require:
-      - sls: repositories
+      - sls: os.locale
   pip.installed:
     - name: pip_packages
     - pkgs: {{ pkgs.pip_packages }}
