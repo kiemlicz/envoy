@@ -25,3 +25,8 @@
       pin: {{ pref.pin }}
       priority : {{ pref.priority }}
 {% endfor %}
+
+repositories-notification:
+  test.show_notification:
+    - name: Repositories setup completed
+    - text: "Repositories setup completed"

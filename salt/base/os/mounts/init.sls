@@ -11,3 +11,8 @@
     - mkmnt: True
     - persist: True
 {% endfor %}
+
+mounts-notification:
+  test.show_notification:
+    - name: Mounts setup completed
+    - text: "Mounts setup completed"
