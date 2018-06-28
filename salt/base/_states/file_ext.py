@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 
 def __virtual__():
     salt_version = salt.version.__saltstack_version__.string
-    supported = ["2018.3.0", "2018.3.1"]
+    supported = ["2018.3.0", "2018.3.1", "2018.3.2"]
     if salt_version not in supported:
         return False, "Cannot load file.ext, install: salt version {} (detected: {})".format(supported, salt_version)
     return True if HAS_GOOGLE_AUTH else (False, "Cannot load file.ext, install: google-auth, pyasn1-modules and google-auth-oauthlib libraries")
