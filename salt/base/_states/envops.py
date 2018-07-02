@@ -5,6 +5,7 @@ import re
 import logging
 import salt.utils as utils
 
+
 def manage_path(name, directory_inside, exports_file):
     '''
     add given variable with directories to system PATH
