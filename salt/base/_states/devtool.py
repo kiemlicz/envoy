@@ -2,7 +2,7 @@ import logging
 import os
 
 
-def managed(name, download_url, destination_dir, user, group, enforce_toplevel=True, saltenv='base'):
+def managed(name, download_url, destination_dir, user, group, source_hash=None, enforce_toplevel=True, saltenv='base'):
     '''
     Wrapper for archive.extracted
     Adds symlink to 'name' location
@@ -30,7 +30,7 @@ def managed(name, download_url, destination_dir, user, group, enforce_toplevel=T
     # listing before extraction as archive.extracted has bug and requires to pass enforce_ownership_on:
     # https://github.com/saltstack/salt/issues/38605
 
-    archive_contents = __salt__['archive.list'](download_url)
+    archive_contents = __salt__['archive.list'](download_url, source_hash=source_hash)
     extract_dir = os.path.commonprefix(archive_contents)  # relative path
     if not extract_dir and not enforce_toplevel:
         return _fail(ret, "Cannot find root directory in extracted archive, try setting enforce_toplevel: True", archive_contents)

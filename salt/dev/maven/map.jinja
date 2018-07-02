@@ -1,6 +1,6 @@
 {# {% import_yaml "defaults.yaml" as defaults %} #}
 
-{% set version = '3.5.3' %}
+{% set version = '3.5.4' %}
 {% set url = 'http://ftp.ps.pl/pub/apache/maven/maven-3/' + version + '/binaries/apache-maven-' + version + '-bin.tar.gz' %}
 {% set maven = salt['grains.filter_by']({
     'default': {
@@ -10,7 +10,8 @@
         'owner': 'root',
         'exports_file': '/etc/zsh/zshrc',
         'environ_variable': 'M2_HOME',
-        'path_inside': 'bin'
+        'path_inside': 'bin',
+        'source_hash': "sha256=ce50b1c91364cb77efe3776f756a6d92b76d9038b0a0782f7d53acf1e997a14d"
     },
     'Windows': {
         'download_url': url,
