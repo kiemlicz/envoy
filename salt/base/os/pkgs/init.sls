@@ -1,6 +1,14 @@
 {% from "os/pkgs/map.jinja" import pkgs with context %}
 
 
+dist-upgrade:
+  pkg.uptodate:
+    - name: upgrade_os
+    - refresh: True
+    - force_yes: True
+    - require:
+      - sls: os.locale
+
 # any pkg.* that depends on this state for performance reasons, should not use refresh: True
 pkgs:
   pkg.latest:
@@ -9,7 +17,7 @@ pkgs:
     - refresh: True
     - reload_modules: True
     - require:
-      - sls: os.locale
+      - pkg: upgrade_os
   pip.installed:
     - name: pip_packages
     - pkgs: {{ pkgs.pip_packages }}
