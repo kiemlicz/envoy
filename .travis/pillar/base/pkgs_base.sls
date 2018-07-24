@@ -1,6 +1,9 @@
 {% set default_pkgs = salt['grains.filter_by']({
       'default': {
          'os_packages': ["vim", "sudo", "man", "insserv", "git", "zsh", "curl", "ca-certificates", "gnupg2"],
+         'sources': [{
+             'keepassxc': "https://github.com/magkopian/keepassxc-debian/releases/download/2.3.3/keepassxc_2.3.3-1_amd64_stable_stretch.deb"
+          }],
          'post_install': ['echo "command3"', 'echo "command4"', 'echo "command5"'],
       },
       'Windows': {
@@ -11,7 +14,7 @@
       'stretch': {
         'os_packages': ["vim", "sudo", "man", "rsync", "insserv", "git", "zsh", "curl", "ntp",  "ca-certificates", "gnupg2"],
       },
-      'artful': {
+      'bionic': {
         'os_packages': ["vim", "sudo", "man", "rsync", "git", "zsh", "curl", "ntp",  "ca-certificates", "gnupg2"],
       }
     }, grain='oscodename')) %}

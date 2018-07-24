@@ -32,9 +32,7 @@ def run():
 
   gui = {
     '*': [
-      "keepass",
       "owncloud",
-      "dropbox",
       "spotify"
     ],
     'G@gpus:vendor:nvidia': [
