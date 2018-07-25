@@ -30,16 +30,6 @@ def run():
     ]
   }
 
-  gui = {
-    '*': [
-      "owncloud",
-      "spotify"
-    ],
-    'G@gpus:vendor:nvidia': [
-      "nvidia"
-    ]
-  }
-
   dev = {
     '*': [
       "java",
@@ -88,7 +78,6 @@ def run():
 
   top = {}
   top['base'] = base
-  top['gui'] = _merge(base, gui)
-  top['dev'] = _merge(gui, dev)
+  top['dev'] = _merge(base, dev)
   top['server'] = _merge(dev, server)
   return top

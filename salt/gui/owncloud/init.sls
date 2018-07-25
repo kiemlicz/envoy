@@ -1,3 +1,0 @@
-include:
-  - os
-  - owncloud.client
