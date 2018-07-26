@@ -34,7 +34,6 @@ def run():
     '*': [
       "java",
       "scala",
-      "erlang",
       "gradle",
       "maven",
       "sbt",

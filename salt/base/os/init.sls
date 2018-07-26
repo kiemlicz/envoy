@@ -4,6 +4,7 @@ include:
   - os.hosts
   - os.locale
   - os.pkgs
+  - os.services
 
 os-notification:
   test.show_notification:
