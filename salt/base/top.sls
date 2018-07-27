@@ -37,6 +37,7 @@ def run():
       "gradle",
       "maven",
       "sbt",
+      "erlang",
       "rebar",
       "intellij",
       "robomongo",

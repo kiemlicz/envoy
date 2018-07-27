@@ -4,6 +4,7 @@
 
 include:
   - users
+  - erlang
 
 
 rebar:
@@ -11,7 +12,7 @@ rebar:
     - name: {{ rebar.git_url }}
     - target: {{ rebar.destination_dir }}/{{ rebar.orig_name }}
     - require:
-      - pkg: erlang
+      - sls: erlang
   file.symlink:
     - name: {{ rebar.generic_link }}
     - target: {{ rebar.destination_dir }}/{{ rebar.orig_name }}
