@@ -1,16 +1,17 @@
 {% from "rebar/map.jinja" import rebar with context %}
 {% from "_macros/dev_tool.macros.jinja" import add_environmental_variable,add_to_path with context %}
 
+
 include:
   - users
-  - erlang
+
 
 rebar:
   git.latest:
     - name: {{ rebar.git_url }}
     - target: {{ rebar.destination_dir }}/{{ rebar.orig_name }}
     - require:
-      - sls: erlang
+      - pkg: erlang
   file.symlink:
     - name: {{ rebar.generic_link }}
     - target: {{ rebar.destination_dir }}/{{ rebar.orig_name }}
