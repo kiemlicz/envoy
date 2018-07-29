@@ -1,6 +1,6 @@
 {% from "os/repositories/map.jinja" import repositories with context %}
 {% from "_common/util.jinja" import retry with context %}
-{% from "_common/repo.jinja" import repository with context %}
+{% from "_common/repo.jinja" import repository, preferences with context %}
 
 {% for repo in repositories.list %}
 {{ repository(repo.file ~ "_" ~ repo.names|first ~ "_repository", repo, refresh=(repositories.list|last == repo)) }}

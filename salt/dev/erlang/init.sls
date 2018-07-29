@@ -1,6 +1,6 @@
 {% from "erlang/map.jinja" import erlang with context %}
 {% from "_common/util.jinja" import retry with context %}
-{% from "_common/repo.jinja" import repository with context %}
+{% from "_common/repo.jinja" import repository, preferences with context %}
 
 
 include:
