@@ -2,7 +2,6 @@
 
 {% macro repository(id, repo, refresh=False) %}
 {{ id }}:
-  {% if repo.names is defined %}
   pkgrepo_ext.managed:
   {% if repo.names is defined %}
     - names: {{ repo.names|json_decode_list }}
