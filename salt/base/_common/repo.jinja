@@ -1,0 +1,40 @@
+{% from "_common/util.jinja" import retry with context %}
+
+{% macro repository(id, repo, refresh=False) %}
+{{ id }}:
+  {% if repo.names is defined %}
+  pkgrepo_ext.managed:
+  {% if repo.names is defined %}
+    - names: {{ repo.names|json_decode_list }}
+    - file: {{ repo.file }}
+  {% if repo.key_url is defined %}
+    - key_url: {{ repo.key_url }}
+  {% elif repo.keyid is defined %}
+    - keyid: {{ repo.keyid }}
+    - keyserver: {{ repo.keyserver }}
+    - clean: True
+  {% endif %}
+  # refresh on last configured repo
+    - refresh: {{ refresh }}
+  {% else %}
+    - name: {{ repo.repo_id }}
+    - baseurl: {{ repo.baseurl }}
+    - humanname: {{ repo.repo_id }}
+    - gpgcheck: 1
+    - gpgkey: {{ repo.gpgkey }}
+  {% endif %}
+{{ retry()| indent(4) }}
+{% endmacro %}
+
+{% macro preferences(id, conf, preferences_template) %}
+{{ id }}:
+  file.managed:
+    - name: {{ conf.file }}
+    - source: {{ preferences_template }}
+    - template: jinja
+    - makedirs: True
+    - create: True
+    - context:
+      pin: {{ conf.pin }}
+      priority : {{ conf.priority }}
+{% endmacro %}
