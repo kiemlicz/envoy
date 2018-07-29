@@ -13,7 +13,7 @@ include:
     - require:
       - sls: os
 {% if erlang.names is defined %}
-{{ preferences(erlang.file ~ "_" ~ erlang.names|first ~ "_preferences", erlang, erlang.apt_preferences_file) }}
+{{ preferences(erlang.file ~ "_" ~ erlang.names|first ~ "_preferences", erlang, erlang.apt_preferences_source,erlang.apt_preferences_file) }}
     - require:
       - pkgrepo_ext: {{ erlang_repo_id }}
     - require_in:
