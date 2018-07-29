@@ -1,40 +1,27 @@
 {% from "erlang/map.jinja" import erlang with context %}
 {% from "_common/util.jinja" import retry with context %}
+{% from "_common/repo.jinja" import repository with context %}
 
 
 include:
   - os
 
 
-erlang:
-{% if erlang.repo_entries is defined or erlang.repo_id is defined %}
-  pkgrepo.managed:
-{% if erlang.repo_entries is defined %}
-    - names: {{ erlang.repo_entries|json_decode_list }}
-    - file: {{ erlang.file }}
-    - key_url: {{ erlang.key_url }}
-{{ retry()| indent(4) }}
-    - require_in:
-      - file: {{ erlang.apt_preferences_file }}
-{% else %}
-    - name: {{ erlang.repo_id }}
-    - baseurl: {{ erlang.baseurl }}
-    - humanname: {{ erlang.repo_id }}
-    - gpgcheck: 1
-    - gpgkey: {{ erlang.gpgkey }}
-{% endif %}
+{% set erlang_repo_id = erlang.file ~ "_" ~ repo.names|first ~ "_repository" %}
+
+{{ repository(erlang_repo_id, erlang, True) }}
     - require:
       - sls: os
-{% if erlang.repo_entries is defined %}
-  file.managed:
-    - name: {{ erlang.apt_preferences_file }}
-    - source: salt://erlang/erlang.pref
+{% if erlang.names is defined %}
+{{ preferences(erlang.file ~ "_" ~ repo.names|first ~ "_preferences", erlang, erlang.apt_preferences_file) }}
+    - require:
+      - pkgrepo_ext: {{ erlang_repo_id }}
     - require_in:
-      - pkg: {{ erlang.pkg_name }}
+        - pkg: {{ erlang.pkg_name }}
 {% endif %}
-{% endif %}
+erlang:
   pkg.latest:
     - name: {{ erlang.pkg_name }}
     - refresh: True
     - require:
-      - sls: os
+      - pkgrepo_ext: {{ erlang_repo_id }}

@@ -7,7 +7,7 @@
 {% endfor %}
 
 {% for pref in repositories.preferences %}
-{{ preferences(pref.file ~ "_repository", pref, repositories.preferences_template) }}
+{{ preferences(pref.file ~ "_repository", pref, repositories.preferences_source, pref.file) }}
 {% endfor %}
 
 repositories-notification:

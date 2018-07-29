@@ -25,11 +25,11 @@
 {{ retry()| indent(4) }}
 {% endmacro %}
 
-{% macro preferences(id, conf, preferences_template) %}
+{% macro preferences(id, conf, preferences_source, preferences_file) %}
 {{ id }}:
   file.managed:
-    - name: {{ conf.file }}
-    - source: {{ preferences_template }}
+    - name: {{ preferences_file }}
+    - source: {{ preferences_source }}
     - template: jinja
     - makedirs: True
     - create: True

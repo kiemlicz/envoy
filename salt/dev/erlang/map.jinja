@@ -8,10 +8,13 @@
     },
     'Debian': {
       'file': '/etc/apt/sources.list.d/erlang.list',
-      'repo_entries': ["deb http://packages.erlang-solutions.com/" + os.lower() +  " " + dist_codename + " contrib"],
+      'names': ["deb http://packages.erlang-solutions.com/" + os.lower() +  " " + dist_codename + " contrib"],
       'apt_preferences_file': '/etc/apt/preferences.d/erlang.pref',
+      'apt_preferences_source': 'salt://erlang/erlang.pref',
       'key_url': "http://packages.erlang-solutions.com/" + os.lower() + "/erlang_solutions.asc",
       'pkg_name': "erlang",
+      'pin': "release o=Erlang Solutions Ltd.",
+      'priority': "999",
     },
   }, merge=salt['grains.filter_by']({
     'sid': {
