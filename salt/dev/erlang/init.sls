@@ -7,13 +7,13 @@ include:
   - os
 
 
-{% set erlang_repo_id = erlang.file ~ "_" ~ erlang.names|first ~ "_repository" %}
+{% set erlang_repo_id = "erlang_repository" %}
 
 {{ repository(erlang_repo_id, erlang, True) }}
     - require:
       - sls: os
 {% if erlang.names is defined %}
-{{ preferences(erlang.file ~ "_" ~ erlang.names|first ~ "_preferences", erlang, erlang.apt_preferences_source,erlang.apt_preferences_file) }}
+{{ preferences("erlang_preferences", erlang, erlang.apt_preferences_source,erlang.apt_preferences_file) }}
     - require:
       - pkgrepo_ext: {{ erlang_repo_id }}
     - require_in:
