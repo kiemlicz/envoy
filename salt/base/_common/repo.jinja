@@ -18,7 +18,7 @@
   {% else %}
     - name: {{ repo.repo_id }}
     - baseurl: {{ repo.baseurl }}
-    - humanname: {{ repo.repo_id }}
+    - humanname: {{ repo.humanname|default(repo.repo_id) }}
     - gpgcheck: 1
     - gpgkey: {{ repo.gpgkey }}
   {% endif %}
