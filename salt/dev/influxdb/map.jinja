@@ -10,7 +10,7 @@
         'service_name': "influxdb",
     },
     'Debian': {
-        'repo_entries': [
+        'names': [
             "deb https://repos.influxdata.com/" ~ os.lower() ~ " " ~ dist_codename ~ " stable"
         ],
         'file': '/etc/apt/sources.list.d/influxdb.list',
