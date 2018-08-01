@@ -9,9 +9,9 @@ include:
 
 
 kubernetes:
-{% if kubernetes.repo_entries is defined or kubernetes.repo_id is defined %}
+{% if kubernetes.names is defined or kubernetes.repo_id is defined %}
   pkgrepo.managed:
-    - names: {{ kubernetes.repo_entries|json_decode_list }}
+    - names: {{ kubernetes.names|json_decode_list }}
     - file: {{ kubernetes.file }}
     - key_url: {{ kubernetes.key_url }}
 {{ retry()| indent(4) }}

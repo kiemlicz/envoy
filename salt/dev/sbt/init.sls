@@ -1,5 +1,6 @@
 {% from "sbt/map.jinja" import sbt with context %}
 {% from "_macros/dev_tool.macros.jinja" import add_environmental_variable,add_to_path with context %}
+{% from "_common/repo.jinja" import repository with context %}
 
 
 include:
@@ -7,25 +8,10 @@ include:
   - users
 
 
+{% set sbt_repo_id = "sbt_repository" %}
+{{ repository(sbt_repo_id, sbt, enabled=(sbt.names is defined or sbt.repo_id is defined),
+     require=[{'sls': "os"}], require_in=[{'pkg': sbt.pkg_name}]) }}
 sbt:
-{% if sbt.repo_entries is defined or sbt.repo_id is defined %}
-  pkgrepo.managed:
-{% if sbt.repo_entries is defined %}
-    - names: {{ sbt.repo_entries|json_decode_list }}
-    - file: {{ sbt.file }}
-    - keyid: {{ sbt.keyid }}
-    - keyserver: {{ sbt.keyserver }}
-{% else %}
-    - name: {{ sbt.repo_id }}
-    - baseurl: {{ sbt.baseurl }}
-    - humanname: {{ sbt.repo_id }}
-    - gpgcheck: 0
-{% endif %}
-    - require:
-      - sls: os
-    - require_in:
-      - pkg: {{ sbt.pkg_name }}
-{% endif %}
   pkg.latest:
     - name: {{ sbt.pkg_name }}
     - refresh: True

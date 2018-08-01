@@ -1,28 +1,24 @@
 {% from "java/map.jinja" import default_java as java with context %}
 {% from "_macros/dev_tool.macros.jinja" import add_environmental_variable,add_to_path with context %}
 {% from "_common/util.jinja" import retry with context %}
+{% from "_common/repo.jinja" import repository with context %}
 
 
 include:
   - os
 
 
+{% set java_repo_id = "java_repository" %}
+{{ repository(java_repo_id, java, enabled=(java.names is defined or java.repo_id is defined),
+   require=[{'sls': "os"}]) }}
 java:
-{% if java.repo_entries is defined %}
-  pkgrepo.managed:
-    - names: {{ java.repo_entries|json_decode_list }}
-    - file: {{ java.file }}
-    - keyid: {{ java.keyid }}
-    - keyserver: {{ java.keyserver }}
-{{ retry()| indent(4) }}
-    - require:
-      - sls: os
-    - require_in:
-      - debconf: {{ java.pkg_name }}
+{% if java.names is defined %}
   debconf.set:
     - name: {{ java.pkg_name }}
     - data:
         'shared/accepted-oracle-license-v1-1': {'type': 'boolean', 'value': True}
+    - require:
+      - pkgrepo_ext: {{ java_repo_id }}
     - require_in:
       - pkg: {{ java.pkg_name }}
 {% endif %}
@@ -33,6 +29,7 @@ java:
 {{ retry(attempts=3)| indent(4) }}
     - require:
       - sls: os
+      - pkgrepo_ext: {{ java_repo_id }}
 {{ add_environmental_variable(java.environ_variable, java.generic_link, java.exports_file) }}
 {{ add_to_path(java.environ_variable, java.path_inside, java.exports_file) }}
 

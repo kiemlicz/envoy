@@ -22,6 +22,6 @@
     },
   }, merge=salt['grains.filter_by']({
     'sid': {
-      'repo_entries': ["deb http://packages.erlang-solutions.com/" + os.lower() +  " stretch contrib"],
+      'names': ["deb http://packages.erlang-solutions.com/" + os.lower() +  " stretch contrib"],
     }
   }, grain='oscodename', merge=salt['pillar.get']('erlang'))) %}

@@ -8,9 +8,8 @@ include:
 
 
 {% set docker_repo_id = "docker_repository" %}
-{{ repository(docker_repo_id, docker, enabled=(docker.repo_entries is defined or docker.repo_id is defined),
+{{ repository(docker_repo_id, docker, enabled=(docker.names is defined or docker.repo_id is defined),
    require=[{'sls': "os"}], require_in=[{'pkg': docker.pkg_name}]) }}
-
 docker:
 {% if is_docker()|to_bool %}
 # this is workaround for docker-in-docker: "Error response from daemon: error creating aufs mount ... invalid argument"

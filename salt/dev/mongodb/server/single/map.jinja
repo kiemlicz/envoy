@@ -20,9 +20,9 @@
 
 {% set mongodb = salt['grains.filter_by']({
     'RedHat': {
-        'repo_id': "mongodb-org-3.6",
-        'baseurl': "https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.6/x86_64/",
-        'gpgkey': "https://www.mongodb.org/static/pgp/server-3.6.asc",
+        'repo_id': "mongodb-org-4.0",
+        'baseurl': "https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.0/x86_64/",
+        'gpgkey': "https://www.mongodb.org/static/pgp/server-4.0.asc",
         'pkg_name': "mongodb-org",
         'port': 27017,
         'user': "mongodb",
@@ -30,12 +30,12 @@
         'config': config,
     },
     'Debian': {
-        'repo_entries': [
-          "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.6 main"
+        'names': [
+          "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/4.0 main"
         ],
         'keyserver': "hkp://keyserver.ubuntu.com:80",
-        'keyid': "2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5",
-        'file': '/etc/apt/sources.list.d/mongodb-org-3.6.list',
+        'keyid': "9DA31620334BD75D9DCB49F368818C72E52529D4",
+        'file': '/etc/apt/sources.list.d/mongodb-org-4.0.list',
         'pkg_name': "mongodb-org",
         'port': 27017,
         'user': "mongodb",
@@ -43,20 +43,14 @@
         'config': config,
     }
 }, merge=salt['grains.filter_by']({
-       'stretch': {
-         'repo_entries': [
-            "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.6 main",
-            "deb http://ftp.debian.org/debian jessie-backports main"
+       'jessie': {
+         'names': [
+            "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/4.0 main"
          ]
        },
-       'zesty': {
-         'repo_entries': [
-             "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse"
-         ],
-       },
        'xenial': {
-          'repo_entries': [
-             "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse"
+          'names': [
+             "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.0 multiverse"
           ],
        }
    }, grain='oscodename', merge=salt['pillar.get']('mongodb'))) %}

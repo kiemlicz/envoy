@@ -22,6 +22,6 @@
     },
 }, merge=salt['grains.filter_by']({
     'sid': {
-        'repo_entries': ["deb [arch=amd64] https://download.docker.com/linux/" ~ os.lower() ~ " stretch stable edge"],
+        'names': ["deb [arch=amd64] https://download.docker.com/linux/" ~ os.lower() ~ " stretch stable edge"],
     }
 }, grain='oscodename', merge=salt['pillar.get']('docker'))) %}

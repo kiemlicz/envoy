@@ -1,30 +1,16 @@
 {% from "mongodb/server/single/map.jinja" import mongodb with context %}
+{% from "_common/repo.jinja" import repository with context %}
 
 
 #mongodb client is installed without adding mongodb repo - thus causes conflicts with official mongo repo
 exclude:
   - id: mongodb_client
 
+
+{% set mongodb_repo_id = "mongodb_repository" %}
+{{ repository(mongodb_repo_id, mongodb, enabled=(mongodb.names is defined or mongodb.repo_id is defined),
+     require=[{'sls': "os"}], require_in=[{'pkg': mongodb.pkg_name}]) }}
 mongodb:
-{% if mongodb.repo_entries is defined or mongodb.repo_id is defined %}
-  pkgrepo.managed:
-{% if mongodb.repo_entries is defined %}
-    - names: {{ mongodb.repo_entries|json_decode_list }}
-    - file: {{ mongodb.file }}
-    - keyid: {{ mongodb.keyid }}
-    - keyserver: {{ mongodb.keyserver }}
-{% else %}
-    - name: {{ mongodb.repo_id }}
-    - baseurl: {{ mongodb.baseurl }}
-    - humanname: {{ mongodb.repo_id }}
-    - gpgcheck: 1
-    - gpgkey: {{ mongodb.gpgkey }}
-{% endif %}
-    - require:
-      - sls: os
-    - require_in:
-      - pkg: {{ mongodb.pkg_name }}
-{% endif %}
   pkg.latest:
     - name: {{ mongodb.pkg_name }}
     - refresh: True

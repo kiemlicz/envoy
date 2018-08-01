@@ -28,7 +28,7 @@
 {% endmacro %}
 
 {% macro repo_pkg_service(state_id, conf_dict, run=True) %}
-{{ repository(state_id ~ "_repository", conf_dict, enabled=(conf_dict.repo_entries is defined or conf_dict.repo_id is defined),
+{{ repository(state_id ~ "_repository", conf_dict, enabled=(conf_dict.names is defined or conf_dict.repo_id is defined),
    require=[{'sls': "os"}], require_in=[{'pkg': conf_dict.pkg_name}]) }}
 {{ state_id }}:
   pkg.latest:
