@@ -20,8 +20,10 @@
     - name: {{ repo.repo_id }}
     - baseurl: {{ repo.baseurl }}
     - humanname: {{ repo.humanname|default(repo.repo_id) }}
-    - gpgcheck: 1
+    - gpgcheck: {{ 1 if repo.gpgkey is defined else 0 }}
+  {% if repo.gpgkey is defined %}
     - gpgkey: {{ repo.gpgkey }}
+  {% endif %}
   {% endif %}
 {{ retry()| indent(4) }}
     - require: {{ require }}
