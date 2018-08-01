@@ -9,9 +9,7 @@ include:
 
 {% set erlang_repo_id = "erlang_repository" %}
 
-{{ repository(erlang_repo_id, erlang, True) }}
-    - require:
-      - sls: os
+{{ repository(erlang_repo_id, erlang, enabled=(erlang.repo_entries is defined or erlang.repo_id is defined), require=[{'sls': "os"}]) }}
 {% if erlang.names is defined %}
 {{ preferences("erlang_preferences", erlang, erlang.apt_preferences_source,erlang.apt_preferences_file) }}
     - require:

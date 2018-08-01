@@ -1,6 +1,8 @@
 {% from "_common/util.jinja" import retry with context %}
 
-{% macro repository(id, repo, refresh=False) %}
+
+{% macro repository(id, repo, enabled=True, require=[], require_in=[], refresh=True) %}
+{% if enabled %}
 {{ id }}:
   pkgrepo_ext.managed:
   {% if repo.names is defined %}
@@ -23,6 +25,9 @@
     - gpgkey: {{ repo.gpgkey }}
   {% endif %}
 {{ retry()| indent(4) }}
+    - require: {{ require }}
+    - require_in: {{ require_in }}
+{% endif %}
 {% endmacro %}
 
 {% macro preferences(id, conf, preferences_source, preferences_file) %}
