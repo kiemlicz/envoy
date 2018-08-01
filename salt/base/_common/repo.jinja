@@ -15,7 +15,6 @@
     - keyserver: {{ repo.keyserver }}
     - clean: True
   {% endif %}
-  # refresh on last configured repo
     - refresh: {{ refresh }}
   {% else %}
     - name: {{ repo.repo_id }}

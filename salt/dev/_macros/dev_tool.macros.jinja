@@ -1,3 +1,5 @@
+{% from "_common/repo.jinja" import repository, preferences with context %}
+
 {% macro add_environmental_variable(var_name, var_value, exports_file) %}
   {% if grains['os'] != 'Windows' %}
   file.append:
@@ -26,25 +28,9 @@
 {% endmacro %}
 
 {% macro repo_pkg_service(state_id, conf_dict, run=True) %}
+{{ repository(state_id ~ "_repository", conf_dict, enabled=(conf_dict.repo_entries is defined or conf_dict.repo_id is defined),
+   require=[{'sls': "os"}], require_in=[{'pkg': conf_dict.pkg_name}]) }}
 {{ state_id }}:
-{% if conf_dict.repo_entries is defined or conf_dict.repo_id is defined %}
-  pkgrepo.managed:
-{% if conf_dict.repo_entries is defined %}
-    - names: {{ conf_dict.repo_entries|json_decode_list }}
-    - file: {{ conf_dict.file }}
-    - key_url: {{ conf_dict.key_url }}
-{% else %}
-    - name: {{ conf_dict.repo_id }}
-    - baseurl: {{ conf_dict.baseurl }}
-    - humanname: {{ conf_dict.repo_id }}
-    - gpgcheck: 1
-    - gpgkey: {{ conf_dict.gpgkey }}
-{% endif %}
-    - require:
-      - sls: os
-    - require_in:
-      - pkg: {{ conf_dict.pkg_name }}
-{% endif %}
   pkg.latest:
     - name: {{ conf_dict.pkg_name }}
     - refresh: True

@@ -3,6 +3,7 @@
 {% from "_common/repo.jinja" import repository, preferences with context %}
 
 {% for repo in repositories.list %}
+# refresh on last configured repo
 {{ repository(repo.file ~ "_" ~ repo.names|first ~ "_repository", repo, refresh=(repositories.list|last == repo)) }}
 {% endfor %}
 
