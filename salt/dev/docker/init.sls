@@ -1,30 +1,17 @@
 {% from "docker/map.jinja" import docker with context %}
 {% from "_common/util.jinja" import is_docker with context %}
+{% from "_common/repo.jinja" import repository with context %}
 
 
 include:
   - os
 
 
+{% set docker_repo_id = "docker_repository" %}
+{{ repository(docker_repo_id, docker, enabled=(docker.repo_entries is defined or docker.repo_id is defined),
+   require=[{'sls': "os"}], require_in=[{'pkg': docker.pkg_name}]) }}
+
 docker:
-{% if docker.repo_entries is defined or docker.repo_id is defined %}
-  pkgrepo.managed:
-{% if docker.repo_entries is defined %}
-    - names: {{ docker.repo_entries|json_decode_list }}
-    - file: {{ docker.file }}
-    - key_url: {{ docker.key_url }}
-{% else %}
-    - name: {{ docker.repo_id }}
-    - baseurl: {{ docker.baseurl }}
-    - humanname: {{ docker.repo_id }}
-    - gpgcheck: 1
-    - gpgkey: {{ docker.gpgkey }}
-{% endif %}
-    - require:
-      - sls: os
-    - require_in:
-      - pkg: {{ docker.pkg_name }}
-{% endif %}
 {% if is_docker()|to_bool %}
 # this is workaround for docker-in-docker: "Error response from daemon: error creating aufs mount ... invalid argument"
   file.managed:
@@ -34,6 +21,8 @@ docker:
     - template: jinja
     - context:
       storage_driver: vfs
+    - require_in:
+      - pkg: {{ docker.pkg_name }}
 {% endif %}
   pkg.latest:
     - name: {{ docker.pkg_name }}
