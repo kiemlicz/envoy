@@ -55,7 +55,7 @@
        },
        'bionic': {
            'names': [
-             "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse"
+             "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.0 multiverse"
            ],
        }
    }, grain='oscodename', merge=salt['pillar.get']('mongodb'))) %}
