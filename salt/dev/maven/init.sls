@@ -9,7 +9,6 @@ maven:
   devtool.managed:
     - name: {{ maven.generic_link }}
     - download_url: {{ maven.download_url }}
-    - source_hash: {{ maven.source_hash }}
     - destination_dir: {{ maven.destination_dir }}
     - user: {{ maven.owner }}
     - group: {{ maven.owner }}
