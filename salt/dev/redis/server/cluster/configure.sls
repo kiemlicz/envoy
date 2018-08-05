@@ -3,6 +3,17 @@
 {% from "_common/ip.jinja" import ip with context %}
 
 
+redis_init_script:
+  file_ext.managed:
+    - name: {{ redis.config.init_location }}
+    - source: {{ redis.config.init }}
+    - mode: {{ redis.config.mode }}
+    - template: jinja
+    - context:
+      redis: {{ redis|json_decode_dict }}
+    - require:
+      - pkg: {{ redis.pkg_name }}
+
 {% set this_host = grains['id'] %}
 {% set all_instances = redis.masters + redis.slaves %}
 {% for bind in all_instances|selectattr("id", "equalto", this_host)|list %}
