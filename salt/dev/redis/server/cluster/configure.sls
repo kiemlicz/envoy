@@ -21,6 +21,19 @@ redis_init_script:
 {% do bind.update({
   "ip": bind.ip|default(ip())
 }) %}
-{{ redis_configure(redis, bind, redis.config.service + '-' + bind.port|string) }}
+
+{% if salt['grains.get']("init") == 'systemd' %}
+
+{% set discriminator = redis.config.service ~ '-' ~ bind.port|string %}
+{% set service = redis.config.service ~ '@' ~ bind.port|string %}
+{{ redis_configure(redis, bind, discriminator, service) }}
+
+{% else %}
+
+{% set discriminator = redis.config.service ~ '-' ~ bind.port|string %}
+{% set service = discriminator %}
+{{ redis_configure(redis, bind, discriminator, service) }}
+
+{% endif%}
 
 {% endfor %}

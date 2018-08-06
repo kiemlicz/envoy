@@ -2,7 +2,8 @@
   'default': {
     'source': 'salt://redis/server/redis.conf',
     'pid_path': '/var/run/redis',
-    'db_path': '/var/lib/',
+    'pid_file': 'redis-server',
+    'db_path': '/var/lib',
     'init': 'salt://redis/server/redis.init',
     'init_location': '/etc/init.d/redis-server',
     'service': 'redis',
