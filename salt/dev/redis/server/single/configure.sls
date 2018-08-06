@@ -17,7 +17,7 @@ redis_config_{{ bind.ip }}_{{ bind.port }}:
     - context:
       bind: {{ bind|json_decode_dict }}
       redis: {{ redis|json_decode_dict }}
-      discriminator: {{ redis.config.service }}
+      discriminator: {{ redis.pkg_name }}  # by default redis-server looks for pidfile with name: redis-server.pid
     - require:
       - pkg: {{ redis.pkg_name }}
   service.running:
