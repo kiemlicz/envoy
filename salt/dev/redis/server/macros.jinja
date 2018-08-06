@@ -1,3 +1,5 @@
+{% from "_common/util.jinja" import is_docker with context %}
+
 {% macro redis_master_id(ip, port) -%}
 {{ salt['cmd.run']('redis-cli -h ' + ip + ' -p ' + port|string + ' CLUSTER MYID') }}
 {%- endmacro %}
@@ -30,7 +32,7 @@ redis_config_{{ bind.ip }}_{{ bind.port }}:
 {% endif %}
   service.running:
     - name: {{ service }}
-{% if salt['grains.get']("virtual_subtype") != "Docker" %}
+{% if not is_docker() %}
     - enable: True
 {% endif %}
     - watch:
