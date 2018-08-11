@@ -1,7 +1,7 @@
 {% set config = salt['grains.filter_by']({
   'default': {
     'source': 'salt://redis/server/redis.conf',
-    'conf_file ': 'redis',
+    'conf_file': 'redis',
     'pid_path': '/var/run/redis',
     'pid_file': 'redis-server',
     'db_path': '/var/lib',
