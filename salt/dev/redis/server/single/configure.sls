@@ -10,14 +10,14 @@
 
 redis_config_{{ bind.ip }}_{{ bind.port }}:
   file_ext.managed:
-    - name: /etc/redis/{{ redis.config.service }}.conf
+    - name: /etc/redis/{{ redis.config.conf_file }}.conf
     - source: {{ redis.config.source }}
     - makedirs: True
     - template: jinja
     - context:
       bind: {{ bind|json_decode_dict }}
       redis: {{ redis|json_decode_dict }}
-      discriminator: {{ redis.config.service }}
+      discriminator: {{ redis.config.conf_file }}
       pid_file: {{ redis.config.pid_file }}
     - require:
       - pkg: {{ redis.pkg_name }}
@@ -27,4 +27,4 @@ redis_config_{{ bind.ip }}_{{ bind.port }}:
     - enable: True
 {% endif %}
     - watch:
-      - file_ext: /etc/redis/{{ redis.config.service }}.conf
+      - file_ext: /etc/redis/{{ redis.config.conf_file }}.conf

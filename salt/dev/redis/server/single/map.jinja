@@ -1,12 +1,13 @@
 {% set config = salt['grains.filter_by']({
   'default': {
     'source': 'salt://redis/server/redis.conf',
+    'conf_file ': 'redis',
     'pid_path': '/var/run/redis',
     'pid_file': 'redis-server',
     'db_path': '/var/lib',
     'init': 'salt://redis/server/redis.init',
     'init_location': '/etc/init.d/redis-server',
-    'service': 'redis',
+    'service': 'redis-server',
     'mode': "755",
   }
 }, merge=salt['grains.filter_by']({
