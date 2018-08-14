@@ -1,6 +1,5 @@
 {% from "redis/server/single/map.jinja" import redis with context %}
 {% from "_common/ip.jinja" import ip with context %}
-{% from "_common/util.jinja" import is_docker with context %}
 
 
 {% set bind = {
@@ -23,8 +22,6 @@ redis_config_{{ bind.ip }}_{{ bind.port }}:
       - pkg: {{ redis.pkg_name }}
   service.running:
     - name: {{ redis.config.service }}
-{% if not is_docker() %}
     - enable: True
-{% endif %}
     - watch:
       - file_ext: /etc/redis/{{ redis.config.conf_file }}.conf
