@@ -72,4 +72,4 @@
     },
 }, merge=salt['pillar.get']('java')) %}
 
-{% set default_java = java8 if version_major == "8" else java10 %}
+{% set default_java = { "8": java8, "10": java10 }[version_major] %}
