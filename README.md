@@ -1,6 +1,6 @@
 [![Build status](https://travis-ci.org/kiemlicz/envoy.svg?branch=master)](https://travis-ci.org/kiemlicz/envoy)
 # Basics 
-[SaltStack](https://saltstack.com/) _states_ for provisioning machines in the most generic way possible.  
+[SaltStack](https://saltstack.com/) _states_ for provisioning machines in the "most generic" way possible.  
 The goal is to create _salt environments_ usable by developers as well as admins during the setup of either server or 'client' machines.
 
 ## Setup  
@@ -12,10 +12,11 @@ Refer to SaltStack documentation of [gitfs](https://docs.saltstack.com/en/latest
 fully automated setup of SaltStack via associated [project ambassador](https://github.com/kiemlicz/ambassador)
 
  2. Master-less provisioning (machine provisions itself):  
- **Steps**
-    1. `curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com`
-    2. `sh /tmp/bootstrap-salt.sh stable 2017.7.1`
-    3. Use `config/masterless.conf` (put under `/etc/salt/minion.d/`) 
+ **Steps**  
+    1. `curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com`, requires (`apt-get install curl python-pip python-pygit2`)
+    2. `sh /tmp/bootstrap-salt.sh stable # 2018.3.2`
+    3. Use `config/common.conf` and `config/gitfs.conf` (put under `/etc/salt/minion.d/`) 
+    4. Optionally run `salt-call --local saltutil.sync_all`
 
 ## Components
 In order to run _states_ against _minions_, _pillar_ must be configured.  
@@ -35,11 +36,10 @@ TODO
 States are divided in environments:
  1. `base` - the main one. Any other environment comprises of at least `base`. Contains core states responsible for operations like
  repositories configuration, core packages installation or user setup
- 2. `gui` - for machines using graphical interface. Uses `base`. Contains states ensuring that e.g. window manager is installed (or your favorite gui apps).
- 3. `dev` - for developer machines. Uses `gui` and `base`. Contains states that install tons of dev apps as well as configures them (like add entry to `PATH` variable)
- 4. `server` - TODO
- 5. `qa` - TODO
- 7. `prod` - TODO
+ 2. `dev` - for developer machines. Uses `base`. Contains states that install tons of dev apps as well as configures them (like add entry to `PATH` variable)
+ 3. `server` - TODO
+ 4. `qa` - TODO
+ 5. `prod` - TODO
 
 # Extensions
 In order to keep _states_ readable and configuration of whole SaltStack as flexible as possible, some extensions were introduced:
