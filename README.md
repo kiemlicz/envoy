@@ -15,8 +15,9 @@ fully automated setup of SaltStack via associated [project ambassador](https://g
  **Steps**  
     1. `curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com`, requires (`apt-get install curl python-pip python-pygit2`)
     2. `sh /tmp/bootstrap-salt.sh stable # 2018.3.2`
-    3. Use `config/common.conf` and `config/gitfs.conf` (put under `/etc/salt/minion.d/`) 
-    4. Optionally run `salt-call --local saltutil.sync_all`
+    3. Use `config/common.conf` and `config/gitfs.conf` (put under `/etc/salt/minion.d/`)
+    4. `systemctl restart salt-minion`  
+    5. Optionally run `salt-call --local saltutil.sync_all`
 
 ## Components
 In order to run _states_ against _minions_, _pillar_ must be configured.  
