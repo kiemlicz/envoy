@@ -142,7 +142,7 @@ def managed(name, home_dir, username,
 
         if not populated_files:
             ret['comment'] = "Templates parsing success - no change"
-            ret['changes'] = None
+            ret['changes'] = {}
         else:
             ret['comment'] = "Templates parsing success"
             ret['changes'].update({'populated files': {'old': '', 'new': populated_files}})

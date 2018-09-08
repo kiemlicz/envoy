@@ -13,6 +13,7 @@
     - branch: {{ user.dotfile.branch }}
     - target: {{ user.dotfile.root }}
     - render: {{ user.dotfile.render|default(False) }}
+    - override: {{ user.dotfile.override|default(False) }}
     - identity: {{ user.sec.ssh|selectattr("name", "equalto", "dotfile")|map(attribute='privkey_location')|first }}
     - saltenv: {{ saltenv }}
     - require:
