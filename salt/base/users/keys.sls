@@ -14,8 +14,8 @@
     - name: {{ key_spec.privkey_location }}
 {% if pillar[ssh_priv] is defined %}
     - contents_pillar: {{ ssh_priv }}
-{% elif key_spec.source is defined %}
-    - source: {{ key_spec.source }}
+{% elif key_spec.privkey_source is defined %}
+    - source: {{ key_spec.privkey_source }}
 {% else %}
     - contents: {{ key_spec.privkey | yaml_encode }}
 {% endif %}
@@ -29,6 +29,8 @@
     - name: {{ key_spec.pubkey_location }}
 {% if pillar[ssh_pub] is defined %}
     - contents_pillar: {{ ssh_pub }}
+{% elif key_spec.pubkey_source is defined %}
+    - source: {{ key_spec.pubkey_source }}
 {% else %}
     - contents: {{ key_spec.pubkey | yaml_encode }}
 {% endif %}
