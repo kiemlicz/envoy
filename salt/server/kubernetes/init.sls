@@ -5,6 +5,7 @@
 include:
   - os
   - kvm
+  - kubectl
   - minikube
 
 
