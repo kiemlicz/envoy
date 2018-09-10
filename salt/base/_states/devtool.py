@@ -34,8 +34,13 @@ def managed(name, download_url, destination_dir, user, group, enforce_toplevel=T
         archive_contents = __salt__['archive.list'](download_url)
     except CommandExecutionError as e:
         location = __salt__['cp.is_cached'](download_url)
-        log.error("unable to list archive ({}) contents: {}, clearing cache: {}".format(download_url, str(e), location))
-        __salt__['file.remove'](location)
+        if location:
+            location_parent = __salt__['file.dirname'](location)
+            log.error("unable to list archive ({}) clearing cache: {}".format(download_url, location_parent))
+            result = __salt__['file.remove'](location_parent)
+            log.error("Cache clear result: {}".format(result))
+        else:
+            log.error("Unable to clear cache, bogus cached file: {}".format(location))
         raise e
     extract_dir = os.path.commonprefix(archive_contents)  # relative path
     if not extract_dir and not enforce_toplevel:
