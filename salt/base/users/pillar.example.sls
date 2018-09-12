@@ -22,6 +22,12 @@ users:
     known_hosts:
       - bitbucket.org
     sec:
+      ssh_authorized_keys:
+        - names:
+          - "YfqjhSJK47ksdjhf7sdfa09sdV"
+          - "YfqajhSsdsaJK47ksdjhf7sdfa09sdV"
+          enc: "ssh-rsa"
+        - source: salt://keys/user_key.pub
       ssh:
         - name: home
           privkey_location: {{ home_dir }}/.ssh/id_rsa

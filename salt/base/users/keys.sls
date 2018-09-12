@@ -64,5 +64,28 @@
 
 {% endfor %}
 
+{% if user.sec.ssh_authorized_keys is defined  %}
+{% for key_spec in user.sec.ssh_authorized_keys %}
+
+{{ username }}_setup_ssh_authorized_keys:
+  ssh_auth.present:
+{% if key_spec.source is defined %}
+    - source: {{ key_spec.source }}
+{% elif key_spec.names is defined %}
+    - names: {{ key_spec.names }}
+{% else %}
+    - name: {{ key_spec.name }}
+{% endif %}
+{% if key_spec.enc is defined %}
+    - enc: {{ key_spec.enc }}
+{% endif %}
+{% if key_spec.config is defined %}
+    - config: {{ key_spec.config }}
+{% endif %}
+    - user: {{ username }}
+
+{% endfor %}
+{% endif %}
+
 
 {% endfor %}
