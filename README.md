@@ -1,6 +1,6 @@
 [![Build status](https://travis-ci.org/kiemlicz/envoy.svg?branch=master)](https://travis-ci.org/kiemlicz/envoy)
 # Basics 
-[SaltStack](https://saltstack.com/) _states_ for provisioning machines in the "most generic" way possible.  
+[SaltStack](https://saltstack.com/) _states_ for provisioning machines in generic yet sensible way.  
 The goal is to create _salt environments_ usable by developers as well as admins during the setup of either server or 'client' machines.
 
 ## Setup  
