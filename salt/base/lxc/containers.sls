@@ -8,3 +8,9 @@ lxc_container_{{ name }}:
     - running: {{ container.running }}
     - profile: {{ container.profile }}
     - network_profile: {{ container.network_profile }}
+{% endfor %}
+
+lxc-containers-notification:
+  test.show_notification:
+  - name: LXC containers setup completed
+  - text: "LXC containers setup completed"
