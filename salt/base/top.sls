@@ -41,6 +41,7 @@ def run():
       "rebar",
       "intellij",
       "robomongo",
+      "gatling",
       "grafana",
       "virtualbox",
       "projects",
