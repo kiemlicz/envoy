@@ -14,6 +14,8 @@
     - keyid: {{ repo.keyid }}
     - keyserver: {{ repo.keyserver }}
     - clean: True
+  {% elif repo.key_text is defined %}
+    - key_text: {{ repo.key_text|yaml_encode }}
   {% endif %}
     - refresh: {{ refresh }}
   {% else %}
