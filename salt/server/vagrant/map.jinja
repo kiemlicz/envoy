@@ -1,0 +1,12 @@
+{% set vagrant = salt['grains.filter_by']({
+  'RedHat': {
+    'sources': "",
+  },
+  'Debian': {
+    'sources': 'vagrant: https://releases.hashicorp.com/vagrant/2.1.5/vagrant_2.1.5_x86_64.deb',
+  },
+}, merge=salt['grains.filter_by']({
+  'sid': {
+
+  }
+}, grain='oscodename', merge=salt['pillar.get']('vagrant'))) %}
