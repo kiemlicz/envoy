@@ -1,3 +1,40 @@
+#!py
+
+def run():
+  config = {}
+
+  for username, user in __pillar__['pillar.get']("users", {}).items()
+    if 'sec' in user and 'ssh' in user['sec']:
+      key_spec = user['sec']['ssh']
+      pillar_key_content_priv = '{}_sec_ssh_{}_privkey'.format(username, key_spec['name'])
+      pillar_key_content_pub = '{}_sec_ssh_{}_pubkey'.format(username, key_spec['name'])
+
+      def state(location):
+        return {
+          'file_ext.managed': [
+            { 'name': key_spec[location] }
+            { 'mode': 600 },
+            { 'makedirs': True },
+            { 'require': [
+              { 'user': username }
+            ]}
+          ]
+        }
+# todo refactor key generation/copy logic
+      if pillar_key_content_priv in __pillar__ and pillar_key_content_pub in __pillar__:
+        config['{}_copy_{}_ssh_priv'] = state('privkey_location')['file_ext.managed'].append({'contents_pillar': pillar_key_content_priv})
+        config['{}_copy_{}_ssh_pub'] = state('pubkey_location')['file_ext.managed'].append({'contents_pillar': pillar_key_content_pub})
+      elif 'privkey' in key_spec and 'pubkey' in key_spec:
+        config['{}_copy_{}_ssh_priv'] = state('privkey_location')['file_ext.managed'].append({'contents': key_spec['privkey']})
+        config['{}_copy_{}_ssh_pub'] = state('pubkey_location')['file_ext.managed'].append({'contents': key_spec['pubkey']})
+      elif 'privkey_source' in key_spec and 'pubkey_source' in key_spec:
+        config['{}_copy_{}_ssh_priv'] = state('privkey_location')['file_ext.managed'].append({'source': key_spec['privkey_source']})
+        config['{}_copy_{}_ssh_pub'] = state('pubkey_location')['file_ext.managed'].append({'source': key_spec['pubkey_source']})
+      el:
+
+  return config
+
+
 {% for username, user in salt['pillar.get']("users", {}).items() if user.sec is defined %}
 
 {# either generates or copies key under given locations #}
@@ -6,6 +43,7 @@
 
 {% set ssh_priv = '{}_sec_ssh_{}_privkey'.format(username, key_spec.name) %}
 {% set ssh_pub = '{}_sec_ssh_{}_pubkey'.format(username, key_spec.name) %}
+
 
 {% if (pillar[ssh_priv] is defined and pillar[ssh_pub] is defined) or
  (key_spec.privkey is defined and key_spec.pubkey is defined) %}
