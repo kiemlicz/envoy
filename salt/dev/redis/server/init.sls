@@ -1,4 +1,9 @@
 include:
   - os
   - redis.server.install
-  - redis.server.configure
+{% if redis.masters|length == 1 %}
+  - redis.server.configure_single
+{% elif redis.masters|length + redis.slaves|length > 1 %}
+  - redis.server.configure_cluster
+{% endif %}
+
