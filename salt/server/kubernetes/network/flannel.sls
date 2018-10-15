@@ -7,5 +7,7 @@ kubernetes_network:
     - value: 1
   cmd.run:
     - name: kubectl apply -f {{ kubernetes.network.source }}
+    - env:
+        - KUBECONFIG: {{ kubernetes.config.locations|join(':') }}
     - require:
-        - sysctl: flannel
+        - sysctl: kubernetes_network

@@ -11,19 +11,33 @@ kubeadm:
     - require:
       - pkgrepo_ext: kube_repository
       - service: docker
+{% if kubernetes.master.reset %}
+kubeadm_reset:
+  cmd.run:
+    - name: "echo y | kubeadm reset"
+    - require:
+        - pkg: kubeadm
+    - require_in:
+        - cmd: kubeadm_init
+{% endif %}
+kubeadm_init:
   cmd.run:
     - name: kubeadm init --pod-network-cidr {{ kubernetes_network.network.cidr }}
     - require:
       - pkg: kubeadm
     - require_in:
       - sls: kubernetes.network
+    - unless: test -f /etc/kubernetes/admin.conf
 {% if not kubernetes.master.isolate %}
 allow_schedule_on_master:
-  cmd.run:
-    - name: KUBECONFIG={{ kubernetes.master.kubeconfig }} kubectl taint nodes --all node-role.kubernetes.io/master-
+  cmd.script:
+    - name: untaint.sh {{ grains['id'] }}
+    - source: salt://kubernetes/untaint.sh
+    - env:
+        - KUBECONFIG: {{ kubernetes.config.locations|join(':') }}
     - require:
-        - cmd: kubeadm
+        - cmd: kubeadm_init
 {% endif %}
 
-#fixme the cmd.run must be actually a stateful command
+#todo the cmd.run should be wrapped with script and return stateful data
 #todo upload kubernetes config or already have the template on master

@@ -1,9 +1,3 @@
-{% set defaults = salt['grains.filter_by']({
-  'default': {
-
-  },
-}) %}
-
 {% set kubernetes = salt['grains.filter_by']({
       'RedHat': {
           'baseurl': "https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64",
@@ -18,9 +12,12 @@
           'file': '/etc/apt/sources.list.d/kubernetes.list',
           'key_url': "https://packages.cloud.google.com/apt/doc/apt-key.gpg",
           'pkgs': ["kubelet", "kubeadm", "kubectl"],
+          'config': {
+            'locations': ["/etc/kubernetes/admin.conf"]
+          }
       },
       'Windows': {
 
       },
-}, merge=salt['pillar.get']('kubernetes'), base=defaults) %}
+}, merge=salt['pillar.get']('kubernetes')) %}
 
