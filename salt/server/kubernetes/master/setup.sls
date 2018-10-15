@@ -37,7 +37,24 @@ allow_schedule_on_master:
         - KUBECONFIG: {{ kubernetes.config.locations|join(':') }}
     - require:
         - cmd: kubeadm_init
+# todo else -> taint the node
+{% endif %}
+
+{% if kubernetes.master.upload_config %}
+kubernetes_upload_config:
+  module.run:
+    - name: cp.push
+    - path: {{ kubernetes.config.locations|first }}
 {% endif %}
 
 #todo the cmd.run should be wrapped with script and return stateful data
+
+
 #todo upload kubernetes config or already have the template on master
+
+# after master has the config
+## kubectl apply
+# after gather docker events
+## cluster orch
+### group events and fire separately when need to : cluster redis, cluster mongo etc
+
