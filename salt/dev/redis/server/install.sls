@@ -1,4 +1,4 @@
-{% from "redis/server/single/map.jinja" import redis with context %}
+{% from "redis/server/map.jinja" import redis with context %}
 
 
 redis:
