@@ -2,7 +2,7 @@
   'default': {
     'source': 'salt://redis/server/redis.conf',
     'conf_file': '/etc/redis/redis.conf',
-    'pid': '/var/run/redis/redis-server.pid'
+    'pid': '/var/run/redis/redis-server.pid',
     'dir': '/var/lib/redis',
     'init': 'salt://redis/server/redis.init',
     'init_location': '/etc/init.d/redis-server',
@@ -40,13 +40,7 @@
                  'port': 6380,
                }],
   },
-}, merge=salt['grains.filter_by']({
-  'systemd': {
-    'config': {
-      'init_location': '/lib/systemd/system/redis@.service',
-    }
-  }
-}, grain='init')) %}
+}) %}
 
 {% set redis = salt['grains.filter_by']({
   'RedHat': {

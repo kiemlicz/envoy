@@ -14,7 +14,7 @@ save_minion_id:
 redis_ready_to_orchestrate:
   salt.runner:
     - name: event.send
-    - tag: 'salt/orchestrate/redis/ready'
+    - tag: 'salt/orchestrate/redis/init'
     - data:
         todo: "iterate and fetch instances from sdb"
     - require:
