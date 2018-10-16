@@ -1,7 +1,7 @@
-{% from "redis/server/cluster/map.jinja" import redis with context %}
+{% from "redis/server/map.jinja" import redis with context %}
 {% from "_common/ip.jinja" import ip with context %}
 
-
+#accept extra args from orchestrator, just pass pillar - it should just work
 {% set this_host = grains['id'] %}
 {% set all_instances = redis.masters + redis.slaves %}
 

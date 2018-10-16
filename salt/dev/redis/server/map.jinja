@@ -8,6 +8,7 @@
     'init_location': '/etc/init.d/redis-server',
     'service': 'redis-server',
     'mode': "755",
+    'total_slots': 16384,
   }
 }, merge=salt['grains.filter_by']({
     'systemd': {
@@ -18,15 +19,46 @@
     }
 }, grain='init')) %}
 
+{# host_id == hostname by default #}
+{% set host_id = salt['grains.get']("id") %}
+
+{% set instances = salt['grains.filter_by']({
+  'Debian': {
+    'masters': [{
+                  'id': host_id,
+                  'ip': '127.0.0.1',
+                  'port': 6379,
+                }],
+    'slaves': [{
+                 'id': host_id,
+                 'of_master': {
+                   'id': host_id,
+                   'ip': '127.0.0.1',
+                   'port': 6379
+                 },
+                 'ip': '127.0.0.1',
+                 'port': 6380,
+               }],
+  },
+}, merge=salt['grains.filter_by']({
+  'systemd': {
+    'config': {
+      'init_location': '/lib/systemd/system/redis@.service',
+    }
+  }
+}, grain='init')) %}
+
 {% set redis = salt['grains.filter_by']({
   'RedHat': {
     'pkg_name': 'redis-server',
     'port': 6379,
     'config': config,
+    'instances': instances,
   },
   'Debian': {
     'pkg_name': 'redis-server',
     'port': 6379,
     'config': config,
+    'instances': instances,
   },
 }, merge=salt['pillar.get']('redis')) %}

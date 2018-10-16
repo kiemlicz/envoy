@@ -1,9 +1,8 @@
 include:
   - os
   - redis.server.install
-{% if redis.masters|length == 1 %}
+{% if pillar.get("redis:setup_type", "single") == "single" %}
   - redis.server.configure_single
-{% elif redis.masters|length + redis.slaves|length > 1 %}
+{% else %}
   - redis.server.configure_cluster
 {% endif %}
-

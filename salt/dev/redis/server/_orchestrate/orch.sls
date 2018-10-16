@@ -1,12 +1,12 @@
 #!jinja|stringpy
 
-{% from "redis/server/cluster/map.jinja" import redis with context %}
+{% from "redis/server/map.jinja" import redis with context %}
 
 
 def run():
   redis = {{ redis|json }}
-  masters = [e["id"] for e in redis["masters"]]
-  slaves = [e["id"] for e in redis["slaves"]]
+  masters = [e["id"] for e in redis["instances"]["masters"]]
+  slaves = [e["id"] for e in redis["instances"]["slaves"]]
   redis_minions = list(set(masters + slaves))
 
   slots = {}
