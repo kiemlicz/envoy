@@ -10,15 +10,6 @@ save_minion_id:
     - uri: sdb://mastercache/docker_events_{{ pillar['data']['data']['Actor']['Attributes']['io.kubernetes.pod.name'] }}_minion_id
     - value: {{ pillar['data']['id'] }}
 
-
-redis_ready_to_orchestrate_pre:
-  salt.runner:
-  - name: event.send
-  - tag: 'salt/orchestrate/redis/pre'
-  - data:
-      lhs: {{ pillar['data']['data']['Actor']['Attributes']['io.kubernetes.pod.name'].split('-')|last }}
-      rhs: {{ pillar['redis']['size'] }}
-
 {% if pillar['data']['data']['Actor']['Attributes']['io.kubernetes.pod.name'].split('-')|last|int == pillar['redis']['size']|int %}
 redis_ready_to_orchestrate:
   salt.runner:
