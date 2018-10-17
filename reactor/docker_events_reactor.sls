@@ -1,4 +1,7 @@
-{% if data['data']['status'] == 'start' and data['data']['Actor']['Attributes']['io.kubernetes.pod.name'] is match('redis-cluster-[\d+]') %}
+{% if data['data']['status'] == 'start' and
+  data['data']['Actor']['Attributes']['io.kubernetes.pod.name'] is match('redis-cluster-[\d+]') and
+  data['data']['Actor']['Attributes']['io.kubernetes.docker.type'] == "container"
+  %}
 
 wait_for_redis:
   runner.state.orchestrate:
@@ -10,4 +13,6 @@ wait_for_redis:
           data: {{ data|json_encode_dict }}
           redis:
             size: 3
+          kube:
+            delim: "-"
 {% endif %}

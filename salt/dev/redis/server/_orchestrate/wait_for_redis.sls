@@ -1,23 +1,22 @@
-save_container_id:
-  salt.runner:
-    - name: sdb.set
-    - uri: sdb://mastercache/docker_events_{{ pillar['data']['data']['Actor']['Attributes']['io.kubernetes.pod.name'] }}_container_id
-    - value: {{ pillar['data']['data']['Actor']['ID'] }}
+add_to_mine:
+  salt.function:
+  - name: mine.send
+  - tgt: {{ pillar['data']['id'] }}
+  - arg:
+    - {{ pillar['data']['data']['Actor']['Attributes']['io.kubernetes.pod.name'] }}
+  - kwarg:
+      mine_function: docker.inspect
+      name: {{ pillar['data']['data']['Actor']['ID'] }}
 
-save_minion_id:
-  salt.runner:
-    - name: sdb.set
-    - uri: sdb://mastercache/docker_events_{{ pillar['data']['data']['Actor']['Attributes']['io.kubernetes.pod.name'] }}_minion_id
-    - value: {{ pillar['data']['id'] }}
-
-{% if pillar['data']['data']['Actor']['Attributes']['io.kubernetes.pod.name'].split('-')|last|int == pillar['redis']['size']|int %}
+{% set replicas = pillar['data']['data']['Actor']['Attributes']['io.kubernetes.pod.name'].split(pillar['kube']['delim'])|last|int %}
+{% if replicas == pillar['redis']['size']|int %}
 redis_ready_to_orchestrate:
   salt.runner:
     - name: event.send
     - tag: 'salt/orchestrate/redis/init'
     - data:
-        todo: "iterate and fetch instances from sdb"
+        app: {{ pillar['data']['data']['Actor']['Attributes']['io.kubernetes.pod.name'].split(pillar['kube']['delim'])[:-1]|join(pillar['kube']['delim']) }}
+        replicas: {{ replicas }}
     - require:
-        - salt: save_minion_id
-        - salt: save_container_id
+        - salt: add_to_mine
 {% endif %}
