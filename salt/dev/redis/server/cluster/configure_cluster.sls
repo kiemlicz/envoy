@@ -1,4 +1,4 @@
-{% from "redis/server/cluster/map.jinja" import redis with context %}
+{% from "redis/server/map.jinja" import redis with context %}
 {% from "redis/server/macros.jinja" import redis_configure with context %}
 {% from "_common/ip.jinja" import ip with context %}
 

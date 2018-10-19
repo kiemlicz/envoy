@@ -1,4 +1,4 @@
-{% from "redis/server/cluster/map.jinja" import redis with context %}
+{% from "redis/server/map.jinja" import redis with context %}
 
 
 {% set this_host = grains['id'] %}

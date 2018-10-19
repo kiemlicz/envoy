@@ -1,7 +1,11 @@
 {% from "_common/util.jinja" import is_docker with context %}
 
-{% macro redis_master_id(ip, port) -%}
+{% macro redis_master_id(ip, port, container_id=None) -%}
+{% if container_id is defined -%}
+{{ salt['docker.run'](container_id, 'redis-cli -h ' + ip + ' -p ' + port|string + ' CLUSTER MYID') }}
+{% else -%}
 {{ salt['cmd.run']('redis-cli -h ' + ip + ' -p ' + port|string + ' CLUSTER MYID') }}
+{% endif -%}
 {%- endmacro %}
 
 {% macro redis_configure(redis, bind, discriminator, service) -%}
