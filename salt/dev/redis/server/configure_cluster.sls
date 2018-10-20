@@ -24,15 +24,15 @@ redis_init_script:
 
 {% if salt['grains.get']("init") == 'systemd' %}
 
-{% set discriminator = redis.config.service ~ '-' ~ bind.port|string %}
+{% set instance_number = bind.port|string %}
 {% set service = redis.config.service ~ '@' ~ bind.port|string %}
-{{ redis_configure(redis, bind, discriminator, service) }}
+{{ redis_configure(redis, bind, instance_number, service) }}
 
 {% else %}
 
-{% set discriminator = redis.config.service ~ '-' ~ bind.port|string %}
-{% set service = discriminator %}
-{{ redis_configure(redis, bind, discriminator, service) }}
+{% set instance_number = bind.port|string %}
+{% set service = redis.config.service ~ '-' ~ instance_number %}
+{{ redis_configure(redis, bind, instance_number, service) }}
 
 {% endif%}
 

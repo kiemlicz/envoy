@@ -3,18 +3,17 @@
     'source': 'salt://redis/server/redis.conf',
     'conf_file': '/etc/redis/redis.conf',
     'pid': '/var/run/redis/redis-server.pid',
-    'dir': '/var/lib/redis',
+    'dir': "/var/lib/redis",
     'init': 'salt://redis/server/redis.init',
-    'init_location': '/etc/init.d/redis-server',
-    'service': 'redis-server',
+    'init_location': "/etc/init.d/redis-server",
+    'service': "redis-server",
     'mode': "755",
-    'total_slots': 16384,
   }
 }, merge=salt['grains.filter_by']({
     'systemd': {
-      'init': 'salt://redis/server/redis.service',
-      'init_location': '/lib/systemd/system/redis.service',
-      'service': 'redis',
+      'init': "salt://redis/server/redis@.service",
+      'init_location': "/lib/systemd/system/redis@.service",
+      'service': "redis",
       'mode': "644",
     }
 }, grain='init')) %}
