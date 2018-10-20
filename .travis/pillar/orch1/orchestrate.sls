@@ -5,7 +5,6 @@ minions:
 
 redis:
   setup_type: cluster
-  install_type: repo
   masters:
     - id: minion1.local
       port: 6379
