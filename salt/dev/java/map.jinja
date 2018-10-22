@@ -1,4 +1,4 @@
-{% set version_major = salt['pillar.get']("java:version_major", default="10") %}
+{% set version_major = salt['pillar.get']("java:version_major", default="11") %}
 
 {% set java8 = salt['grains.filter_by']({
     'RedHat': {
@@ -47,7 +47,7 @@
    },
 }, grain='oscodename', merge=salt['pillar.get']('java'))) %}
 
-{% set java10 = salt['grains.filter_by']({
+{% set java11 = salt['grains.filter_by']({
     'RedHat': {
         'pkg_name': "java-" ~ version_major ~ "-openjdk",
         'ext_pkgs': [],
@@ -72,4 +72,4 @@
     },
 }, merge=salt['pillar.get']('java')) %}
 
-{% set default_java = { "8": java8, "10": java10 }[version_major] %}
+{% set default_java = { "8": java8, "11": java11 }[version_major] %}
