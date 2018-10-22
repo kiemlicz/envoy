@@ -29,8 +29,8 @@
   redis_master_{{ master_ip }}_{{ master.port }}_cluster_meet:
     cmd.run:
       - names:
-  {% for other in redis.masters + redis.slaves %}
-    {% set other_ip = other.ip|default(ip(id=other.id)) %}
+    {% for other in redis.masters + redis.slaves %}
+      {% set other_ip = other.ip|default(ip(id=other.id)) %}
         - redis-cli -h {{ master_ip }} -p {{ master.port }} CLUSTER MEET {{ other_ip }} {{ other.port }}
     {% endfor %}
 {% endif %}

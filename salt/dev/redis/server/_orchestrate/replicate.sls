@@ -8,7 +8,6 @@
 {% if redis.docker is defined %}
   {% for pod_name in grains["redis"]["pods"] if pod_name in salt['pillar.get']("redis:docker:slaves", [])|map(attribute='pod')|list %}
     {% set master_info = salt['pillar.get']("redis:docker:slaves", [])|selectattr("pod", "equalto", pod_name)|first %}
-    {% do salt.log.error("master info = " ~ master_info) %}
     {% set master_pod_name = master_info["master_pod"] %}
     {% set master_pod_details = salt['mine.get'](tgt="redis:pods:*", fun=master_pod_name, tgt_type="grain").values()[0] %}
     {% set pod_details = salt['mine.get'](tgt=this_host, fun=pod_name) %}
