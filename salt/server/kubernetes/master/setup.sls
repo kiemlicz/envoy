@@ -1,16 +1,7 @@
 {% from "kubernetes/master/map.jinja" import kubernetes with context %}
 {% from "kubernetes/network/map.jinja" import kubernetes as kubernetes_network with context %}
-{% from "_common/repo.jinja" import repository, preferences with context %}
 
 
-{{ repository("kube_repository", kubernetes) }}
-kubeadm:
-  pkg.latest:
-    - pkgs: {{ kubernetes.pkgs }}
-    - refresh: True
-    - require:
-      - pkgrepo_ext: kube_repository
-      - service: docker
 {% if kubernetes.master.reset %}
 kubeadm_reset:
   cmd.run:
@@ -26,7 +17,7 @@ kubeadm_init:
     - require:
       - pkg: kubeadm
     - require_in:
-      - sls: kubernetes.network
+      - sls: kubernetes.network.{{ kubernetes_network.network.provider }}
     - unless: test -f /etc/kubernetes/admin.conf
 {% if not kubernetes.master.isolate %}
 allow_schedule_on_master:
@@ -45,6 +36,8 @@ kubernetes_upload_config:
   module.run:
     - name: cp.push
     - path: {{ kubernetes.config.locations|first }}
+    - require:
+      - cmd: kubeadm_init
 {% endif %}
 
 #todo the cmd.run should be wrapped with script and return stateful data

@@ -1,0 +1,3 @@
+include:
+  - docker
+  - kubernetes.kubeadm
