@@ -11,7 +11,7 @@ def run():
           { 'name': swap },
         ]},
         { 'require_in': [
-          { 'cmd': "kubeadm_init" }
+          { 'pkg': "kubeadm" }
           ]}
       ]
     }

@@ -2,6 +2,5 @@
 include:
   - docker
   - kubernetes.kubeadm
-  - kubernetes.master.requisites
   - kubernetes.master.setup
   - kubernetes.network

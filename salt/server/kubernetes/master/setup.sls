@@ -32,6 +32,7 @@ allow_schedule_on_master:
 {% endif %}
 
 {% if kubernetes.master.upload_config %}
+#todo somehow this file is unavailable on master
 kubernetes_upload_config:
   module.run:
     - name: cp.push
@@ -39,6 +40,8 @@ kubernetes_upload_config:
     - require:
       - cmd: kubeadm_init
 {% endif %}
+
+#todo mine token, hash, port and address (ip() macro will have troubles as there are two: 10.244.0.0 and 0.1 addresses)
 
 #todo the cmd.run should be wrapped with script and return stateful data
 
