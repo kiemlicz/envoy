@@ -4,7 +4,6 @@ FROM fedora:27
 ARG SALT_VER="2018.3.0"
 
 COPY salt /srv/salt
-COPY extensions /srv/extensions
 COPY .travis/pillar /srv/pillar
 COPY .travis/salt/top.sls /srv/salt/base/
 COPY .travis/envoy_test.py /opt/
