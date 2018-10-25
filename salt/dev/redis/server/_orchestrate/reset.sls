@@ -3,7 +3,7 @@
 
 
 {% set this_host = grains['id'] %}
-
+#fixme
 {% if redis.docker is defined %}
   {% for pod_name in grains["redis"]["pods"] %}
     {% set pod_details = salt['mine.get'](tgt=this_host, fun=pod_name) %}

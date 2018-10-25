@@ -43,3 +43,14 @@ redis_config_{{ bind.ip }}_{{ bind.port }}:
     - watch:
       - file_ext: /etc/redis/redis-server-{{ instance_number }}.conf
 {%- endmacro %}
+
+{% macro minion_pods(pod_function_name, minion=grains['id']) -%}
+salt['mine.get'](tgt=minion, fun=pod_function_name)[minion]
+{%- endmacro %}
+
+
+{% macro pod_ip(mine_data, minion=grains['id']) -%}
+  {% do salt.log.error("dane = {}".format(mine_data)) %}
+  {% set container_envs = mine_data[minion]['Config']['Env'] %}
+  {{  (salt.filters.find(container_envs, "POD_IP=\d+\.\d+\.\d+\.\d+")|first).split("=")[1] }}
+{%- endmacro %}
