@@ -5,10 +5,10 @@ import posixpath
 
 import salt.config
 import salt.utils.locales
+import salt.version
 from salt.exceptions import CommandExecutionError
 from salt.ext import six
 from salt.ext.six.moves.urllib.parse import urlparse
-import salt.version
 
 try:
     from google.auth.transport.urllib3 import AuthorizedHttp
@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 
 def __virtual__():
     salt_version = salt.version.__saltstack_version__.string
-    supported = ["2018.3.0", "2018.3.1", "2018.3.2"]
+    supported = ["2018.3.0", "2018.3.1", "2018.3.2", "2018.3.3"]
     if salt_version not in supported:
         return False, "Cannot load file.ext, install: salt version {} (detected: {})".format(supported, salt_version)
     return True if HAS_GOOGLE_AUTH else (False, "Cannot load file.ext, install: google-auth, pyasn1-modules and google-auth-oauthlib libraries")
@@ -79,12 +79,14 @@ def managed(name,
     '''
 
     def delegate_to_file_managed(source, contents):
-        return __states__['file.managed'](name, source, source_hash, source_hash_name, keep_source, user, group, mode, attrs, template,
+        return __states__['file.managed'](name, source, source_hash, source_hash_name, keep_source, user, group, mode,
+                                          attrs, template,
                                           makedirs, dir_mode, context, replace, defaults, backup, show_changes, create,
                                           contents, tmp_ext, contents_pillar, contents_grains, contents_newline,
                                           contents_delimiter, encoding, encoding_errors, allow_empty, follow_symlinks,
                                           check_cmd, skip_verify,
-                                          win_owner, win_perms, win_deny_perms, win_inheritance, win_perms_reset, **kwargs)
+                                          win_owner, win_perms, win_deny_perms, win_inheritance, win_perms_reset,
+                                          **kwargs)
 
     if not source:
         return delegate_to_file_managed(source, contents)
@@ -122,6 +124,10 @@ def recurse(name,
             maxdepth=None,
             keep_symlinks=False,
             force_symlinks=False,
+            win_owner=None,
+            win_perms=None,
+            win_deny_perms=None,
+            win_inheritance=True,
             **kwargs):
     '''
     State that extends file.recurse with new source scheme (`gdrive://`)
@@ -136,9 +142,11 @@ def recurse(name,
     }
 
     def delegate_to_file_recurse():
-        return __states__['file.recurse'](name, source, keep_source, clean, require, user, group, dir_mode, file_mode, sym_mode,
+        return __states__['file.recurse'](name, source, keep_source, clean, require, user, group, dir_mode, file_mode,
+                                          sym_mode,
                                           template, context, replace, defaults, include_empty, backup, include_pat,
-                                          exclude_pat, maxdepth, keep_symlinks, force_symlinks, **kwargs)
+                                          exclude_pat, maxdepth, keep_symlinks, force_symlinks, win_owner, win_perms,
+                                          win_deny_perms, win_inheritance, **kwargs)
 
     def delegate_to_file_managed(path, contents, replace):
         return __states__['file.managed'](path,
