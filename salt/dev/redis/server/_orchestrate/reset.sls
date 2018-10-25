@@ -3,19 +3,20 @@
 
 
 {% set this_host = grains['id'] %}
-#fixme
+
 {% if redis.docker is defined %}
-  {% for pod_name in grains["redis"]["pods"] %}
-    {% set pod_details = salt['mine.get'](tgt=this_host, fun=pod_name) %}
-    {% set container_id = pod_details[this_host]["Id"] %}
-    {% set container_envs = pod_details[this_host]["Config"]["Env"] %}
-    {% set instance_ip = (salt.filters.find(container_envs, "POD_IP=\d+\.\d+\.\d+\.\d+")|first).split("=")[1] %}
-    {% set instance_port = redis.port %}
-    redis_{{ container_id }}_cluster_reset:
-      module.run:
-        - docker.run:
-          - name: {{ container_id }}
-          - cmd: redis-cli -h {{ instance_ip }} -p {{ instance_port }} CLUSTER RESET
+  {% for minion, pods in salt['mine.get'](tgt=this_host, fun="redis_pods").items() %}
+    {%- for pod_id, details in pods.items() %}
+      {%- set pod_details = salt.kubehelp.pod_info(details['Labels']['io.kubernetes.pod.name'], minion)  %}
+      {%- set instance_ip = pod_details['ips']|first %}
+      {%- set instance_id = pod_details['id'] %}
+      {%- set instance_port = redis.port %}
+      redis_{{ instance_id }}_cluster_reset:
+        module.run:
+          - docker.run:
+            - name: {{ instance_id }}
+            - cmd: redis-cli -h {{ instance_ip }} -p {{ instance_port }} CLUSTER RESET
+    {% endfor %}
   {% endfor %}
 {% else %}
   {% set all_instances = redis.masters + redis.slaves %}
