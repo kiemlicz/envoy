@@ -1,5 +1,4 @@
 {% from "redis/server/map.jinja" import redis with context %}
-{% from "redis/server/macros.jinja" import pod_ip with context %}
 {% from "_common/ip.jinja" import ip with context %}
 
 
@@ -8,16 +7,14 @@
 {% if redis.docker is defined %}
   {% set initiator_pod = salt['mine.get'](tgt=this_host, fun="redis_pods")[this_host].values()|first %}
   {% set initiator = initiator_pod['Labels']['io.kubernetes.pod.name'] %}
-  {% set initiator_details = salt['mine.get'](tgt=this_host, fun=initiator) %}
-  {% set initiator_envs = initiator_details[this_host]['Config']['Env'] %}
-  {% set initiator_id = initiator_details[this_host]["Id"] %}
-  {#{% set initiator_ip = pod_ip(initiator_details, this_host) %}#}
-  {% set initiator_ip =  (salt.filters.find(initiator_envs, "POD_IP=\d+\.\d+\.\d+\.\d+")|first).split("=")[1] %}
+  {% set initiator_info = salt.kubehelp.pod_info(initiator, this_host) %}
+  {% set initiator_id = initiator_info['id'] %}
+  {% set initiator_ip = initiator_info['ips']|first %}
   {% set initiator_port = redis.port %}
   {% for minion, pods in salt['mine.get'](tgt="*", fun="redis_pods").items() -%}
     {%- for pod_id, details in pods.items() %}
-      {%- set pod_details = salt['mine.get'](tgt=minion, fun=details['Labels']['io.kubernetes.pod.name']).values()[0] %}
-      {%- set other_ip = (salt.filters.find(pod_details["Config"]["Env"], "POD_IP=\d+\.\d+\.\d+\.\d+")|first).split("=")[1] %}
+      {%- set other_pod = salt.kubehelp.pod_info(details['Labels']['io.kubernetes.pod.name'], minion)  %}
+      {%- set other_ip = other_pod['ips']|first %}
       {%- set other_port = redis.port %}
       redis_{{ initiator }}_cluster_meet_{{ other_ip }}_{{ other_port }}:
         module.run:
