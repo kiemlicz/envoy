@@ -11,8 +11,8 @@
   {% set initiator_id = initiator_info['id'] %}
   {% set initiator_ip = initiator_info['ips']|first %}
   {% set initiator_port = redis.port %}
-  {% for minion, pods in salt['mine.get'](tgt="*", fun="redis_pods").items() -%}
-    {%- for pod_id, details in pods.items() %}
+  {%- for minion, pods_map in salt['mine.get'](tgt="*", fun="redis_pods").items() %}
+    {%- for pod_id, details in pods_map.items() %}
       {%- set other_pod = salt.kubehelp.pod_info(details['Labels']['io.kubernetes.pod.name'], minion)  %}
       {%- set other_ip = other_pod['ips']|first %}
       {%- set other_port = redis.port %}
