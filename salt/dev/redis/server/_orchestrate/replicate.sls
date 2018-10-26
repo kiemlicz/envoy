@@ -6,22 +6,26 @@
 {% set this_host = grains['id'] %}
 
 {% if redis.docker is defined %}
-  {% for pod_name in grains["redis"]["pods"] if pod_name in salt['pillar.get']("redis:docker:slaves", [])|map(attribute='pod')|list %}
-    {% set master_info = salt['pillar.get']("redis:docker:slaves", [])|selectattr("pod", "equalto", pod_name)|first %}
-    {% set master_pod_name = master_info["master_pod"] %}
-    {% set master_pod_details = salt['mine.get'](tgt="redis:pods:*", fun=master_pod_name, tgt_type="grain").values()[0] %}
-    {% set pod_details = salt['mine.get'](tgt=this_host, fun=pod_name) %}
-    {% set container_id = pod_details[this_host]["Id"] %}
-    {% set instance_ip = (salt.filters.find(pod_details[this_host]["Config"]["Env"], "POD_IP=\d+\.\d+\.\d+\.\d+")|first).split("=")[1] %}
-    {% set instance_port = redis.port %}
-    {% set master_ip = (salt.filters.find(master_pod_details["Config"]["Env"], "POD_IP=\d+\.\d+\.\d+\.\d+")|first).split("=")[1] %}
-    {% set master_port = master_info["master_port"]  %}
-    {% set redis_master_id = redis_master_id(master_ip, master_port, container_id) %}
-    redis_slave_{{ instance_ip }}_{{ instance_port }}_replicate_master:
-      module.run:
-        - docker.run:
-          - name: {{ container_id }}
-          - cmd: redis-cli -h {{ instance_ip }} -p {{ instance_port }} CLUSTER REPLICATE {{ redis_master_id }}
+  {% set slave_names_list = salt['pillar.get']("redis:docker:slaves", [])|map(attribute='pod')|list %}
+  {% for minion, pods_map in salt['mine.get'](tgt=this_host, fun="redis_pods").items() %}
+    {%- for pod_id, details in pods_map.items() if details['Labels']['io.kubernetes.pod.name'] in slave_names_list %}
+      {% set slave_pod_name = details['Labels']['io.kubernetes.pod.name'] %}
+      {% set master_slave_binding = salt['pillar.get']("redis:docker:slaves", [])|selectattr("pod", "equalto", slave_pod_name)|first %}
+      {% set master_pod_name = master_slave_binding["master_pod"] %}
+      {% set master_pod_details = salt.kubehelp.pod_info(master_pod_name, this_host) %}
+      {% set slave_pod_details = salt.kubehelp.pod_info(slave_pod_name, this_host) %}
+      {% set slave_container_id = slave_pod_details['id'] %}
+      {% set slave_ip = slave_pod_details['ips']|first %}
+      {% set slave_port = redis.port %}
+      {% set master_ip = master_pod_details['ips']|first %}
+      {% set master_port = master_slave_binding["master_port"]  %}
+      {% set redis_master_id = redis_master_id(master_ip, master_port, slave_container_id) %}
+      redis_slave_{{ slave_ip }}_{{ slave_port }}_replicate_master:
+        module.run:
+          - docker.run:
+            - name: {{ slave_container_id }}
+            - cmd: redis-cli -h {{ slave_ip }} -p {{ slave_port }} CLUSTER REPLICATE {{ redis_master_id }}
+    {% endfor %}
   {% endfor %}
 {% else %}
   {% for slave in redis.slaves|selectattr("id", "equalto", this_host)|list %}
