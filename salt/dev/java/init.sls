@@ -1,4 +1,5 @@
 {% from "java/map.jinja" import default_java as java with context %}
+{% from "java/map.jinja" import version_major with context %}
 {% from "_macros/dev_tool.macros.jinja" import add_environmental_variable,add_to_path with context %}
 {% from "_common/util.jinja" import retry with context %}
 {% from "_common/repo.jinja" import repository with context %}
@@ -16,7 +17,7 @@ java:
   debconf.set:
     - name: {{ java.pkg_name }}
     - data:
-  {% if java.version_major == 11 %}
+  {% if version_major == 11 %}
         'shared/accepted-oracle-license-v1-2': {'type': 'boolean', 'value': True}
   {% else %}
         'shared/accepted-oracle-license-v1-1': {'type': 'boolean', 'value': True}
