@@ -33,7 +33,8 @@ def migrate(src_ip, src_port, dest_ip, dest_port, slot_list, batch_size=100):
     '''
     ret = {
         'migrated': [],
-        'failed': []
+        'failed': [],
+        'result': False
     }
     if len(slot_list) == 0:
         return ret
@@ -59,7 +60,11 @@ def migrate(src_ip, src_port, dest_ip, dest_port, slot_list, batch_size=100):
             log.exception(e)
             ret['failed'].append(slot)
 
-    return ret
+    if len(ret['failed']) > 0:
+        return ret
+    else:
+        ret['result'] = True
+        return ret
 
 
 def addslots(ip, port, slots):
