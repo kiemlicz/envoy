@@ -16,7 +16,11 @@ java:
   debconf.set:
     - name: {{ java.pkg_name }}
     - data:
+  {% if java.version_major == 11 %}
+        'shared/accepted-oracle-license-v1-2': {'type': 'boolean', 'value': True}
+  {% else %}
         'shared/accepted-oracle-license-v1-1': {'type': 'boolean', 'value': True}
+  {% endif %}
     - require:
       - pkgrepo_ext: {{ java_repo_id }}
     - require_in:
