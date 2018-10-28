@@ -18,14 +18,15 @@ def app_info(fun_name):
     :return: dict {'pod1': {ips: [], id="", minion=""}}
     '''
     ret = {}
-    for minion, details in __salt__['mine.get'](tgt="*", fun=fun_name).items():
-        pod_name = details['Labels']['io.kubernetes.pod.name']
-        pod_envs = details['Config']['Env']
-        pod_ip_list = [e.split("=")[1] for e in __salt__['filters.find'](pod_envs, "POD_IP=\d+\.\d+\.\d+\.\d+")]
-        # todo parse ports
-        ret[pod_name] = {
-            'ips': pod_ip_list,
-            'minion': minion
-        }
+    for minion, pod_map in __salt__['mine.get'](tgt="*", fun=fun_name).items():
+        for pod_id, details in pod_map.items():
+            pod_name = details['Labels']['io.kubernetes.pod.name']
+            pod_envs = details['Config']['Env']
+            pod_ip_list = [e.split("=")[1] for e in __salt__['filters.find'](pod_envs, "POD_IP=\d+\.\d+\.\d+\.\d+")]
+            # todo parse ports
+            ret[pod_name] = {
+                'ips': pod_ip_list,
+                'minion': minion
+            }
 
     return ret
