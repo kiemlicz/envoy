@@ -15,10 +15,10 @@ def meet(name, nodes_map, cidr=None):
            'comment': ''}
     log = logging.getLogger(__name__)
 
-    initiator = nodes_map.keys()[0]
-    initiator_ip = _filter_ip(nodes_map[initiator]['ips'], cidr)[0]
+    initiator = nodes_map[nodes_map.keys()[0]]
+    initiator_ip = _filter_ip(initiator['ips'], cidr)[0]
     initiator_port = initiator['port']
-    others = [[_filter_ip(v['ips'], cidr)[0], v[1]] for k, v in nodes_map.items()]
+    others = [[_filter_ip(v['ips'], cidr)[0], v['port']] for k, v in nodes_map.items()]
 
     log.info("Cluster meet from {}:{} to: {}".format(initiator_ip, initiator_port, others))
 

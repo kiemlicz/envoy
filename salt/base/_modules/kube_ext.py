@@ -1,3 +1,7 @@
+import logging
+
+
+log = logging.getLogger(__name__)
 
 
 def pod_info(pod_name, owning_minion):
@@ -21,7 +25,9 @@ def app_info(fun_name):
     for minion, pod_map in __salt__['mine.get'](tgt="*", fun=fun_name).items():
         for pod_id, details in pod_map.items():
             pod_name = details['Labels']['io.kubernetes.pod.name']
-            pod_envs = details['Config']['Env']
+            # requires POD to hold one application
+            app_details = __salt__['mine.get'](tgt=minion, fun=pod_name)[minion]
+            pod_envs = app_details['Config']['Env']
             pod_ip_list = [e.split("=")[1] for e in __salt__['filters.find'](pod_envs, "POD_IP=\d+\.\d+\.\d+\.\d+")]
             # todo parse ports
             ret[pod_name] = {
