@@ -14,6 +14,33 @@ def __virtual__():
     return True if HAS_REDIS else (False, "Cannot load redis.ext, install: redis")
 
 
+def meet(ip, port, others):
+    try:
+        r = redis.StrictRedis(host=ip, port=port)
+        for host_port in others:
+            other_ip = host_port[0]
+            other_port = host_port[1]
+            r.cluster("meet", other_ip, other_port)
+    except Exception as e:
+        log.error("Cluster meet from {}:{} failed".format(ip, port))
+        log.exception(e)
+        return False
+    return True
+
+
+def replicate(master_ip, master_port, slave_ip, slave_port):
+    try:
+        r = redis.StrictRedis(host=slave_ip, port=slave_port)
+        m = redis.StrictRedis(host=master_ip, port=master_port)
+        master_id = m.cluster("myid")
+        r.cluster("replicate", master_id)
+    except Exception as e:
+        log.error("Cluster replicate (slave: {}:{}, master {}:{}) failed".format(slave_ip, slave_port, master_ip, master_port))
+        log.exception(e)
+        return False
+    return True
+
+
 def slots(ip, port):
     '''
     :return: slots belonging to this redis instance (doesn't matter if the instance is either slave or master)

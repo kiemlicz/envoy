@@ -5,24 +5,17 @@
 {% set this_host = grains['id'] %}
 
 {% if redis.docker is defined %}
-  {% set initiator_pod = salt['mine.get'](tgt=this_host, fun="redis_pods")[this_host].values()|first %}
-  {% set initiator = initiator_pod['Labels']['io.kubernetes.pod.name'] %}
-  {% set initiator_info = salt.kubehelp.pod_info(initiator, this_host) %}
-  {% set initiator_id = initiator_info['id'] %}
-  {% set initiator_ip = initiator_info['ips']|first %}
-  {% set initiator_port = redis.port %}
-  {%- for minion, pods_map in salt['mine.get'](tgt="*", fun="redis_pods").items() %}
-    {%- for pod_id, details in pods_map.items() %}
-      {%- set other_pod = salt.kubehelp.pod_info(details['Labels']['io.kubernetes.pod.name'], minion)  %}
-      {%- set other_ip = other_pod['ips']|first %}
-      {%- set other_port = redis.port %}
-      redis_{{ initiator }}_cluster_meet_{{ other_ip }}_{{ other_port }}:
-        module.run:
-          - docker.run:
-            - name: {{ initiator_id }}
-            - cmd: redis-cli -h {{ initiator_ip }} -p {{ initiator_port }} CLUSTER MEET {{ other_ip }} {{ other_port }}
-    {%- endfor %}
-  {%- endfor %}
+
+  {% set pods = salt['kube_ext.app_info']("redis-cluster") %}
+  {% for k in pods %}
+    {% do pods[k].update({'port': redis.port}) %}
+  {% endfor %}
+
+  redis_cluster_meet:
+    redis_ext.meet:
+      - name: redis_cluster_meet
+      - nodes_map: {{ pods }}
+
 {% else %}
   {% set master = redis.masters|selectattr("id", "equalto", this_host)|first %}
   {% set master_ip = master.ip|default(ip()) %}

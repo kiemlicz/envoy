@@ -5,9 +5,9 @@
 {% set this_host = grains['id'] %}
 
 {% if redis.docker is defined %}
-  {% for minion, pods_map in salt['mine.get'](tgt=this_host, fun="redis_pods").items() %}
+  {% for minion, pods_map in salt['mine.get'](tgt=this_host, fun="redis-cluster").items() %}
     {%- for pod_id, details in pods_map.items() %}
-      {%- set pod_details = salt.kubehelp.pod_info(details['Labels']['io.kubernetes.pod.name'], minion)  %}
+      {%- set pod_details = salt.kube_ext.pod_info(details['Labels']['io.kubernetes.pod.name'], minion)  %}
       {%- set instance_ip = pod_details['ips']|first %}
       {%- set instance_id = pod_details['id'] %}
       {%- set instance_port = redis.port %}
