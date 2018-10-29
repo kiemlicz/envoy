@@ -17,7 +17,7 @@ def run():
         { 'nodes_map': names_map },
         { 'min_nodes': pillar['redis']['size'] },
         { 'master_names': masters_names },
-       # { 'total_slots': 3 }
+        { 'total_slots': pillar['redis']['total_slots'] }
       ]
     }
 

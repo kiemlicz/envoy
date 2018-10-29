@@ -142,7 +142,7 @@ def slots_manage(name, nodes_map, min_nodes, master_names, total_slots=16384, de
     return ret
 
 
-def reset(name, nodes_map, cidr=None):
+def reset(name, nodes_map, masters_names, cidr=None):
     ret = {'name': name,
            'result': False,
            'changes': {},
@@ -154,7 +154,7 @@ def reset(name, nodes_map, cidr=None):
     for name, details in nodes_map.items():
         ip = _filter_ip(details['ips'], cidr)[0]
         port = details['port']
-        if not __salt__['redis_ext.flushall'](ip, port):
+        if name in masters_names and not __salt__['redis_ext.flushall'](ip, port):
             log.error("Unable to flush keys from {}:{}".format(ip, port))
             return ret
         if not __salt__['redis_ext.reset'](ip, port):

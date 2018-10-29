@@ -5,6 +5,7 @@
 {% set this_host = grains['id'] %}
 
 {% if redis.docker is defined %}
+  {% set masters_names = pillar['redis']['docker'].get('masters', [])|map(attribute='pod')|list %}
   {% set pods = salt['kube_ext.app_info']("redis-cluster") %}
     {% for k in pods %}
       {% do pods[k].update({'port': redis.port}) %}
@@ -14,6 +15,7 @@
     redis_ext.reset:
       - name: redis_cluster_reset
       - nodes_map: {{ pods }}
+      - masters_names: {{ masters_names }}
 
 {% else %}
   {% set all_instances = redis.masters + redis.slaves %}
