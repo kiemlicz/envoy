@@ -17,7 +17,6 @@ def pod_info(pod_name, owning_minion):
 
 def app_info(fun_name):
     '''
-
     :param fun_name: mined function that already returns docker.ps output
     :return: dict {'pod1': {ips: [], id="", minion=""}}
     '''
@@ -26,13 +25,17 @@ def app_info(fun_name):
         for pod_id, details in pod_map.items():
             pod_name = details['Labels']['io.kubernetes.pod.name']
             # requires POD to hold one application
-            app_details = __salt__['mine.get'](tgt=minion, fun=pod_name)[minion]
-            pod_envs = app_details['Config']['Env']
-            pod_ip_list = [e.split("=")[1] for e in __salt__['filters.find'](pod_envs, "POD_IP=\d+\.\d+\.\d+\.\d+")]
-            # todo parse ports
-            ret[pod_name] = {
-                'ips': pod_ip_list,
-                'minion': minion
-            }
+            app_inspect = __salt__['mine.get'](tgt=minion, fun=pod_name)
+            if minion in app_inspect:
+                app_details = app_inspect[minion]
+                pod_envs = app_details['Config']['Env']
+                pod_ip_list = [e.split("=")[1] for e in __salt__['filters.find'](pod_envs, "POD_IP=\d+\.\d+\.\d+\.\d+")]
+                # todo parse ports
+                ret[pod_name] = {
+                    'ips': pod_ip_list,
+                    'minion': minion
+                }
+            else:
+                log.warn("App: {}, POD: {}, doesn't contain docker.inspect details on minion: {}".format(fun_name, pod_name, minion))
 
     return ret

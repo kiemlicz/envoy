@@ -13,10 +13,11 @@ def run():
 
     states['redis_cluster_slots_manage'] = {
       'redis_ext.slots_manage': [
-        { 'name': "slots" },
-        { 'names_map': names_map },
+        { 'name': "redis_cluster_slots_manage" },
+        { 'nodes_map': names_map },
         { 'min_nodes': pillar['redis']['size'] },
-        { 'master_names': masters_names }
+        { 'master_names': masters_names },
+       # { 'total_slots': 3 }
       ]
     }
 

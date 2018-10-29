@@ -69,7 +69,11 @@ def slots_manage(name, nodes_map, min_nodes, master_names, total_slots=16384, de
            'comment': ''}
     log = logging.getLogger(__name__)
 
-    if len(nodes_map) < min_nodes:
+    if nodes_map is None:
+        log.info("No changes will be made as required nodes_map is None")
+        ret['result'] = True
+        return ret
+    elif len(nodes_map) < min_nodes:
         log.info("No changes will be made as required: {} desired hosts, but found: {}".format(len(desired_slots), len(nodes_map)))
         ret['result'] = True
         return ret
