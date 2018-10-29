@@ -97,11 +97,36 @@ def migrate(src_ip, src_port, dest_ip, dest_port, slot_list, batch_size=100):
 def addslots(ip, port, slots):
     if len(slots) == 0:
         return True
-    r = redis.StrictRedis(host=ip, port=port)
     try:
+        r = redis.StrictRedis(host=ip, port=port)
         r.cluster("addslots", *slots)
     except Exception as e:
         log.error("Unable to add slots: {} ({}:{})".format(slots, ip, port))
+        log.exception(e)
+        return False
+    return True
+
+
+def reset(ip, port, hard=False):
+    try:
+        r = redis.StrictRedis(host=ip, port=port)
+        if hard:
+            r.cluster("reset", "hard")
+        else:
+            r.cluster("reset")
+    except Exception as e:
+        log.error("Unable to cluster reset instance: ({}:{})".format(ip, port))
+        log.exception(e)
+        return False
+    return True
+
+
+def flushall(ip, port):
+    try:
+        r = redis.StrictRedis(host=ip, port=port)
+        r.flushall()
+    except Exception as e:
+        log.error("Unable to flushall instance: ({}:{})".format(ip, port))
         log.exception(e)
         return False
     return True

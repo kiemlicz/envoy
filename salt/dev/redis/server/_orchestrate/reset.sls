@@ -5,19 +5,16 @@
 {% set this_host = grains['id'] %}
 
 {% if redis.docker is defined %}
-  {% for minion, pods_map in salt['mine.get'](tgt=this_host, fun="redis-cluster").items() %}
-    {%- for pod_id, details in pods_map.items() %}
-      {%- set pod_details = salt.kube_ext.pod_info(details['Labels']['io.kubernetes.pod.name'], minion)  %}
-      {%- set instance_ip = pod_details['ips']|first %}
-      {%- set instance_id = pod_details['id'] %}
-      {%- set instance_port = redis.port %}
-      redis_{{ instance_id }}_cluster_reset:
-        module.run:
-          - docker.run:
-            - name: {{ instance_id }}
-            - cmd: redis-cli -h {{ instance_ip }} -p {{ instance_port }} CLUSTER RESET
+  {% set pods = salt['kube_ext.app_info']("redis-cluster") %}
+    {% for k in pods %}
+      {% do pods[k].update({'port': redis.port}) %}
     {% endfor %}
-  {% endfor %}
+
+  redis_cluster_reset:
+    redis_ext.reset:
+      - name: redis_cluster_reset
+      - nodes_map: {{ pods }}
+
 {% else %}
   {% set all_instances = redis.masters + redis.slaves %}
   {% for instance in all_instances|selectattr("id", "equalto", this_host)|list %}

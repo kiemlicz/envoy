@@ -140,3 +140,27 @@ def slots_manage(name, nodes_map, min_nodes, master_names, total_slots=16384, de
 
     ret['result'] = True
     return ret
+
+
+def reset(name, nodes_map, cidr=None):
+    ret = {'name': name,
+           'result': False,
+           'changes': {},
+           'comment': ''}
+    log = logging.getLogger(__name__)
+
+    log.info("This operation will wipe all redis instances: {}".format(nodes_map))
+
+    for name, details in nodes_map.items():
+        ip = _filter_ip(details['ips'], cidr)[0]
+        port = details['port']
+        if not __salt__['redis_ext.flushall'](ip, port):
+            log.error("Unable to flush keys from {}:{}".format(ip, port))
+            return ret
+        if not __salt__['redis_ext.reset'](ip, port):
+            log.error("Unable to reset instance {}:{}".format(ip, port))
+            return ret
+        ret['changes']["instance {}:{}".format(ip, port)] = "reset"
+
+    ret['result'] = True
+    return ret
