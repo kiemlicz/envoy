@@ -3,15 +3,13 @@ setup_master:
   - tgt: "kubernetes:master:True"
   - tgt_type: "grain"
   - saltenv: {{ saltenv }}
-  - sls:
-      - kubernetes.master
+  - highstate: True
 
 setup_workers:
   salt.state:
   - tgt: "kubernetes:worker:True"
   - tgt_type: "grain"
   - saltenv: {{ saltenv }}
-  - sls:
-    - kubernetes.worker
+  - highstate: True
   - require:
       - salt: setup_master
