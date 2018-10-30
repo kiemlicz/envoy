@@ -6,23 +6,25 @@
 
 {% if redis.docker is defined %}
   {% set masters_names = pillar['redis']['docker'].get('masters', [])|map(attribute='pod')|list %}
-  {% set pods = salt['kube_ext.app_info']("redis-cluster") %}
-    {% for k in pods %}
-      {% do pods[k].update({'port': redis.port}) %}
+  {% set nodes_map = salt['kube_ext.app_info']("redis-cluster") %}
+    {% for k in nodes_map %}
+      {% do nodes_map[k].update({'port': redis.port}) %}
     {% endfor %}
-
-  redis_cluster_reset:
-    redis_ext.reset:
-      - name: redis_cluster_reset
-      - nodes_map: {{ pods }}
-      - masters_names: {{ masters_names }}
-
 {% else %}
-  {% set all_instances = redis.masters + redis.slaves %}
-  {% for instance in all_instances|selectattr("id", "equalto", this_host)|list %}
-  {% set instance_ip = instance.ip|default(ip()) %}
-  redis_{{ instance_ip }}_{{ instance.port }}_cluster_reset:
-    cmd.run:
-      - name: redis-cli -h {{ instance_ip }} -p {{ instance.port }} CLUSTER RESET
+  {% set masters_names = redis.masters|map(attribute='id')|list %}
+  {% set nodes_map = {} %}
+  {% for instance in (redis.masters + redis.slaves) %}
+    {% do nodes_map.update({ instance['id']: {
+      'ips': [ instance.ip|default(ip(id=instance.id)) ],
+      'port': instance.port,
+      'minion': instance.id,
+      }
+    }) %}
   {% endfor %}
 {% endif %}
+
+redis_cluster_reset:
+  redis_ext.reset:
+    - name: redis_cluster_reset
+    - nodes_map: {{ nodes_map }}
+    - masters_names: {{ masters_names }}

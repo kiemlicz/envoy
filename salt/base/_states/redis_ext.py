@@ -38,11 +38,11 @@ def replicate(name, nodes_map, slaves_map, cidr=None):
            'comment': ''}
     log = logging.getLogger(__name__)
 
-    for slave, details in slaves_map.items():
+    for slave, slave_details in slaves_map.items():
         slave_ip = _filter_ip(nodes_map[slave]['ips'], cidr)[0]
         slave_port = nodes_map[slave]['port']
-        master_ip = _filter_ip(nodes_map[details['master_name']]['ips'], cidr)[0]
-        master_port = details['master_port']
+        master_ip = _filter_ip(nodes_map[slave_details['master_name']]['ips'], cidr)[0]
+        master_port = slave_details['master_port']
         if not __salt__['redis_ext.replicate'](master_ip, master_port, slave_ip, slave_port):
             log.error("Unable to perform cluster replicate (slave: {}:{}, master: {}:{})".format(slave_ip, slave_port, master_ip, master_port))
             return ret
