@@ -12,37 +12,28 @@ redis:
     service: redis-server
   instances:
     masters:
-    - id: minionid
+    - name: minionid
       ip: 1.2.3.4
       port: 1234
-    - id: minionid_other
+    - name: minionid_other
       ip: 1.2.3.5
       port: 1234
+    - name: some_name_not_minion
+      ip: 1.2.3.4
+      port: 1236
     slaves:
-    - id: minionid
-      of_master:
-        id: minionid
-        ip: 1.2.3.4
-        port: 1234
+    - name: minionidslave
+      of_master: minionid
       ip: 1.2.3.6
       port: 1235
 ---
 redis:
   instances:
     masters:
-    - id: minionid
-      #orchestrator must know ip, someone will have to pass this IP
-      port: 1234
-    - id: minionid
-      port: 1234
+    - name: pod1
+    - name: pod2
     slaves:
-    - id: minionid
-      ofmaster:
-        id: minionid
-        port: 1234
-      port: 1235
-    - id: minionid
-      ofmaster:
-        id: minionid
-        port: 1234
-      port: 1235
+    - name: pod3
+      ofmaster: pod1
+    - name: pod4
+      ofmaster: pod2

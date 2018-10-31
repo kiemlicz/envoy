@@ -15,6 +15,11 @@ def meet(name, nodes_map, cidr=None):
            'comment': ''}
     log = logging.getLogger(__name__)
 
+    if not nodes_map:
+        log.info("No changes will be made as required nodes_map is empty")
+        ret['result'] = True
+        return ret
+
     initiator = nodes_map[nodes_map.keys()[0]]
     initiator_ip = _filter_ip(initiator['ips'], cidr)[0]
     initiator_port = initiator['port']
@@ -31,18 +36,23 @@ def meet(name, nodes_map, cidr=None):
         return ret
 
 
-def replicate(name, nodes_map, slaves_map, cidr=None):
+def replicate(name, nodes_map, slaves_list, cidr=None):
     ret = {'name': name,
            'result': False,
            'changes': {},
            'comment': ''}
     log = logging.getLogger(__name__)
 
-    for slave, slave_details in slaves_map.items():
-        slave_ip = _filter_ip(nodes_map[slave]['ips'], cidr)[0]
-        slave_port = nodes_map[slave]['port']
-        master_ip = _filter_ip(nodes_map[slave_details['master_name']]['ips'], cidr)[0]
-        master_port = slave_details['master_port']
+    if not nodes_map:
+        log.info("No changes will be made as required nodes_map is empty")
+        ret['result'] = True
+        return ret
+
+    for slave in slaves_list:
+        slave_ip = _filter_ip(nodes_map[slave['name']]['ips'], cidr)[0]
+        slave_port = nodes_map[slave['name']]['port']
+        master_ip = _filter_ip(nodes_map[slave['of_master']]['ips'], cidr)[0]
+        master_port = nodes_map[slave['of_master']]['port']
         if not __salt__['redis_ext.replicate'](master_ip, master_port, slave_ip, slave_port):
             log.error("Unable to perform cluster replicate (slave: {}:{}, master: {}:{})".format(slave_ip, slave_port, master_ip, master_port))
             return ret
@@ -69,8 +79,8 @@ def slots_manage(name, nodes_map, min_nodes, master_names, total_slots=16384, de
            'comment': ''}
     log = logging.getLogger(__name__)
 
-    if nodes_map is None:
-        log.info("No changes will be made as required nodes_map is None")
+    if not nodes_map:
+        log.info("No changes will be made as required nodes_map is empty")
         ret['result'] = True
         return ret
     elif len(nodes_map) < min_nodes:

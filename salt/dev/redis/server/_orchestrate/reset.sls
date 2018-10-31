@@ -2,22 +2,15 @@
 {% from "_common/ip.jinja" import ip with context %}
 
 
-{% set this_host = grains['id'] %}
-
-{% if redis.docker is defined %}
-  {% set masters_names = pillar['redis']['docker'].get('masters', [])|map(attribute='pod')|list %}
-  {% set nodes_map = salt['kube_ext.app_info']("redis-cluster") %}
-    {% for k in nodes_map %}
-      {% do nodes_map[k].update({'port': redis.port}) %}
-    {% endfor %}
+{% set masters_names = redis.instances.get('masters', [])|map(attribute='name')|list %}
+{% if redis.kubernetes is defined %}
+  {% set nodes_map = redis.kubernetes.pods %}
 {% else %}
-  {% set masters_names = redis.masters|map(attribute='id')|list %}
   {% set nodes_map = {} %}
-  {% for instance in (redis.masters + redis.slaves) %}
-    {% do nodes_map.update({ instance['id']: {
-      'ips': [ instance.ip|default(ip(id=instance.id)) ],
+  {% for instance in (redis.instances.masters + redis.instances.slaves) %}
+    {% do nodes_map.update({ instance['name']: {
+      'ips': [ instance.ip|default(ip(id=instance.name)) ],
       'port': instance.port,
-      'minion': instance.id,
       }
     }) %}
   {% endfor %}

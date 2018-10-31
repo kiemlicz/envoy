@@ -1,24 +1,27 @@
-#!py
+{% from "redis/server/map.jinja" import redis with context %}
+{% from "_common/ip.jinja" import ip with context %}
 
 
-def run():
-  states = {}
-  #todo docker differentiation is not needed here
-  #todo rethink minion: redis instances arity
-  if 'docker' in pillar['redis']:
-    masters_names = [e['pod'] for e in pillar['redis']['docker'].get('masters', [])]
-    names_map = salt['kube_ext.app_info']("redis-cluster")
-    for name, details in names_map.items():
-      details['port'] = pillar['redis']['port']
+{% set masters_names = redis.instances.get('masters', [])|map(attribute='name')|list %}
+{% if redis.kubernetes is defined %}
+  {% set size = redis.kubernetes.status.replicas %}
+  {% set nodes_map = redis.kubernetes.pods %}
+{% else %}
+  {% set size = (redis.instances.masters + redis.instances.slaves)|length %}
+  {% set nodes_map = {} %}
+  {% for instance in (redis.instances.masters + redis.instances.slaves) %}
+    {% do nodes_map.update({ instance['name']: {
+      'ips': [ instance.ip|default(ip(id=instance.name)) ],
+      'port': instance.port,
+      }
+    }) %}
+  {% endfor %}
+{% endif %}
 
-    states['redis_cluster_slots_manage'] = {
-      'redis_ext.slots_manage': [
-        { 'name': "redis_cluster_slots_manage" },
-        { 'nodes_map': names_map },
-        { 'min_nodes': pillar['redis']['size'] },
-        { 'master_names': masters_names },
-        { 'total_slots': pillar['redis']['total_slots'] }
-      ]
-    }
-
-  return states
+redis_cluster_slots_manage:
+  redis_ext.slots_manage:
+    - name: redis_cluster_slots_manage
+    - nodes_map: {{ nodes_map }}
+    - min_nodes: {{ size }}
+    - master_names: {{ masters_names }}
+    - total_slots: {{ redis.total_slots }}

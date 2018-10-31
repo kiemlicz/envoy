@@ -29,10 +29,11 @@ def app_info(fun_name):
             if minion in app_inspect:
                 app_details = app_inspect[minion]
                 pod_envs = app_details['Config']['Env']
+                pod_port_list = app_details['Config']['Labels']['annotation.io.kubernetes.container.ports']
                 pod_ip_list = [e.split("=")[1] for e in __salt__['filters.find'](pod_envs, "POD_IP=\d+\.\d+\.\d+\.\d+")]
-                # todo parse ports
                 ret[pod_name] = {
                     'ips': pod_ip_list,
+                    'ports': pod_port_list,
                     'minion': minion
                 }
             else:

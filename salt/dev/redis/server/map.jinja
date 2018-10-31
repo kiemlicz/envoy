@@ -18,23 +18,16 @@
     }
 }, grain='init')) %}
 
-{# host_id == hostname by default #}
-{% set host_id = salt['grains.get']("id") %}
-
 {% set instances = salt['grains.filter_by']({
   'Debian': {
     'masters': [{
-                  'id': host_id,
+                  'name': "master",
                   'ip': '127.0.0.1',
                   'port': 6379,
                 }],
     'slaves': [{
-                 'id': host_id,
-                 'of_master': {
-                   'id': host_id,
-                   'ip': '127.0.0.1',
-                   'port': 6379
-                 },
+                 'name': "slave",
+                 'of_master': "master",
                  'ip': '127.0.0.1',
                  'port': 6380,
                }],
@@ -47,11 +40,13 @@
     'port': 6379,
     'config': config,
     'instances': instances,
+    'total_slots': 16384,
   },
   'Debian': {
     'pkg_name': 'redis-server',
     'port': 6379,
     'config': config,
     'instances': instances,
+    'total_slots': 16384,
   },
 }, merge=salt['pillar.get']('redis')) %}
