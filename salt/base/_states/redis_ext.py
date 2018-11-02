@@ -16,7 +16,7 @@ def meet(name, nodes_map, cidr=None):
     log = logging.getLogger(__name__)
 
     if not nodes_map:
-        log.info("No changes will be made as required nodes_map is empty")
+        log.info("No changes (cluster meet) will be made as required nodes_map is empty")
         ret['result'] = True
         return ret
 
@@ -44,7 +44,7 @@ def replicate(name, nodes_map, slaves_list, cidr=None):
     log = logging.getLogger(__name__)
 
     if not nodes_map:
-        log.info("No changes will be made as required nodes_map is empty")
+        log.info("No changes (cluster replicate) will be made as required nodes_map is empty")
         ret['result'] = True
         return ret
 
@@ -80,7 +80,7 @@ def slots_manage(name, nodes_map, min_nodes, master_names, total_slots=16384, de
     log = logging.getLogger(__name__)
 
     if not nodes_map:
-        log.info("No changes will be made as required nodes_map is empty")
+        log.info("No changes (cluster slots management) will be made as required nodes_map is empty")
         ret['result'] = True
         return ret
     elif len(nodes_map) < min_nodes:
@@ -90,9 +90,23 @@ def slots_manage(name, nodes_map, min_nodes, master_names, total_slots=16384, de
 
     if desired_slots is None:
         desired_slots = {}
-        # fixme parametrize assignment policy
-        for i in range(0, total_slots):
-            desired_slots.setdefault(master_names[i % len(master_names)], []).append(i)
+
+        def split():
+            s, r = divmod(total_slots, len(master_names))
+            start = 0
+            for master in master_names:
+                end = start + s if start + s + r < total_slots else start + s + r
+                for i in range(start, end):
+                    desired_slots.setdefault(master, []).append(i)
+                start = end
+            return desired_slots
+
+        def one_by_one():
+            for i in xrange(total_slots):
+                desired_slots.setdefault(master_names[i % len(master_names)], []).append(i)
+            return desired_slots
+
+        split()
 
     assigned_slots = {}
     actions = {}
