@@ -107,6 +107,19 @@ def addslots(ip, port, slots):
     return True
 
 
+def delslots(ip, port, slots):
+    if len(slots) == 0:
+        return True
+    try:
+        r = redis.StrictRedis(host=ip, port=port)
+        r.cluster("delslots", *slots)
+    except Exception as e:
+        log.error("Unable to del slots: {} ({}:{})".format(slots, ip, port))
+        log.exception(e)
+        return False
+    return True
+
+
 def reset(ip, port, hard=False):
     try:
         r = redis.StrictRedis(host=ip, port=port)

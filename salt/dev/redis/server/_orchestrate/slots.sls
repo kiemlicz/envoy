@@ -19,7 +19,7 @@
 {% endif %}
 
 redis_cluster_slots_manage:
-  redis_ext.slots_manage:
+  redis_ext.managed:
     - name: redis_cluster_slots_manage
     - nodes_map: {{ nodes_map }}
     - min_nodes: {{ size }}

@@ -48,11 +48,15 @@ def replicate(name, nodes_map, slaves_list, cidr=None):
         ret['result'] = True
         return ret
 
-    for slave in slaves_list:
+    for slave in [e for e in slaves_list if e['name'] in nodes_map.keys()]:
         slave_ip = _filter_ip(nodes_map[slave['name']]['ips'], cidr)[0]
         slave_port = nodes_map[slave['name']]['port']
         master_ip = _filter_ip(nodes_map[slave['of_master']]['ips'], cidr)[0]
         master_port = nodes_map[slave['of_master']]['port']
+        owned_slots = __salt__['redis_ext.slots'](slave_ip, slave_port)
+        if not __salt__['redis_ext.delslots'](slave_ip, slave_port, owned_slots):
+            log.error("Unable to perform cluster replicate (previous slots deletion failed)")
+            return ret
         if not __salt__['redis_ext.replicate'](master_ip, master_port, slave_ip, slave_port):
             log.error("Unable to perform cluster replicate (slave: {}:{}, master: {}:{})".format(slave_ip, slave_port, master_ip, master_port))
             return ret
@@ -62,7 +66,7 @@ def replicate(name, nodes_map, slaves_list, cidr=None):
     return ret
 
 
-def slots_manage(name, nodes_map, min_nodes, master_names, total_slots=16384, desired_slots=None, cidr=None):
+def managed(name, nodes_map, min_nodes, master_names, total_slots=16384, desired_slots=None, cidr=None, strat="split"):
     '''
     :param min_nodes: minimum number of already instantiated nodes before starting the slots assignment
     :param name: migrating node (hostname or pod name)
@@ -71,8 +75,10 @@ def slots_manage(name, nodes_map, min_nodes, master_names, total_slots=16384, de
     :param total_slots:
     :param desired_slots: {'hostname1': [1,2,3,4]}
     :param cidr: 192.168.1.0/24 mutliple addresses optional filter
+    :param strat: slots assignment strategy (one_by_one or split)
     :return:
     '''
+
     ret = {'name': name,
            'result': False,
            'changes': {},
@@ -87,11 +93,16 @@ def slots_manage(name, nodes_map, min_nodes, master_names, total_slots=16384, de
         log.info("No changes will be made as required: {} desired hosts, but found: {}".format(len(desired_slots), len(nodes_map)))
         ret['result'] = True
         return ret
+    # filter masters to include only those available in this run
+    master_names = [e for e in master_names if e in nodes_map.keys()]
 
     if desired_slots is None:
         desired_slots = {}
 
         def split():
+            '''
+            Splits the slots range in consecutive, continuous ranges
+            '''
             s, r = divmod(total_slots, len(master_names))
             start = 0
             for master in master_names:
@@ -102,11 +113,18 @@ def slots_manage(name, nodes_map, min_nodes, master_names, total_slots=16384, de
             return desired_slots
 
         def one_by_one():
+            '''
+            Splits the slots range in discontinuous sets e.g. node1: [0,2,4,6]; nodes2: [1,3,5,7]
+            '''
             for i in xrange(total_slots):
                 desired_slots.setdefault(master_names[i % len(master_names)], []).append(i)
             return desired_slots
 
-        split()
+        policies = {
+            'split': split(),
+            'one_by_one': one_by_one()
+        }
+        policies[strat]()
 
     assigned_slots = {}
     actions = {}
@@ -118,6 +136,8 @@ def slots_manage(name, nodes_map, min_nodes, master_names, total_slots=16384, de
 
     log.info("Current slots assignment: {}".format(assigned_slots))
     log.info("Desired slots assignment: {}".format(desired_slots))
+
+    # fixme failover
 
     for node_name, desired_slot_list in desired_slots.items():
         add = set(desired_slot_list) - set(assigned_slots[node_name])
