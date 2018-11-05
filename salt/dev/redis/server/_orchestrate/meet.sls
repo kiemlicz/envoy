@@ -17,5 +17,4 @@
 
 redis_cluster_meet:
   redis_ext.meet:
-    - name: redis_cluster_meet
     - nodes_map: {{ nodes_map }}

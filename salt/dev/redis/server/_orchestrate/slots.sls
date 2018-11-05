@@ -2,7 +2,7 @@
 {% from "_common/ip.jinja" import ip with context %}
 
 
-{% set masters_names = redis.instances.get('masters', [])|map(attribute='name')|list %}
+{% set desired_masters = redis.instances.get('masters', [])|map(attribute='name')|list %}
 {% if redis.kubernetes is defined %}
   {% set size = redis.kubernetes.status.replicas %}
   {% set nodes_map = redis.kubernetes.pods %}
@@ -20,8 +20,7 @@
 
 redis_cluster_slots_manage:
   redis_ext.managed:
-    - name: redis_cluster_slots_manage
-    - nodes_map: {{ nodes_map }}
+    - nodes: {{ nodes_map }}
     - min_nodes: {{ size }}
-    - master_names: {{ masters_names }}
+    - desired_masters: {{ desired_masters }}
     - total_slots: {{ redis.total_slots }}

@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 
 def __virtual__():
-    return True if HAS_REDIS else (False, "Cannot load redis.ext, install: redis")
+    return True if HAS_REDIS else (False, "Cannot load redis_ext, install: redis")
 
 
 def meet(ip, port, others):
@@ -39,19 +39,6 @@ def replicate(master_ip, master_port, slave_ip, slave_port):
         log.exception(e)
         return False
     return True
-
-
-def slots(ip, port):
-    '''
-    :return: slots belonging to this redis instance (doesn't matter if the instance is either slave or master)
-    '''
-    r = redis.StrictRedis(host=ip, port=port)
-    cluster_slots = r.cluster("slots")
-    myid = r.cluster("myid")
-    slots_lists = [range(one_range[0], one_range[1] + 1) for one_range in cluster_slots if
-                   myid in [client[2] for client in one_range[2:]]]
-    pod_slots = [e for sublist in slots_lists for e in sublist]
-    return pod_slots
 
 
 def migrate(src_ip, src_port, dest_ip, dest_port, slot_list, batch_size=100):
@@ -92,6 +79,19 @@ def migrate(src_ip, src_port, dest_ip, dest_port, slot_list, batch_size=100):
     else:
         ret['result'] = True
         return ret
+
+
+def slots(ip, port):
+    '''
+    :return: slots belonging to this redis instance (doesn't matter if the instance is either slave or master)
+    '''
+    r = redis.StrictRedis(host=ip, port=port)
+    cluster_slots = r.cluster("slots")
+    myid = r.cluster("myid")
+    slots_lists = [range(one_range[0], one_range[1] + 1) for one_range in cluster_slots if
+                   myid in [client[2] for client in one_range[2:]]]
+    pod_slots = [e for sublist in slots_lists for e in sublist]
+    return pod_slots
 
 
 def addslots(ip, port, slots):
@@ -140,6 +140,30 @@ def flushall(ip, port):
         r.flushall()
     except Exception as e:
         log.error("Unable to flushall instance: ({}:{})".format(ip, port))
+        log.exception(e)
+        return False
+    return True
+
+
+def nodes(ip, port):
+    try:
+        r = redis.StrictRedis(host=ip, port=port)
+        return r.cluster("nodes")
+    except Exception as e:
+        log.error("Unable to list cluster nodes ({}:{})".format(ip, port))
+        log.exception(e)
+        return {}
+
+
+def failover(ip, port, arg=None):
+    try:
+        r = redis.StrictRedis(host=ip, port=port)
+        if arg is None:
+            r.cluster("failover")
+        else:
+            r.cluster("failover", arg)
+    except Exception as e:
+        log.error("Unable to failover on instance: ({}:{})".format(ip, port))
         log.exception(e)
         return False
     return True
