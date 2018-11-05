@@ -13,14 +13,14 @@ def _filter_ip(ips, cidr=None):
         return ips
 
 
-def _cluster_state(names, cidr):
+def _cluster_state(nodes, cidr, include_slots=True):
     '''
-    Enrich input names with cluster nodes and cluster slots commands
-    :param names:
+    Enrich input nodes map with cluster nodes and cluster slots commands
+    :param nodes:
     :param cidr:
     :return:
     '''
-    for name, details in names.items():
+    for name, details in nodes.items():
         ip = _filter_ip(details['ips'], cidr)[0]
         port = details['port']
         node_view = __salt__['redis_ext.nodes'](ip, port)
@@ -29,29 +29,46 @@ def _cluster_state(names, cidr):
             return {}
 
         for ip_port, node_details in node_view.items():
-            if 'myself' in node_details['flags']:
+            if 'fail' in node_details['flags']:
+                log.error("Cluster view as seen from {}:{} contains 'fail' flag for {}".format(ip,port, ip_port))
+                return {}
+            elif 'myself' in node_details['flags']:
                 details['master'] = True if 'master' in node_details['flags'] else False
 
-        details['current_slots'] = __salt__['redis_ext.slots'](ip, port)
+        if include_slots:
+            details['current_slots'] = __salt__['redis_ext.slots'](ip, port)
 
-    return names
+    return nodes
 
 
-def meet(name, nodes_map, cidr=None):
+def meet(name, nodes, cidr=None, fail_if_empty_nodes=True):
+    '''
+    Redis CLUSTER MEETs all instances
+    This state run results in all instances connected to others (given proper network configuration etc.)
+
+    :param name:
+    :param nodes: All currently available redis instances: { 'hostname1': {'ips': ["127.0.0.1", "1.2.3.4"], 'port': 6379 }}
+    :param cidr: network with mask to filter out ip addresses from 'ips' list
+    :param fail_if_empty_nodes: fail state if nodes is empty
+    '''
     ret = {'name': name,
            'result': False,
            'changes': {},
            'comment': ''}
 
-    if not nodes_map:
-        log.info("No changes (cluster meet) will be made as required nodes_map is empty")
+    if not nodes and not fail_if_empty_nodes:
+        log.info("No changes (cluster meet), required nodes map is empty")
         ret['result'] = True
         return ret
+    elif not nodes and fail_if_empty_nodes:
+        log.error("No changes (cluster meet), required nodes map is empty")
+        ret['comment'] = "Required nodes map is empty"
+        return ret
 
-    initiator = nodes_map[nodes_map.keys()[0]]
+    initiator = nodes[nodes.keys()[0]]
     initiator_ip = _filter_ip(initiator['ips'], cidr)[0]
     initiator_port = initiator['port']
-    others = [[_filter_ip(v['ips'], cidr)[0], v['port']] for k, v in nodes_map.items()]
+    others = [[_filter_ip(v['ips'], cidr)[0], v['port']] for k, v in nodes.items()]
 
     log.info("Cluster meet from {}:{} to: {}".format(initiator_ip, initiator_port, others))
 
@@ -231,7 +248,7 @@ def promote(name, nodes, desired_masters, attempts=4, cidr=None):
     desired_masters = [e for e in desired_masters if e in nodes.keys()]
 
     nodes_ext = copy.deepcopy(nodes)
-    nodes_ext = _cluster_state(nodes_ext, cidr)
+    nodes_ext = _cluster_state(nodes_ext, cidr, include_slots=False)
 
     if not nodes_ext:
         msg = "Unable to configure redis cluster as one node contains improper configuration"
@@ -266,7 +283,7 @@ def promote(name, nodes, desired_masters, attempts=4, cidr=None):
                     return {}
 
             time.sleep(5)  # wait for cluster, todo schedule some other state for later execution instead of sleep
-            return _failover(attempts - 1, _cluster_state(nodes_ext, cidr))
+            return _failover(attempts - 1, _cluster_state(nodes_ext, cidr, include_slots=False))
 
     log.warn("START = {}".format(nodes_ext.keys()))
 
