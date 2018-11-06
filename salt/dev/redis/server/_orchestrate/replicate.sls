@@ -16,8 +16,7 @@
   {% endfor %}
 {% endif %}
 
-redis_cluster_replicate:
-  redis_ext.replicate:
-    - name: redis_cluster_replicate
-    - nodes_map: {{ nodes_map }}
+redis_cluster_replicated:
+  redis_ext.replicated:
+    - nodes: {{ nodes_map }}
     - slaves_list: {{ slaves_list }}

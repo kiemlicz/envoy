@@ -83,22 +83,22 @@ def met(name, nodes, cidr=None, fail_if_empty_nodes=True):
         return ret
 
 
-def replicate(name, nodes_map, slaves_list, cidr=None):
+def replicated(name, nodes, slaves_list, cidr=None):
     ret = {'name': name,
            'result': False,
            'changes': {},
            'comment': ''}
 
-    if not nodes_map:
-        log.info("No changes (cluster replicate) will be made as required nodes_map is empty")
+    if not nodes:
+        log.info("No changes (cluster replicate) will be made as required nodes map is empty")
         ret['result'] = True
         return ret
 
-    for slave in [e for e in slaves_list if e['name'] in nodes_map.keys()]:
-        slave_ip = _filter_ip(nodes_map[slave['name']]['ips'], cidr)[0]
-        slave_port = nodes_map[slave['name']]['port']
-        master_ip = _filter_ip(nodes_map[slave['of_master']]['ips'], cidr)[0]
-        master_port = nodes_map[slave['of_master']]['port']
+    for slave in [e for e in slaves_list if e['name'] in nodes.keys()]:
+        slave_ip = _filter_ip(nodes[slave['name']]['ips'], cidr)[0]
+        slave_port = nodes[slave['name']]['port']
+        master_ip = _filter_ip(nodes[slave['of_master']]['ips'], cidr)[0]
+        master_port = nodes[slave['of_master']]['port']
         owned_slots = __salt__['redis_ext.slots'](slave_ip, slave_port)
         if not __salt__['redis_ext.delslots'](slave_ip, slave_port, owned_slots):
             log.error("Unable to perform cluster replicate (previous slots deletion failed)")
@@ -114,6 +114,8 @@ def replicate(name, nodes_map, slaves_list, cidr=None):
 
 def managed(name, nodes, min_nodes, desired_masters, total_slots=16384, desired_slots=None, cidr=None, policy="split"):
     '''
+    Ensures redis is running with all cluster parameters (master:slave ratio, slots assignment, replicas)
+
     :param min_nodes: minimum number of already instantiated nodes before starting the slots assignment
     :param nodes: { 'hostname1': {'ips': ["127.0.0.1"], 'port': 6379 }} all currently available nodes
     :param desired_masters:
@@ -127,7 +129,7 @@ def managed(name, nodes, min_nodes, desired_masters, total_slots=16384, desired_
            'result': False,
            'changes': {},
            'comment': ''}
-
+    # todo instead of below, state machine here
     if not nodes:
         log.info("No changes (cluster slots management) will be made as required 'nodes' are empty")
         ret['result'] = True
@@ -232,6 +234,15 @@ def managed(name, nodes, min_nodes, desired_masters, total_slots=16384, desired_
                 return ret
 
     ret['result'] = True
+    return ret
+
+
+def balanced(name, nodes, desired_masters):
+    ret = {'name': name,
+           'result': False,
+           'changes': {},
+           'comment': ''}
+    # todo above migrate, add slots logic here
     return ret
 
 
