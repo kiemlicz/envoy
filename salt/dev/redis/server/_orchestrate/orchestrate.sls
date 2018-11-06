@@ -5,8 +5,9 @@ def run():
   states = {}
 
   # fixme queue the orchestration runs
+  # then just revert to subset:1
 
-  states['redis_cluster_met'] = {
+  states['redis_cluster_initial_meet'] = {
     'salt.state': [
       { 'tgt': "redis:coordinator:True" },
       { 'tgt_type': "pillar" },
