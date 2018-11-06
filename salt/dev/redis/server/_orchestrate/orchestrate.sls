@@ -2,16 +2,33 @@
 
 
 def run():
-  state = {}
+  states = {}
+
+  # fixme queue the orchestration runs
+
+  states['redis_cluster_met'] = {
+    'salt.state': [
+      { 'tgt': "redis:coordinator:True" },
+      { 'tgt_type': "pillar" },
+      { 'sls': [
+        "redis.server._orchestrate.met"
+      ]},
+      { 'saltenv': saltenv },
+      { 'pillar': pillar },
+      { 'require': [
+        { 'salt': "refresh_pillar" }
+      ]},
+    ]
+  }
+
 
   if 'reset' in pillar['redis'] and pillar['redis']['reset']:
-    state['redis_cluster_reset'] = {
+    states['redis_cluster_reset'] = {
       'salt.state': [
         { 'tgt': "*" },
         { 'sls': [
             "redis.server._orchestrate.reset"
         ]},
-        { 'queue': True },
         { 'saltenv': saltenv },
         { 'pillar': pillar },
         { 'require': [
@@ -23,14 +40,13 @@ def run():
       ]
     }
 
-  state['redis_cluster_meet'] = {
+  states['redis_cluster_meet'] = {
     'salt.state': [
       { 'tgt': "*" },
       { 'subset': 1 },
       { 'sls': [
         "redis.server._orchestrate.meet"
       ]},
-      { 'queue': True },
       { 'saltenv': saltenv },
       { 'pillar': pillar },
       { 'require': [
@@ -39,14 +55,13 @@ def run():
     ]
   }
 
-  state['redis_cluster_slots'] = {
+  states['redis_cluster_slots'] = {
     'salt.state': [
       { 'tgt': "*" },
       { 'subset': 1 },
       { 'sls': [
         "redis.server._orchestrate.slots",
       ]},
-      { 'queue': True },
       { 'saltenv': saltenv },
       { 'pillar': pillar },
       { 'require': [
@@ -55,14 +70,13 @@ def run():
     ]
   }
 
-  state['redis_cluster_replicate'] = {
+  states['redis_cluster_replicate'] = {
     'salt.state': [
       { 'tgt': "*" },
       { 'subset': 1 },
       { 'sls': [
         "redis.server._orchestrate.replicate"
       ]},
-      { 'queue': True },
       { 'saltenv': saltenv },
       { 'pillar': pillar },
       { 'require': [
@@ -71,4 +85,4 @@ def run():
     ]
   }
 
-  return state
+  return states

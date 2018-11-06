@@ -41,7 +41,7 @@ def _cluster_state(nodes, cidr, include_slots=True):
     return nodes
 
 
-def meet(name, nodes, cidr=None, fail_if_empty_nodes=True):
+def met(name, nodes, cidr=None, fail_if_empty_nodes=True):
     '''
     Redis CLUSTER MEETs all instances
     This state run results in all instances connected to others (given proper network configuration etc.)
@@ -77,7 +77,9 @@ def meet(name, nodes, cidr=None, fail_if_empty_nodes=True):
         ret['changes']["node: {}:{}".format(initiator_ip, initiator_port)] = "met: {}".format(others)
         return ret
     else:
-        log.error("Unable to perform cluster meet")
+        msg = "Unable to perform cluster meet"
+        log.error(msg)
+        ret['comment'] = msg
         return ret
 
 
@@ -180,7 +182,7 @@ def managed(name, nodes, min_nodes, desired_masters, total_slots=16384, desired_
     log.debug("Current cluster state: {}".format(nodes_ext))
     log.debug("Desired slots assignment: {}".format(desired_slots))
 
-    promote_ret = promote(name, nodes, desired_masters, cidr=cidr)
+    promote_ret = roles(name, nodes, desired_masters, cidr=cidr)
     if not promote_ret['result']:
         ret['comment'] = "delegated redis_ext.promote has failed"
         ret['changes'] = promote_ret['changes']
@@ -233,11 +235,13 @@ def managed(name, nodes, min_nodes, desired_masters, total_slots=16384, desired_
     return ret
 
 
-def promote(name, nodes, desired_masters, attempts=4, cidr=None):
+def roles(name, nodes, desired_masters, attempts=4, cidr=None):
     ret = {'name': name,
            'result': False,
            'changes': {},
            'comment': ''}
+
+    # failover will not be able to change the number of master nodes
 
     if not nodes:
         log.info("No changes (cluster promote slaves to masters) will be made as required names are empty")
@@ -295,15 +299,15 @@ def promote(name, nodes, desired_masters, attempts=4, cidr=None):
     return ret
 
 
-def reset(name, nodes_map, masters_names, cidr=None):
+def reset(name, nodes, masters_names, cidr=None):
     ret = {'name': name,
            'result': False,
            'changes': {},
            'comment': ''}
 
-    log.info("This operation will wipe all redis instances: {}".format(nodes_map))
+    log.info("This operation will wipe all redis instances: {}".format(nodes))
 
-    for name, details in nodes_map.items():
+    for name, details in nodes.items():
         ip = _filter_ip(details['ips'], cidr)[0]
         port = details['port']
         if name in masters_names and not __salt__['redis_ext.flushall'](ip, port):

@@ -19,5 +19,5 @@
 redis_cluster_reset:
   redis_ext.reset:
     - name: redis_cluster_reset
-    - nodes_map: {{ nodes_map }}
+    - nodes: {{ nodes_map }}
     - masters_names: {{ masters_names }}

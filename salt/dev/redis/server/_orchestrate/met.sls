@@ -15,6 +15,6 @@
   {% endfor %}
 {% endif %}
 
-redis_cluster_meet:
-  redis_ext.meet:
-    - nodes_map: {{ nodes_map }}
+redis_cluster_met:
+  redis_ext.met:
+    - nodes: {{ nodes_map }}

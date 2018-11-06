@@ -18,6 +18,9 @@
   {% endfor %}
 {% endif %}
 
+# todo migrate separately
+#
+
 redis_cluster_slots_manage:
   redis_ext.managed:
     - nodes: {{ nodes_map }}
