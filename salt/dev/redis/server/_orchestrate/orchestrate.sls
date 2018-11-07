@@ -7,6 +7,12 @@ def run():
   # fixme queue the orchestration runs
   # then just revert to subset:1
 
+  states['wait_for_all_instances'] = {
+    'salt.runner': [
+      { 'name': }
+    ]
+  }
+
   states['redis_cluster_initial_meet'] = {
     'salt.state': [
       { 'tgt': "redis:coordinator:True" },
