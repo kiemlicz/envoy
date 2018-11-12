@@ -2,7 +2,8 @@
 {% from "_common/ip.jinja" import ip with context %}
 
 
-{% set slaves_list = redis.instances.get('slaves', []) %}
+{% set slaves_list = redis.instances.get('slaves') %}
+{% set masters_list = redis.instances.get('masters') %}
 {% if redis.kubernetes is defined %}
   {% set nodes_map = redis.kubernetes.pods %}
 {% else %}
@@ -20,3 +21,5 @@ redis_cluster_replicated:
   redis_ext.replicated:
     - nodes: {{ nodes_map }}
     - slaves_list: {{ slaves_list }}
+    - masters_list: {{ masters_list }}
+    - replication_factor: {{ redis.replication_factor }}

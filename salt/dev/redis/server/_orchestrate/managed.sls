@@ -3,6 +3,8 @@
 
 
 {% set desired_masters = redis.instances.get('masters', [])|map(attribute='name')|list %}
+{% set slaves_list = redis.instances.get('slaves') %}
+{% set masters_list = redis.instances.get('masters') %}
 {% if redis.kubernetes is defined %}
   {% set size = redis.kubernetes.status.replicas %}
   {% set nodes_map = redis.kubernetes.pods %}
@@ -18,14 +20,19 @@
   {% endfor %}
 {% endif %}
 
-# todo migrate separately
-
-
 # size assert could be placed in jinja here as well
 
-cluster_manage:
-  redis_ext.managed:
+redis_cluster_replicated:
+  redis_ext.replicated:
+    - nodes: {{ nodes_map }}
+    - slaves_list: {{ slaves_list }}
+    - masters_list: {{ masters_list }}
+    - replication_factor: {{ redis.replication_factor }}
+
+redis_cluster_balanced:
+  redis_ext.balanced:
   - nodes: {{ nodes_map }}
-  - min_nodes: {{ size }}
   - desired_masters: {{ desired_masters }}
   - total_slots: {{ redis.total_slots }}
+  - require:
+      - redis_ext: redis_cluster_replicated

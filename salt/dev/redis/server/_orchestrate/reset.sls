@@ -2,7 +2,6 @@
 {% from "_common/ip.jinja" import ip with context %}
 
 
-{% set masters_names = redis.instances.get('masters', [])|map(attribute='name')|list %}
 {% if redis.kubernetes is defined %}
   {% set nodes_map = redis.kubernetes.pods %}
 {% else %}
@@ -20,4 +19,3 @@ redis_cluster_reset:
   redis_ext.reset:
     - name: redis_cluster_reset
     - nodes: {{ nodes_map }}
-    - masters_names: {{ masters_names }}

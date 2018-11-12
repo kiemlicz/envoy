@@ -7,6 +7,9 @@ from salt.exceptions import SaltException
 log = logging.getLogger(__name__)
 
 
+class RedisClusterConfigurationException(SaltException):
+    pass
+
 # todo move to utils
 def _format_comments(comments):
     ret = '. '.join(comments)
@@ -25,11 +28,20 @@ def _fail(ret, msg, comments=None):
     return ret
 
 
-def _filter_ip(ips, cidr=None):
+def _filter_ip(ips, cidr):
     if cidr:
         return [e for e in ips if __salt__['network.ip_in_subnet'](e, cidr)]
     else:
         return ips
+
+
+def _reset_and_meet(name, nodes, cidr, hard):
+    reset_ret = __states__['redis_ext.reset']("{}_reset".format(name), nodes, cidr, hard=hard)
+    if not reset_ret['result']:
+        return reset_ret
+    # meet again, because of reset
+    meet_ret = __states__['redis_ext.met']("{}_meet".format(name), nodes, cidr)
+    return meet_ret
 
 
 def _cluster_state(nodes, cidr, include_slots=True):
@@ -71,41 +83,11 @@ def _has_any_slots(nodes):
     return False
 
 
-def met(name, nodes, cidr=None):
-    '''
-    Redis CLUSTER MEETs all instances
-    This state run results in all instances connected to others (given proper network configuration etc.)
-
-    :param name:
-    :param nodes: All currently available redis instances: { 'hostname1': {'ips': ["127.0.0.1", "1.2.3.4"], 'port': 6379 }}
-    :param cidr: network with mask to filter out ip addresses from 'ips' list
-    :param fail_if_empty_nodes: fail state if nodes is empty
-    '''
-    ret = {'name': name,
-           'result': False,
-           'changes': {},
-           'comment': ''}
-
-    if not nodes:
-        log.info("No changes (cluster meet), required 'nodes' map is empty")
-        ret['result'] = True
-        return ret
-
-    initiator = nodes[nodes.keys()[0]]
-    initiator_ip = _filter_ip(initiator['ips'], cidr)[0]
-    initiator_port = initiator['port']
-    others = [[_filter_ip(v['ips'], cidr)[0], v['port']] for k, v in nodes.items()]
-
-    log.info("Cluster meet from {}:{} to: {}".format(initiator_ip, initiator_port, others))
-
-    if __salt__['redis_ext.meet'](initiator_ip, initiator_port, others):
-        ret['result'] = True
-        ret['changes']["{}:{}".format(initiator_ip, initiator_port)] = "met: {}".format(others)
-        return ret
-    else:
-        return _fail(ret, "Unable to perform cluster meet")
+def _ip_port(nodes, name, cidr):
+    return _filter_ip(nodes[name]['ips'], cidr)[0], nodes[name]['port']
 
 
+#deprecated, not needed
 def managed(name, nodes, min_nodes, desired_masters, replication_factor = 2, desired_slots=None, cidr=None, policy="split"):
     '''
     Ensures redis is running with all cluster parameters (master:slave ratio, slots assignment, replicas)
@@ -144,20 +126,21 @@ def managed(name, nodes, min_nodes, desired_masters, replication_factor = 2, des
     log.debug("Current cluster state: {}".format(nodes_ext))
     log.debug("Desired slots assignment: {}".format(desired_slots))
 
+    # fixme - most likely completing replicated state will take over this state
+    # in sls just use below (else's) steps
     if _has_any_slots(nodes_ext):
         pass # fixme
     else:
-        reset_ret = __states__['redis_ext.reset']("{}_initial_reset".format(name), nodes, cidr, hard=False)
-        if not reset_ret['result']:
-            return _fail(ret, "Initial cluster reset has failed", [reset_ret['comment']])
-        meet_ret = __states__['redis_ext.met']("{}_meet_after_reset".format(name), nodes, cidr)
-        if not meet_ret['result']:
-            return _fail(ret, "Cluster meet after cluster reset has failed", [meet_ret['comment']])
+        # there are no slots assigned but the roles were not checked and could have been assigned
+        reset_meet_ret = _reset_and_meet(name, nodes, cidr, hard=False)
+        if not reset_meet_ret['result']:
+            return _fail(ret, "Cluster reset and meet has failed", [reset_meet_ret['comment']])
         # read instances pillar, if not found use replication_factor
         replicate_ret = __states__['redis_ext.replicated']("{}_replicated".format(name), ???)
         if not replicate_ret['result']:
             return _fail(ret, "Cluster replicate has failed", [replicate_ret['comment']])
         # read instances pillar, if not found use replication_factor
+        # fixme - I think it is not needed if we do balancing in replicate
         balance_ret = __states__['redis_ext.balanced']("{}_balanced".format(name), ???)
         if not balance_ret['result']:
             return _fail(ret, "Cluster balancing has failed", [balance_ret['comment']])
@@ -173,15 +156,48 @@ def managed(name, nodes, min_nodes, desired_masters, replication_factor = 2, des
     return ret
 
 
-def balanced(name, nodes, desired_slots=None, total_slots=16384, cidr=None, policy="split"):
+def met(name, nodes, cidr=None):
+    '''
+    Redis CLUSTER MEETs all instances
+    This state run results in all instances connected to others (given proper network configuration etc.)
+
+    :param name:
+    :param nodes: All currently available redis instances: { 'hostname1': {'ips': ["127.0.0.1", "1.2.3.4"], 'port': 6379 }}
+    :param cidr: network with mask to filter out ip addresses from 'ips' list
+    :param fail_if_empty_nodes: fail state if nodes is empty
+    '''
+    ret = {'name': name,
+           'result': False,
+           'changes': {},
+           'comment': ''}
+
+    if not nodes:
+        log.info("No changes (cluster meet), required 'nodes' map is empty")
+        ret['result'] = True
+        return ret
+
+    initiator_ip, initiator_port = _ip_port(nodes, nodes.keys()[0], cidr)
+    others = [[_filter_ip(v['ips'], cidr)[0], v['port']] for k, v in nodes.items()]
+
+    log.info("Cluster meet from {}:{} to: {}".format(initiator_ip, initiator_port, others))
+
+    if __salt__['redis_ext.meet'](initiator_ip, initiator_port, others):
+        ret['result'] = True
+        ret['changes']["{}:{}".format(initiator_ip, initiator_port)] = "met: {}".format(others)
+        return ret
+    else:
+        return _fail(ret, "Unable to perform cluster meet")
+
+
+def balanced(name, nodes, desired_masters, desired_slots=None, total_slots=16384, cidr=None, policy="split"):
     '''
     For current number of masters balances the cluster
 
     :param name:
     :param nodes:
-    :param desired_masters:
-    :param desired_slots:
-    :param total_slots:
+    :param desired_masters: [{'name': 'master1'}, {'name': 'master2'}]
+    :param desired_slots: {'master1': [1,2,3], 'master2': [4,5,6]}
+    :param total_slots: 16384
     :param cidr:
     :param policy:
     :return:
@@ -191,17 +207,30 @@ def balanced(name, nodes, desired_slots=None, total_slots=16384, cidr=None, poli
            'changes': {},
            'comment': ''}
 
+    if not nodes:
+        log.info("No changes (cluster balance) will be made as required 'nodes' map is empty")
+        ret['result'] = True
+        return ret
+
     nodes_ext = copy.deepcopy(nodes)
-    nodes_ext = _cluster_state(nodes_ext, cidr)
+    try:
+        nodes_ext = _cluster_state(nodes_ext, cidr)
+    except RedisClusterConfigurationException as e:
+        log.exception(e)
+        return _fail(ret, "Cluster balancing: cannot gather cluster-wide information")
+
     actions = {}
 
-    if not nodes_ext:
-        log.error("Unable to configure redis cluster as one node contains improper configuration")
-        ret['comment'] = "Unable to configure redis cluster as one node contains improper configuration"
-        return ret
+    if desired_masters is None:
+        log.info("Cluster balancing: using current's view masters")
+        desired_masters = [m for m, v in nodes_ext.items() if v['master']]
 
     if desired_slots is None:
         desired_slots = {}
+        # todo add consistent hashing
+
+        # sort desired masters lexicographically to avoid redundant migration
+        desired_masters = desired_masters.sort(key=lambda m: m['name'])
 
         def split():
             '''
@@ -230,126 +259,60 @@ def balanced(name, nodes, desired_slots=None, total_slots=16384, cidr=None, poli
         }
         policies[policy]()
 
-    for node_name, desired_slot_list in desired_slots.items():
-        add = set(desired_slot_list) - set(nodes_ext[node_name]['current_slots'])
+    for desired_master, desired_slot_list in desired_slots.items():
+        add = set(desired_slot_list) - set(nodes_ext[desired_master]['current_slots'])
         migrate_map = {}
-        for other_node in [e for e in nodes_ext.keys() if e != node_name and nodes_ext[e]['master']]:
-            to_migrate = set(nodes_ext[other_node]['current_slots']) & set(add)
-            if len(to_migrate) != 0:
-                migrate_map[other_node] = to_migrate
-                add = add - to_migrate
-        actions[node_name] = {
+        for other_node in [e for e in nodes_ext.keys() if e != desired_master and nodes_ext[e]['master']]:
+            migrate_to_desired_master = set(nodes_ext[other_node]['current_slots']) & set(add)
+            if len(migrate_to_desired_master) != 0:
+                migrate_map[other_node] = migrate_to_desired_master
+                add = add - migrate_to_desired_master
+        actions[desired_master] = {
             'add': add,
             'migrate': migrate_map
         }
 
-    log.info("Computed actions: {}".format(actions))
+    log.info("Cluster balancing: actions: {}".format(actions))
 
-    for node_name, action_map in actions.items():
-        dest_ip = _filter_ip(nodes_ext[node_name]['ips'], cidr)[0]
-        dest_port = nodes_ext[node_name]['port']
-        changes_key = "destination node: {}".format(node_name)
+    for desired_master, action_map in actions.items():
+        dest_ip, dest_port = _ip_port(nodes_ext, desired_master, cidr)
+        changes_key = "destination node: {}".format(desired_master)
 
+        # this is safe action, slots are not assigned anywhere else
         if __salt__['redis_ext.addslots'](dest_ip, dest_port, action_map['add']):
-            log.debug("Added slots to {}:{}".format(dest_ip, dest_port))
+            log.debug("Cluster balancing: added slots to {}:{}".format(dest_ip, dest_port))
             ret['changes'][changes_key] = {
                 'slots added': action_map['add']
             }
         else:
-            log.error("Unable to add slots to: {}:{}".format(dest_ip, dest_port))
-            ret['changes'][changes_key] = {
-                'slots added': "Failed. Wanted to add: {}".format(action_map['add'])
-            }
-            return ret
+            return _fail(ret, "Cluster balancing: unable to add slots to: {}:{}".format(dest_ip, dest_port))
 
-        for source_name, to_migrate in action_map['migrate'].items():
-            src_ip = _filter_ip(nodes_ext[source_name]['ips'], cidr)[0]
-            src_port = nodes_ext[source_name]['port']
-            result = __salt__['redis_ext.migrate'](src_ip, src_port, dest_ip, dest_port, to_migrate)
-            log.debug("Migrating slots from {}:{} to {}:{}".format(src_ip, src_port, dest_ip, dest_port))
-            ret['changes'][changes_key].update({"slots migrated to this node": result})
-            if not result['result']:
-                log.error("Failed to migrate slots ({}:{} -> {}:{})".format(src_ip, src_port, dest_ip, dest_port))
-                ret['changes'][changes_key].update({"slots migrated to this node": result})
-                return ret
+        for source_name, migrate_to_desired_master in action_map['migrate'].items():
+            src_ip, src_port = _ip_port(nodes_ext, source_name, cidr)
+            log.info("Cluster balancing: migrating slots from {}:{} to {}:{}".format(src_ip, src_port, dest_ip, dest_port))
+            log.debug("Slots: {}".format(migrate_to_desired_master))
+            migrate_ret = __salt__['redis_ext.migrate'](src_ip, src_port, dest_ip, dest_port, migrate_to_desired_master)
+            if migrate_ret['result']:
+                ret['changes'][changes_key].update({"slots migrated to this node": migrate_ret['migrated']})
+            else:
+                ret['changes'][changes_key].update({"slots migrated to this node": migrate_ret['migrated']})
+                ret['changes'][changes_key].update({"slots that failed to migrate to this node": migrate_ret['failed']})
+                return _fail(ret, "Cluster balancing: slots migration failed ({}:{} -> {}:{})".format(src_ip, src_port, dest_ip, dest_port))
 
     return ret
 
 
-def roles(name, nodes, desired_masters, attempts=4, cidr=None):
-    ret = {'name': name,
-           'result': False,
-           'changes': {},
-           'comment': ''}
-
-    # failover will not be able to change the number of master nodes
-
-    if not nodes:
-        log.info("No changes (cluster promote slaves to masters) will be made as required names are empty")
-        ret['result'] = True
-        return ret
-
-    # filter masters/slaves to include only those available in this run
-    desired_masters = [e for e in desired_masters if e in nodes.keys()]
-
-    nodes_ext = copy.deepcopy(nodes)
-    nodes_ext = _cluster_state(nodes_ext, cidr, include_slots=False)
-
-    if not nodes_ext:
-        msg = "Unable to configure redis cluster as one node contains improper configuration"
-        log.error(msg)
-        ret['comment'] = msg
-        return ret
-
-    def _converged(nodes_ext):
-        current_masters = [e for e in nodes_ext.keys() if nodes_ext[e]['master']]
-        log.warn("current: {} desirec {}, all: {}".format(current_masters, desired_masters, nodes_ext.keys()))
-        return set(current_masters) == set(desired_masters)
-
-    def _failover(attempts, nodes_ext):
-        if attempts <= 0:
-            log.error("Cannot swap slave <-> master roles")
-            return {}
-        elif not nodes_ext:
-            log.error("Cluster failover has failed during operation")
-            return {}
-        elif _converged(nodes_ext):
-            log.debug("Failover completed successfully")
-            return nodes_ext
-        else:
-            for current_slave in [m for m in desired_masters if not nodes_ext[m]['master']]:
-                slave_ip = _filter_ip(nodes_ext[current_slave]['ips'], cidr)[0]
-                slave_port = nodes_ext[current_slave]['port']
-                log.warn("{}:{} failover".format(slave_ip, slave_port))
-                if not __salt__['redis_ext.failover'](slave_ip, slave_port):
-                    msg = "Unable to promote: {}:{} to master".format(slave_ip, slave_port)
-                    ret['changes']["instance {}:{}".format(slave_ip, slave_port)] = "failed to upgrade to master"
-                    log.error(msg)
-                    return {}
-
-            time.sleep(5)  # wait for cluster, todo schedule some other state for later execution instead of sleep
-            return _failover(attempts - 1, _cluster_state(nodes_ext, cidr, include_slots=False))
-
-    log.warn("START = {}".format(nodes_ext.keys()))
-
-    if not _failover(attempts, nodes_ext):
-        ret['comment'] = "Unable to promote some slaves to masters"
-        return ret
-
-    ret['result'] = True
-    return ret
-
-
-def replicated(name, nodes, keys=None, slaves_list=None, masters_list=None, replication_factor=2, cidr=None):
+def replicated(name, nodes, slaves_list=None, masters_list=None, replication_factor=2, cidr=None):
     '''
-    CLUSTER REPLICATE either using by name slaves_list list or if the list is empty, using replication_factor
-    Assumes that the data will be split among all passed nodes
+    CLUSTER REPLICATE either using by name slaves_list list or if the list is None, using replication_factor
+    Assumes that the data will be split among all passed master nodes.
+    The number of slot spaces will be equal to: `len(nodes)/replication_factor`
 
     :param name:
     :param nodes:
-    :param keys: number of key spaces (desired number of
-    :param slaves_list: [{'name': 'name1', 'of_master': 'name2'},]
-    :param masters_list:
+    :param slaves_list: [{'name': 'name1', 'of_master': 'master2'}, {'name': 'name2', 'of_master': 'master1'}]
+    :param masters_list: [{'name': 'master1'}, {'name': 'master2'}]
+    :param replication_factor:
     :param cidr:
     :return:
     '''
@@ -363,31 +326,71 @@ def replicated(name, nodes, keys=None, slaves_list=None, masters_list=None, repl
         ret['result'] = True
         return ret
 
+    if (slaves_list is None and masters_list is None) and len(nodes) < replication_factor:
+        return _fail(ret, "Cluster replicate: insufficient number of redis instances ({}) for replication factor = {}".format(len(nodes), replication_factor))
+
     nodes_ext = copy.deepcopy(nodes)
     try:
         nodes_ext = _cluster_state(nodes_ext, cidr)
     except RedisClusterConfigurationException as e:
         log.exception(e)
-        return _fail(ret, "Cannot gather cluster-wide information")
+        return _fail(ret, "Cluster replicate: cannot gather cluster-wide information")
 
-    # fixme validation of either factor or list nodes availability
+    def _promote(nodes_ext, desired_masters):
+        # reset roles of current slaves that must become masters
+        upgrade = {}
+        for current_slave in [m for m in desired_masters if not nodes_ext[m['name']]['master']]:
+            upgrade[current_slave] = nodes_ext[current_slave]
+
+        return _reset_and_meet(name, upgrade, cidr, hard=False)
 
     if slaves_list is None and masters_list is None:
         all_nodes = nodes_ext.keys()
-        # read master and slave nodes, check ratio
-        # reset roles
-        # replicate and done
+        key_spaces = len(all_nodes) / replication_factor
+        current_masters = [{'name': m} for m,v in nodes_ext.items() if v['master']]
+        current_slaves = [{'name': s} for s,v in nodes_ext.items() if not v['master']]
+
+        if key_spaces > len(current_masters):
+            # too many slaves
+            # todo slave picking policy
+            number_of_extra_slaves = key_spaces - len(current_masters)
+            extra_slaves = current_slaves[-number_of_extra_slaves:]
+            promote_ret = _promote(nodes_ext, extra_slaves)
+            if not promote_ret['result']:
+                return _fail(ret, "Cluster replicate: promotion of slaves has failed", [promote_ret['comment']])
+            # replica migration will take from here
+        elif key_spaces < len(current_masters):
+            # too many masters
+            number_of_extra_masters = len(current_masters) - key_spaces
+            desired_masters = current_masters[:-number_of_extra_masters]
+            extra_masters = current_masters[-number_of_extra_masters:]
+            # fail or balance, lets balance
+            balanced_ret = __states__['redis_ext.balanced'](name, nodes, desired_masters, cidr=cidr)
+            if not balanced_ret['result']:
+                return _fail(ret, "Cluster replicate: unable to balance slots among: {}".format(desired_masters), [balanced_ret['comment']])
+            for new_slave in extra_masters:
+                slave_ip, slave_port = _ip_port(nodes_ext, new_slave['name'], cidr)
+                # replica migration will balance this poor choice
+                master_ip, master_port = _ip_port(nodes_ext, desired_masters[0]['name'], cidr)
+                if not __salt__['redis_ext.replicate'](master_ip, master_port, slave_ip, slave_port):
+                    return _fail(ret, "Cluster replicate: slave ({}:{}) cannot replicate master ({}:{})".format(slave_ip, slave_port, master_ip, master_port))
+        # elif key_spaces == len(current_masters):
+        # replica migration should kick-in and balance it for us
+        # https://redis.io/topics/cluster-spec#replica-migration
+    elif slaves_list is None or masters_list is None:
+        return _fail(ret, "Cluster replicate: both slaves_list and masters_list must be passed")
     else:
-        # reset roles for slaves that must become masters
-        upgrade = {}
-        for current_slave in [m for m in masters_list if not nodes_ext[m]['master']]:
-            upgrade[current_slave] = nodes_ext[current_slave]
-        #reset and meet upgrade nodes
-        for slave in [e for e in slaves_list if e['name'] in nodes_ext.keys()]:
-            slave_ip = _filter_ip(nodes_ext[slave['name']]['ips'], cidr)[0]
-            slave_port = nodes_ext[slave['name']]['port']
-            master_ip = _filter_ip(nodes_ext[slave['of_master']]['ips'], cidr)[0]
-            master_port = nodes_ext[slave['of_master']]['port']
+        # filter lists to use only available redis instances
+        slaves_list = [s for s in slaves_list if s['name'] in nodes_ext.keys()]
+        masters_list = [m for m in masters_list if m['name'] in nodes_ext.keys()]
+
+        promote_ret = _promote(nodes_ext, masters_list)
+        if not promote_ret['result']:
+            return _fail(ret, "Cluster replicate, promotion of slaves has failed", [promote_ret['comment']])
+
+        for slave in slaves_list:
+            slave_ip, slave_port = _ip_port(nodes_ext, slave['name'], cidr)
+            master_ip, master_port = _ip_port(nodes_ext, slave['of_master'], cidr)
             owned_slots = __salt__['redis_ext.slots'](slave_ip, slave_port)
             if not __salt__['redis_ext.delslots'](slave_ip, slave_port, owned_slots):
                 return _fail(ret, "Unable to perform cluster replicate (previous slots deletion failed)")
@@ -440,6 +443,3 @@ def reset(name, nodes, cidr=None, hard=False):
 
     ret['result'] = True
     return ret
-
-class RedisClusterConfigurationException(SaltException):
-    pass

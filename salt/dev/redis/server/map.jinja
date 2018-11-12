@@ -41,6 +41,7 @@
     'config': config,
     'instances': instances,
     'total_slots': 16384,
+    'replication_factor': 2,
   },
   'Debian': {
     'pkg_name': 'redis-server',
@@ -48,5 +49,6 @@
     'config': config,
     'instances': instances,
     'total_slots': 16384,
+    'replication_factor': 2,
   },
 }, merge=salt['pillar.get']('redis')) %}

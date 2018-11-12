@@ -1,95 +1,34 @@
-#!py
+#wait_for_all_instances:
+#  salt.wait_for_event:
+#    - name: salt/redis/kubernetes/*
+#    - id_list:
+#        - redis-cluster-0
+#        - redis-cluster-1
+#        - redis-cluster-2
+#        - redis-cluster-3
+#    - event_id:
+#        - pod_name
+# todo pillar.get size and create list here in jinja, this would be safe
+# todo add onfail
 
+cluster_met:
+  salt.state:
+    - tgt: "redis:coordinator:True"
+    - tgt_type: pillar
+    - sls:
+        - redis.server._orchestrate.met
+    - saltenv: {{ saltenv }}
+    - pillarenv: {{ pillarenv }}
+    - require:
+        - salt: refresh_pillar
 
-def run():
-  states = {}
-
-  # fixme queue the orchestration runs
-  # then just revert to subset:1
-
-  states['wait_for_all_instances'] = {
-    'salt.runner': [
-      { 'name': }
-    ]
-  }
-
-  states['redis_cluster_initial_meet'] = {
-    'salt.state': [
-      { 'tgt': "redis:coordinator:True" },
-      { 'tgt_type': "pillar" },
-      { 'sls': [
-        "redis.server._orchestrate.met"
-      ]},
-      { 'saltenv': saltenv },
-      { 'pillar': pillar },
-      { 'require': [
-        { 'salt': "refresh_pillar" }
-      ]},
-    ]
-  }
-
-
-  if 'reset' in pillar['redis'] and pillar['redis']['reset']:
-    states['redis_cluster_reset'] = {
-      'salt.state': [
-        { 'tgt': "*" },
-        { 'sls': [
-            "redis.server._orchestrate.reset"
-        ]},
-        { 'saltenv': saltenv },
-        { 'pillar': pillar },
-        { 'require': [
-          {'salt': "refresh_pillar" }
-        ]},
-        { 'require_in': [
-          {'salt': "redis_cluster_meet" }
-        ]}
-      ]
-    }
-
-  states['redis_cluster_meet'] = {
-    'salt.state': [
-      { 'tgt': "*" },
-      { 'subset': 1 },
-      { 'sls': [
-        "redis.server._orchestrate.meet"
-      ]},
-      { 'saltenv': saltenv },
-      { 'pillar': pillar },
-      { 'require': [
-        { 'salt': "refresh_pillar" }
-      ]},
-    ]
-  }
-
-  states['redis_cluster_slots'] = {
-    'salt.state': [
-      { 'tgt': "*" },
-      { 'subset': 1 },
-      { 'sls': [
-        "redis.server._orchestrate.slots",
-      ]},
-      { 'saltenv': saltenv },
-      { 'pillar': pillar },
-      { 'require': [
-        {'salt': "redis_cluster_meet" }
-      ]}
-    ]
-  }
-
-  states['redis_cluster_replicate'] = {
-    'salt.state': [
-      { 'tgt': "*" },
-      { 'subset': 1 },
-      { 'sls': [
-        "redis.server._orchestrate.replicate"
-      ]},
-      { 'saltenv': saltenv },
-      { 'pillar': pillar },
-      { 'require': [
-        {'salt': "redis_cluster_slots" }
-      ]}
-    ]
-  }
-
-  return states
+cluster_managed:
+  salt.state:
+    - tgt: "redis:coordinator:True"
+    - tgt_type: pillar
+    - sls:
+        - redis.server._orchestrate.managed
+    - saltenv: {{ saltenv }}
+    - pillarenv: {{ pillarenv }}
+    - require:
+        - salt: cluster_meet

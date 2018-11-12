@@ -10,6 +10,7 @@ redis:
     init: salt://redis.init
     init_location: /etc/init.d/redis-server
     service: redis-server
+  replication_factor: 2
   instances:
     masters:
     - name: minionid
