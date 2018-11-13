@@ -30,10 +30,10 @@ def meet(ip, port, others):
 
 def replicate(master_ip, master_port, slave_ip, slave_port):
     try:
-        r = redis.StrictRedis(host=slave_ip, port=slave_port)
+        s = redis.StrictRedis(host=slave_ip, port=slave_port)
         m = redis.StrictRedis(host=master_ip, port=master_port)
         master_id = m.cluster("myid")
-        r.cluster("replicate", master_id)
+        s.cluster("replicate", master_id)
     except Exception as e:
         log.error("Cluster replicate (slave: {}:{}, master {}:{}) failed".format(slave_ip, slave_port, master_ip, master_port))
         log.exception(e)
@@ -51,6 +51,8 @@ def migrate(src_ip, src_port, dest_ip, dest_port, slot_list, batch_size=100):
         'result': False
     }
     if len(slot_list) == 0:
+        # if there is nothing to migrate then is it success
+        ret['result'] = True
         return ret
 
     src = redis.StrictRedis(host=src_ip, port=src_port)

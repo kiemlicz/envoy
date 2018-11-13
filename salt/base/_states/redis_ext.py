@@ -196,7 +196,8 @@ def balanced(name, nodes, desired_masters=None, desired_slots=None, total_slots=
             'migrate': migrate_map
         }
 
-    log.info("Cluster balancing: actions: {}".format(actions))
+    log.info("All nodes: {}, desired masters: {}".format(nodes_ext.keys(), desired_masters))
+    log.debug("Cluster balancing: actions: {}".format(actions))
 
     for desired_master, action_map in actions.items():
         dest_ip, dest_port = _ip_port(nodes_ext, desired_master, cidr)
@@ -294,13 +295,17 @@ def replicated(name, nodes, slaves_list=None, masters_list=None, replication_fac
             desired_masters = current_masters[:-number_of_extra_masters]
             extra_masters = current_masters[-number_of_extra_masters:]
             # fail or balance, lets balance
+            log.info("Cluster replicate: migrating slots to: {}".format(desired_masters))
             balanced_ret = __states__['redis_ext.balanced'](name, nodes, desired_masters, cidr=cidr)
             if not balanced_ret['result']:
                 return _fail(ret, "Cluster replicate: unable to balance slots among: {}".format(desired_masters), [balanced_ret['comment']])
+            log.info("Cluster replicate: promoting slaves: {}".format(extra_masters))
             for new_slave in extra_masters:
                 slave_ip, slave_port = _ip_port(nodes_ext, new_slave['name'], cidr)
                 # replica migration will balance this poor choice
                 master_ip, master_port = _ip_port(nodes_ext, desired_masters[0]['name'], cidr)
+                if not __salt__['redis_ext.flushall'](slave_ip, slave_port):
+                    return _fail(ret, "Cluster replicate: unable to flushall data from old master")
                 if not __salt__['redis_ext.replicate'](master_ip, master_port, slave_ip, slave_port):
                     return _fail(ret, "Cluster replicate: slave ({}:{}) cannot replicate master ({}:{})".format(slave_ip, slave_port, master_ip, master_port))
         # elif key_spaces == len(current_masters):
