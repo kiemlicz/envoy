@@ -8,14 +8,14 @@
   {% if repo.names is defined %}
     - names: {{ repo.names|json_decode_list }}
     - file: {{ repo.file }}
-  {% if repo.key_url is defined %}
-    - key_url: {{ repo.key_url }}
+  {% if repo.key_text is defined %}
+    - key_text: {{ repo.key_text|yaml_encode }}
   {% elif repo.keyid is defined %}
     - keyid: {{ repo.keyid }}
     - keyserver: {{ repo.keyserver }}
     - clean: True
-  {% elif repo.key_text is defined %}
-    - key_text: {{ repo.key_text|yaml_encode }}
+  {% elif repo.key_url is defined %}
+    - key_url: {{ repo.key_url }}
   {% endif %}
     - refresh: {{ refresh }}
   {% else %}
