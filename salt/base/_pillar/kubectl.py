@@ -26,7 +26,10 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
     config_path = kwargs['config']
     queries = kwargs['queries']
     for query_conf in queries:
-        command = "kubectl get {} {} -o yaml".format(query_conf['type'], query_conf['name'])
+        kind = query_conf['kind']
+        name = query_conf['name']
+        namespace = query_conf['namespace'] if 'namespace' in query_conf else 'default'
+        command = "kubectl get {} {} -o yaml -n {}".format(kind, name, namespace)
         output = __salt__['cmd.run_stdout'](command, python_shell=True, env={'KUBECONFIG': config_path})
         if output:
             key_list = query_conf['key'].split(DEFAULT_TARGET_DELIM)
