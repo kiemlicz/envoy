@@ -501,3 +501,29 @@ def len_ne(name, value):
     if len(__reg__[name]['val']) != value:
         ret['result'] = True
     return ret
+
+
+def len_eq_reg(name, len_reg, len_reg_val):
+    ret = {'name': name,
+           'result': False,
+           'comment': '',
+           'changes': {}}
+
+    if name not in __reg__ or len_reg not in __reg__:
+        log.debug("No registers: {} or {} found".format(name, len_reg))
+        ret['result'] = False
+        ret['comment'] = 'Value {0}, or {1} not in register'.format(name, len_reg)
+        return ret
+
+    if len(__reg__[len_reg]['val']) != 1:
+        log.debug("No single len_reg value found (actually: {})".format(__reg__[len_reg]['val']))
+        ret['result'] = False
+        ret['comment'] = 'Length value in {} is either empty or contains too many values ({})'.format(len_reg, __reg__[len_reg]['val'])
+        return ret
+
+    log.debug("Checking: len({}) == {}".format(__reg__[name]['val'], __reg__[len_reg]['val'][0][len_reg_val]))
+
+    if len(__reg__[name]['val']) == __reg__[len_reg]['val'][0][len_reg_val]:
+        ret['result'] = True
+
+    return ret
