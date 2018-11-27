@@ -14,19 +14,24 @@ redis:
   instances:
     masters:
     - name: minionid
-      ip: 1.2.3.4
-      port: 1234
     - name: minionid_other
-      ip: 1.2.3.5
-      port: 1234
     - name: some_name_not_minion
-      ip: 1.2.3.4
-      port: 1236
     slaves:
     - name: minionidslave
       of_master: minionid
-      ip: 1.2.3.6
-      port: 1235
+    map:
+        minionid:
+            ip: 1.2.3.4
+            port: 1234
+        minionid_other:
+            ip: 1.2.3.5
+            port: 1234
+        some_name_not_minion:
+            ip: 1.2.3.4
+            port: 1236
+        minionidslave:
+            ip: 1.2.3.6
+            port: 1235
 ---
 redis:
   instances:
@@ -38,3 +43,19 @@ redis:
       ofmaster: pod1
     - name: pod4
       ofmaster: pod2
+---
+redis:
+  instances:
+    map:
+        pod1:
+            ip: 127.0.0.1
+            port: 6379
+        pod2:
+            ip: 127.0.0.1
+            port: 6379
+        pod3:
+            ip: 127.0.0.1
+            port: 6379
+        pod4:
+            ip: 127.0.0.1
+            port: 6379

@@ -1,20 +1,15 @@
 #!py
 
-#wait_for_all_instances:
-#  salt.wait_for_event:
-#    - name: salt/redis/kubernetes/*
-#    - id_list:
-#        - redis-cluster-0
-#        - redis-cluster-1
-#        - redis-cluster-2
-#        - redis-cluster-3
-#    - event_id:
-#        - pod_name
-# todo pillar.get size and create list here in jinja, this would be safe
-# todo add onfail
 
 def run():
   states = {}
+
+  states['refresh_pillar'] = {
+    'salt.function': [
+      { 'name': "saltutil.pillar_refresh" },
+      { 'tgt': "*" },
+    ]
+  }
 
   states['cluster_met'] = {
     'salt.state': [
@@ -25,6 +20,9 @@ def run():
       ]},
       { 'queue': True },
       { 'saltenv': saltenv },
+      { 'require': [
+        { 'salt': "refresh_pillar" }
+      ]}
     ]
   }
 

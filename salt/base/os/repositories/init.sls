@@ -1,5 +1,4 @@
 {% from "os/repositories/map.jinja" import repositories with context %}
-{% from "_common/util.jinja" import retry with context %}
 {% from "_common/repo.jinja" import repository, preferences with context %}
 
 {% for repo in repositories.list %}

@@ -36,14 +36,14 @@ def _filter_ip(ips, cidr):
         return ips
 
 
-def _cluster_state(nodes, cidr, include_slots=True):
+def _cluster_state(instances, cidr, include_slots=True):
     '''
     Enrich input nodes map with cluster nodes and cluster slots commands
-    :param nodes:
+    :param instances:
     :param cidr:
     :return:
     '''
-    for name, details in nodes.items():
+    for name, details in instances.items():
         ip = _filter_ip(details['ips'], cidr)[0]
         port = details['port']
         node_view = __salt__['redis_ext.nodes'](ip, port)
@@ -66,7 +66,7 @@ def _cluster_state(nodes, cidr, include_slots=True):
         if include_slots:
             details['current_slots'] = __salt__['redis_ext.slots'](ip, port)
 
-    return nodes
+    return instances
 
 
 def _has_any_slots(nodes):
@@ -80,32 +80,38 @@ def _ip_port(nodes, name, cidr):
     return _filter_ip(nodes[name]['ips'], cidr)[0], nodes[name]['port']
 
 
-def met(name, nodes, cidr=None):
+def met(name, instances, cidr=None, meet_delay=5):
     '''
     Redis CLUSTER MEETs all instances
     This state run results in all instances connected to others (given proper network configuration etc.)
 
     :param name:
-    :param nodes: All currently available redis instances: { 'hostname1': {'ips': ["127.0.0.1", "1.2.3.4"], 'port': 6379 }}
+    :param instances: All currently available redis instances: { 'hostname1': {'ips': ["127.0.0.1", "1.2.3.4"], 'port': 6379 }}
     :param cidr: network with mask to filter out ip addresses from 'ips' list
-    :param fail_if_empty_nodes: fail state if nodes is empty
+    :param meet_delay:
     '''
     ret = {'name': name,
            'result': False,
            'changes': {},
            'comment': ''}
 
-    if not nodes:
+    if not instances:
         log.info("No changes (cluster meet), required 'nodes' map is empty")
         ret['result'] = True
         return ret
 
-    initiator_ip, initiator_port = _ip_port(nodes, nodes.keys()[0], cidr)
-    others = [[_filter_ip(v['ips'], cidr)[0], v['port']] for k, v in nodes.items()]
+    initiator_ip, initiator_port = _ip_port(instances, instances.keys()[0], cidr)
+    others = [[_filter_ip(v['ips'], cidr)[0], v['port']] for k, v in instances.items()]
 
     log.info("Cluster meet from {}:{} to: {}".format(initiator_ip, initiator_port, others))
 
     if __salt__['redis_ext.meet'](initiator_ip, initiator_port, others):
+        time.sleep(meet_delay)
+        try:
+            _cluster_state(instances, cidr, include_slots=False)
+        except RedisClusterConfigurationException as e:
+            log.exception(e)
+            return _fail(ret, "Cluster state is still inconsistent")
         ret['result'] = True
         ret['changes']["{}:{}".format(initiator_ip, initiator_port)] = "met: {}".format(others)
         return ret
@@ -113,12 +119,12 @@ def met(name, nodes, cidr=None):
         return _fail(ret, "Unable to perform cluster meet")
 
 
-def balanced(name, nodes, desired_masters=None, desired_slots=None, total_slots=16384, cidr=None, policy="split"):
+def balanced(name, instances, desired_masters=None, desired_slots=None, total_slots=16384, cidr=None, policy="split"):
     '''
     For current number of masters balances the cluster
 
     :param name:
-    :param nodes:
+    :param instances:
     :param desired_masters: [{'name': 'master1'}, {'name': 'master2'}]
     :param desired_slots: {'master1': [1,2,3], 'master2': [4,5,6]}
     :param total_slots: 16384
@@ -131,12 +137,12 @@ def balanced(name, nodes, desired_masters=None, desired_slots=None, total_slots=
            'changes': {},
            'comment': ''}
 
-    if not nodes:
+    if not instances:
         log.info("No changes (cluster balance) will be made as required 'nodes' map is empty")
         ret['result'] = True
         return ret
 
-    nodes_ext = copy.deepcopy(nodes)
+    nodes_ext = copy.deepcopy(instances)
     try:
         nodes_ext = _cluster_state(nodes_ext, cidr)
     except RedisClusterConfigurationException as e:
@@ -228,14 +234,14 @@ def balanced(name, nodes, desired_masters=None, desired_slots=None, total_slots=
     return ret
 
 
-def replicated(name, nodes, slaves_list=None, masters_list=None, replication_factor=2, cidr=None):
+def replicated(name, instances, slaves_list=None, masters_list=None, replication_factor=2, cidr=None):
     '''
     CLUSTER REPLICATE either using by name slaves_list list or if the list is None, using replication_factor
     Assumes that the data will be split among all passed master nodes.
     The number of slot spaces will be equal to: `len(nodes)/replication_factor`
 
     :param name:
-    :param nodes:
+    :param instances:
     :param slaves_list: [{'name': 'name1', 'of_master': 'master2'}, {'name': 'name2', 'of_master': 'master1'}]
     :param masters_list: [{'name': 'master1'}, {'name': 'master2'}]
     :param replication_factor:
@@ -247,15 +253,15 @@ def replicated(name, nodes, slaves_list=None, masters_list=None, replication_fac
            'changes': {},
            'comment': ''}
 
-    if not nodes:
+    if not instances:
         log.info("No changes (cluster replicate) will be made as required 'nodes' map is empty")
         ret['result'] = True
         return ret
 
-    if (not slaves_list and not masters_list) and len(nodes) < replication_factor:
-        return _fail(ret, "Cluster replicate: insufficient number of redis instances ({}) for replication factor = {}".format(len(nodes), replication_factor))
+    if (not slaves_list and not masters_list) and len(instances) < replication_factor:
+        return _fail(ret, "Cluster replicate: insufficient number of redis instances ({}) for replication factor = {}".format(len(instances), replication_factor))
 
-    nodes_ext = copy.deepcopy(nodes)
+    nodes_ext = copy.deepcopy(instances)
     try:
         nodes_ext = _cluster_state(nodes_ext, cidr)
     except RedisClusterConfigurationException as e:
@@ -296,7 +302,7 @@ def replicated(name, nodes, slaves_list=None, masters_list=None, replication_fac
             extra_masters = current_masters[-number_of_extra_masters:]
             # fail or balance, lets balance
             log.info("Cluster replicate: migrating slots to: {}".format(desired_masters))
-            balanced_ret = __states__['redis_ext.balanced'](name, nodes, desired_masters, cidr=cidr)
+            balanced_ret = __states__['redis_ext.balanced'](name, instances, desired_masters, cidr=cidr)
             if not balanced_ret['result']:
                 return _fail(ret, "Cluster replicate: unable to balance slots among: {}".format(desired_masters), [balanced_ret['comment']])
             log.info("Cluster replicate: promoting slaves: {}".format(extra_masters))
@@ -336,13 +342,13 @@ def replicated(name, nodes, slaves_list=None, masters_list=None, replication_fac
     return ret
 
 
-def reset(name, nodes, cidr=None, hard=False):
+def reset(name, instances, cidr=None, hard=False):
     '''
     CLUSTER RESET given nodes
     If the node is the master node, FLUSHALL its keys
 
     :param name:
-    :param nodes:
+    :param instances:
     :param masters_names:
     :param cidr:
     :param hard:
@@ -353,12 +359,12 @@ def reset(name, nodes, cidr=None, hard=False):
            'changes': {},
            'comment': ''}
 
-    if not nodes:
+    if not instances:
         log.info("No changes (cluster reset) will be made as required 'nodes' map is empty")
         ret['result'] = True
         return ret
 
-    nodes_ext = copy.deepcopy(nodes)
+    nodes_ext = copy.deepcopy(instances)
     try:
         nodes_ext = _cluster_state(nodes_ext, cidr)
     except RedisClusterConfigurationException as e:
