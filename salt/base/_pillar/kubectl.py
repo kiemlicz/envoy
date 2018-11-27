@@ -2,6 +2,7 @@ import logging
 
 import salt.utils.yaml
 from salt.defaults import DEFAULT_TARGET_DELIM
+from salt.exceptions import CommandExecutionError
 
 log = logging.getLogger(__name__)
 
@@ -23,13 +24,22 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
         else:
             return {}
 
+    def query(query_conf):
+        kind = query_conf['kind']
+        namespace = query_conf['namespace'] if 'namespace' in query_conf else 'default'
+        if 'name' in query_conf:
+            name = query_conf['name']
+            return "kubectl get {} {} -o yaml -n {}".format(kind, name, namespace)
+        if 'selector' in query_conf:
+            selector = query_conf['selector']
+            return "kubectl get {} -o yaml -l {} -n {} ".format(kind, selector, namespace)
+        else:
+            raise CommandExecutionError('Cannot perform kubectl (ext_pillar), no name or selector provided')
+
     config_path = kwargs['config']
     queries = kwargs['queries']
     for query_conf in queries:
-        kind = query_conf['kind']
-        name = query_conf['name']
-        namespace = query_conf['namespace'] if 'namespace' in query_conf else 'default'
-        command = "kubectl get {} {} -o yaml -n {}".format(kind, name, namespace)
+        command = query(query_conf)
         output = __salt__['cmd.run_stdout'](command, python_shell=True, env={'KUBECONFIG': config_path})
         if output:
             key_list = query_conf['key'].split(DEFAULT_TARGET_DELIM)
