@@ -1,10 +1,9 @@
 {% set event = 'salt/orchestrate/redis/start' %}
 
 redis_count:
-  reg.list:
+  reg_ext.last:
     - add: instances_count
     - match: {{ event }}
-    - prune: 1
 redis_ready:
   reg.list:
     - add: instance
@@ -18,7 +17,7 @@ redis_instances:
 
 redis_orchestrate:
   reg.delete:
-    - name: redis_ready
+    - name: redis_count
     - require:
       - check: redis_instances
   runner.cmd:
