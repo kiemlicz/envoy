@@ -4,10 +4,12 @@ redis_count:
   reg_ext.last:
     - add: instances_count
     - match: {{ event }}
+    - prune: 1
 redis_ready:
   reg.list:
     - add: instance
     - match: {{ event }}
+
 
 redis_instances:
   check.len_eq_reg:

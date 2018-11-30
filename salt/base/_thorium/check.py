@@ -516,7 +516,7 @@ def len_eq_reg(name, len_reg, len_reg_val):
         return ret
 
     if len(__reg__[len_reg]['val']) != 1:
-        log.debug("No single len_reg value found (actually: {})".format(__reg__[len_reg]['val']))
+        log.debug("No single len_reg value found (actually it contains: {})".format(__reg__[len_reg]['val']))
         ret['result'] = False
         ret['comment'] = 'Length value in {} is either empty or contains too many values ({})'.format(len_reg, __reg__[len_reg]['val'])
         return ret

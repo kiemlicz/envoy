@@ -169,3 +169,14 @@ def failover(ip, port, arg=None):
         log.exception(e)
         return False
     return True
+
+
+def forget(ip, port, id):
+    try:
+        r = redis.StrictRedis(host=ip, port=port)
+        r.cluster("forget", id)
+    except Exception as e:
+        log.error("Unable to forget: {} on instance: ({}:{})".format(id, ip, port))
+        log.exception(e)
+        return False
+    return True

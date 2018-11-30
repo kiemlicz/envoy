@@ -69,6 +69,18 @@ def _cluster_state(instances, cidr, include_slots=True):
     return instances
 
 
+def _failed_instances(instances, cidr):
+    failed = {}
+    for name, details in instances.items():
+        ip = _filter_ip(details['ips'], cidr)[0]
+        port = details['port']
+        node_view = __salt__['redis_ext.nodes'](ip, port)
+        f = [(node_details['node_id'], True if 'master' in node_details['flags'] else False) for ip_port, node_details in node_view.items() if 'fail' in node_details['flags']]
+        if f:
+            failed[name] = f
+    return failed
+
+
 def _has_any_slots(nodes):
     for details in nodes.values():
         if details['current_slots']:
@@ -76,14 +88,16 @@ def _has_any_slots(nodes):
     return False
 
 
-def _ip_port(nodes, name, cidr):
-    return _filter_ip(nodes[name]['ips'], cidr)[0], nodes[name]['port']
+def _ip_port(instances, name, cidr):
+    return _filter_ip(instances[name]['ips'], cidr)[0], instances[name]['port']
 
 
 def met(name, instances, cidr=None, meet_delay=5):
     '''
-    Redis CLUSTER MEETs all instances
-    This state run results in all instances connected to others (given proper network configuration etc.)
+    Redis CLUSTER MEETs all `instances`
+    This state yields all instances connected to others (given proper network configuration etc.)
+    It is the caller responsibility to pass all available `instances`
+    All previously known but 'failed' instances will be removed from the cluster view.
 
     :param name:
     :param instances: All currently available redis instances: { 'hostname1': {'ips': ["127.0.0.1", "1.2.3.4"], 'port': 6379 }}
@@ -105,13 +119,38 @@ def met(name, instances, cidr=None, meet_delay=5):
 
     log.info("Cluster meet from {}:{} to: {}".format(initiator_ip, initiator_port, others))
 
-    if __salt__['redis_ext.meet'](initiator_ip, initiator_port, others):
-        time.sleep(meet_delay)
+    def loop(attempts):
+        if attempts <= 0:
+            r = __salt__['redis_ext.meet'](initiator_ip, initiator_port, others)
+            time.sleep(meet_delay)
+            return r
+        elif __salt__['redis_ext.meet'](initiator_ip, initiator_port, others):
+            time.sleep(meet_delay)
+            failed = _failed_instances(instances, cidr)
+            if failed:
+                log.warn("There are instances with failed flag: {}, they will be forgotten".format(failed))
+                for instance, id_list in failed.items():
+                    for id, is_master in id_list:
+                        ip, port = _ip_port(instances, instance, cidr)
+                        if is_master and not __salt__['redis_ext.reset'](ip, port, hard=False):
+                            # if after meet this occurs it means that the old master is surely dead
+                            # as 'cannot forget master' then the reset is performed
+                            return False
+                        elif not is_master and not __salt__['redis_ext.forget'](ip, port, id):
+                            return False
+                return loop(attempts - 1)
+            else:
+                return True
+        else:
+            return False
+
+    if loop(1):
         try:
             _cluster_state(instances, cidr, include_slots=False)
         except RedisClusterConfigurationException as e:
             log.exception(e)
             return _fail(ret, "Cluster state is still inconsistent")
+        log.debug("Cluster met successful")
         ret['result'] = True
         ret['changes']["{}:{}".format(initiator_ip, initiator_port)] = "met: {}".format(others)
         return ret
@@ -209,7 +248,10 @@ def balanced(name, instances, desired_masters=None, desired_slots=None, total_sl
         dest_ip, dest_port = _ip_port(nodes_ext, desired_master, cidr)
         changes_key = "destination node: {}".format(desired_master)
 
-        # this is safe action, slots are not assigned anywhere else
+        # this is safe action, slots are not assigned anywhere else fixme relax this requirement
+        # but it may happen that previous masters join again, they obviously should be wiped or should they be migrated?
+        # or fail hard?! and add onfail logic?????
+        # I think that fail is good option
         if __salt__['redis_ext.addslots'](dest_ip, dest_port, action_map['add']):
             log.debug("Cluster balancing: added slots to {}:{}".format(dest_ip, dest_port))
             ret['changes'][changes_key] = {
@@ -305,7 +347,7 @@ def replicated(name, instances, slaves_list=None, masters_list=None, replication
             balanced_ret = __states__['redis_ext.balanced'](name, instances, desired_masters, cidr=cidr)
             if not balanced_ret['result']:
                 return _fail(ret, "Cluster replicate: unable to balance slots among: {}".format(desired_masters), [balanced_ret['comment']])
-            log.info("Cluster replicate: promoting slaves: {}".format(extra_masters))
+            log.info("Cluster replicate: creating slaves: {}".format(extra_masters))
             for new_slave in extra_masters:
                 slave_ip, slave_port = _ip_port(nodes_ext, new_slave['name'], cidr)
                 # replica migration will balance this poor choice
