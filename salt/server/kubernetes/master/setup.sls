@@ -35,8 +35,8 @@ allow_schedule_on_master:
 #todo somehow this file is unavailable on master
 kubernetes_upload_config:
   module.run:
-    - name: cp.push
-    - path: {{ kubernetes.config.locations|first }}
+    - cp.push:
+      - path: {{ kubernetes.config.locations|first }}
     - require:
       - cmd: kubeadm_init
 {% endif %}
