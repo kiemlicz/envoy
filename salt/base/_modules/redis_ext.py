@@ -202,6 +202,10 @@ def role(ip, port):
 
 
 def validate_slots(instances, cidr=None):
+    if not instances:
+        log.warn("Instances map is empty, it is impossible to assign slots")
+        return False
+
     local = copy.deepcopy(instances)
     s = {}
     for name, details in local.items():
