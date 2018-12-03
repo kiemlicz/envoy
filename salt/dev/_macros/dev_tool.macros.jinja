@@ -27,18 +27,18 @@
     - makedirs: True
 {% endmacro %}
 
-{% macro repo_pkg_service(state_id, conf_dict, run=True, version=None) %}
+{% macro repo_pkg_service(state_id, conf_dict, run=True) %}
 {{ repository(state_id ~ "_repository", conf_dict, enabled=(conf_dict.names is defined or conf_dict.repo_id is defined),
    require=[{'sls': "os"}], require_in=[{'pkg': conf_dict.pkg_name}]) }}
 {{ state_id }}:
-{% if version is not defined %}
+{% if conf_dict.version is not defined %}
   pkg.latest:
     - name: {{ conf_dict.pkg_name }}
     - refresh: True
 {% else %}
   pkg.installed:
     - name: {{ conf_dict.pkg_name }}
-    - version: {{ version }}
+    - version: {{ conf_dict.version }}
     - refresh: True
 {% endif %}
 {% if run %}
