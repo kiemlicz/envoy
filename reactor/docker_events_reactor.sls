@@ -6,7 +6,7 @@
       runner.state.orchestrate:
         - args:
           - mods:
-            - redis.start
+            - redis.server._orchestrate.start
           - saltenv: server
           - pillarenv: base
           - pillar:
@@ -16,7 +16,7 @@
       runner.state.orchestrate:
         - args:
           - mods:
-            - redis.stop
+            - redis.server._orchestrate.stop
           - saltenv: server
           - pillarenv: base
           - pillar:
