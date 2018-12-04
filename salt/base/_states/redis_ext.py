@@ -71,22 +71,6 @@ def _cluster_state(instances, cidr, include_slots=True, allow_fail=False):
     return instances
 
 
-def _failed_instances(instances, cidr):
-    failed_masters = {}
-    failed_slaves = {}
-    for name, details in instances.items():
-        ip, port = __salt__['redis_ext.ip_port'](instances, name, cidr)
-        node_view = __salt__['redis_ext.nodes'](ip, port)
-        for ip_port, node_details in node_view.items():
-            if 'fail' in node_details['flags']:
-                failed_node_id = node_details['node_id']
-                if 'master' in node_details['flags']:
-                    failed_masters.setdefault(failed_node_id, []).append(name)
-                else:
-                    failed_slaves.setdefault(failed_node_id, []).append(name)
-    return failed_masters, failed_slaves
-
-
 def _has_any_slots(nodes):
     for details in nodes.values():
         if details['current_slots']:
