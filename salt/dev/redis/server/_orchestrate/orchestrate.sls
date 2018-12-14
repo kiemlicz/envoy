@@ -7,7 +7,7 @@ def run():
   states['refresh_pillar'] = {
     'salt.function': [
       { 'name': "saltutil.pillar_refresh" },
-      { 'tgt': "*" },
+      { 'tgt': pillar['redis']['coordinator'] },
     ]
   }
 
