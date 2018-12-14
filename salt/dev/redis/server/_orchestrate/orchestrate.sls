@@ -20,6 +20,7 @@ def run():
       ]},
       { 'queue': True },
       { 'saltenv': saltenv },
+      { 'pillarenv': pillarenv },
       { 'require': [
         { 'salt': "refresh_pillar" }
       ]}
@@ -35,6 +36,7 @@ def run():
       ]},
       { 'queue': True },
       { 'saltenv': saltenv },
+      { 'pillarenv': pillarenv },
       { 'require': [
         {'salt': "cluster_met" }
       ]}
