@@ -13,14 +13,12 @@ def run():
 
   states['cluster_met'] = {
     'salt.state': [
-      { 'tgt_type': "pillar" },
-      { 'tgt': "redis:coordinator:True" },
+      { 'tgt': pillar['redis']['coordinator'] },
       { 'sls': [
         "redis.server._orchestrate.met"
       ]},
       { 'queue': True },
       { 'saltenv': saltenv },
-      { 'pillarenv': pillarenv },
       { 'require': [
         { 'salt': "refresh_pillar" }
       ]}
@@ -29,14 +27,12 @@ def run():
 
   states['cluster_managed'] = {
     'salt.state': [
-      { 'tgt': "redis:coordinator:True" },
-      { 'tgt_type': "pillar" },
+      { 'tgt': pillar['redis']['coordinator'] },
       { 'sls': [
         "redis.server._orchestrate.managed",
       ]},
       { 'queue': True },
       { 'saltenv': saltenv },
-      { 'pillarenv': pillarenv },
       { 'require': [
         {'salt': "cluster_met" }
       ]}
