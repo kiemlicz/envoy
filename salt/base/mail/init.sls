@@ -32,6 +32,7 @@ mail_config_{{ config.location }}:
 mail_service:
   service.running:
     - name: {{ mail.service }}
-{% if not is_docker() %}
     - enable: True
+{% if is_docker() %}
+    - provider: service
 {% endif %}
