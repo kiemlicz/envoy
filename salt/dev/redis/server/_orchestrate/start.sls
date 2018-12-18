@@ -1,5 +1,5 @@
 {% set event_data = pillar["docker_event"] %}
-{% set event_sender = event_data['data']['id'] %}
+{% set event_sender = event_data['id'] %}
 {% set pod_name = event_data['data']['Actor']['Attributes']['io.kubernetes.pod.name'] %}
 
 refresh_pillar:
