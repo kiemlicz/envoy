@@ -68,7 +68,11 @@ def run():
       "keepalived",
       "lvs.director",
       "lvs.realserver",
-      "kvm"
+      "kvm",
+      "kubernetes.client",
+      "kubernetes.minikube",
+      "kubernetes.master",
+      "kubernetes.worker",
     ]
   }
 
