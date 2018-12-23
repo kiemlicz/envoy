@@ -3,6 +3,7 @@
     'sources': "",
   },
   'Debian': {
+    'requisites': ["nfs-common", "nfs-kernel-server"],
     'sources': 'vagrant: https://releases.hashicorp.com/vagrant/2.2.2/vagrant_2.2.2_x86_64.deb',
     'plugins': [{
         'name': "vagrant-libvirt"

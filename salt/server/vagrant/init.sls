@@ -5,13 +5,19 @@ include:
   - os
 
 
+vagrant_requisites:
+  pkg.latest:
+    - pkgs: {{ vagrant.requisites }}
+    - require:
+      - sls: os
+
 vagrant:
   pkg.latest:
     - sources: {{ vagrant.sources }}
     - refresh: True
     - reload_modules: True
     - require:
-      - sls: os
+      - pkg: vagrant_requisites
 
 {% for plugin in vagrant.plugins %}
 
