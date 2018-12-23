@@ -73,6 +73,7 @@ def run():
       "kubernetes.minikube",
       "kubernetes.master",
       "kubernetes.worker",
+      "vagrant"
     ]
   }
 
