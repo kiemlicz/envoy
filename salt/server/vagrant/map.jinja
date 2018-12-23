@@ -6,10 +6,10 @@
     'requisites': ["nfs-common", "nfs-kernel-server"],
     'sources': 'vagrant: https://releases.hashicorp.com/vagrant/2.2.2/vagrant_2.2.2_x86_64.deb',
     'plugins': [{
-        'name': "vagrant-libvirt"
-        'pkgs': ["qemu", "libvirt-bin", "ebtables", "dnsmasq-base", "libxslt-dev", "libxml2-dev", "libvirt-dev", "zlib1g-dev", "ruby-dev"]
+        'name': "vagrant-libvirt",
+        'pkgs': ["qemu", "libvirt-bin", "ebtables", "dnsmasq-base", "libxslt-dev", "libxml2-dev", "libvirt-dev", "zlib1g-dev", "ruby-dev"],
     }, {
-        'name': "vagrant-lxc"
+        'name': "vagrant-lxc",
     }]
   },
 }, merge=salt['grains.filter_by']({
