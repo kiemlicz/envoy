@@ -1,3 +1,6 @@
+{% from "kubernetes/minikube/map.jinja" import kubernetes with context %}
+
+
 minikube:
   file.managed:
   - name: {{ kubernetes.minikube.location }}
