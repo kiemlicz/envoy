@@ -31,7 +31,7 @@ vagrant_plugin_{{ plugin.name }}:
     - cmd: vagrant_plugin_{{ plugin.name }}
 {% endif %}
   cmd.run:
-  - name: "vagrant plugin install " ~ "{{ plugin.name }}"
+  - name: "vagrant plugin install {{ plugin.name }}"
   - require:
     - pkg: vagrant
 
