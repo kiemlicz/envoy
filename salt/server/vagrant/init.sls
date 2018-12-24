@@ -12,7 +12,7 @@ vagrant_requisites:
       - sls: os
 
 vagrant:
-  pkg.latest:
+  pkg.installed:
     - sources: {{ vagrant.sources }}
     - refresh: True
     - reload_modules: True
