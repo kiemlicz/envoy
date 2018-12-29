@@ -23,7 +23,8 @@ vagrant:
     - require:
       - sls: os
 
-{% for plugin in vagrant.plugins if vagrant.plugins is defined %}
+{% if vagrant.plugins is defined %}
+{% for plugin in vagrant.plugins %}
 
 vagrant_plugin_{{ plugin.name }}:
 {% if plugin.pkgs is defined %}
@@ -40,3 +41,4 @@ vagrant_plugin_{{ plugin.name }}:
     - pkg: vagrant
 
 {% endfor %}
+{% endif %}
