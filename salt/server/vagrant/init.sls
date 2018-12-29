@@ -23,7 +23,7 @@ vagrant:
     - require:
       - sls: os
 
-{% for plugin in vagrant.plugins %}
+{% for plugin in vagrant.plugins if vagrant.plugins is defined %}
 
 vagrant_plugin_{{ plugin.name }}:
 {% if plugin.pkgs is defined %}
