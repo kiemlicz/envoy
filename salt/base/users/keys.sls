@@ -46,7 +46,7 @@ def run():
                 else:
                     log.info("Insufficient data to copy: {} keypair (no flat pillar, nested pillar or source), generating".format(name))
 
-                    if 'override' in key_spec['override'] and key_spec['override'] or not __salt__['file.file_exists'](key_spec['privkey_location']):
+                    if 'override' in key_spec and key_spec['override'] or not __salt__['file.file_exists'](key_spec['privkey_location']):
                         states["{}_generate_{}_ssh_keys".format(username, name)] = {
                             'file.absent': [
                                 { 'names': [
