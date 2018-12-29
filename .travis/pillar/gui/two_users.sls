@@ -28,11 +28,11 @@ users:
       - github.com
     sec:
       ssh:
-        - name: home
+        home:
           privkey_location: {{ home_dir }}/.ssh/id_rsa
           pubkey_location: {{ home_dir }}/.ssh/id_rsa.pub
           override: True
-        - name: dotfile
+        dotfile:
           privkey: |
             -----BEGIN RSA PRIVATE KEY-----
             MIIEpAIBAAKCAQEA14zSYevcHvxjiBqvZL5RwfMcDZ94l9f6aNvKhDqvFHpHII7M
@@ -143,11 +143,11 @@ users:
       - github.com
     sec:
       ssh:
-        - name: home
+        home:
           privkey_location: {{ home_dir2 }}/.ssh/id_rsa
           pubkey_location: {{ home_dir2 }}/.ssh/id_rsa.pub
           override: True
-        - name: dotfile
+        dotfile:
           privkey: |
             -----BEGIN RSA PRIVATE KEY-----
             MIIEpAIBAAKCAQEA14zSYevcHvxjiBqvZL5RwfMcDZ94l9f6aNvKhDqvFHpHII7M

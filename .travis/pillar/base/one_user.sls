@@ -35,11 +35,11 @@ users:
             - "AAAAB3NzaC1yc2OIUASDAFOUISDDAQABAAABAQDeweoaAYfqjhSJK48"
           enc: "ssh-rsa"
       ssh:
-        - name: home
+        home:
           privkey_location: {{ home_dir }}/.ssh/id_rsa
           pubkey_location: {{ home_dir }}/.ssh/id_rsa.pub
           override: True
-        - name: dotfile
+        dotfile:
           privkey: |
             -----BEGIN RSA PRIVATE KEY-----
             MIIEpAIBAAKCAQEA14zSYevcHvxjiBqvZL5RwfMcDZ94l9f6aNvKhDqvFHpHII7M

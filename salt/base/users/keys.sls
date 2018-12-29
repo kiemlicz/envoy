@@ -1,91 +1,103 @@
-{% for username, user in salt['pillar.get']("users", {}).items() if user.sec is defined %}
+#!py
 
-{# either generates or copies key under given locations #}
+import logging
 
-{% for key_spec in user.sec.ssh %}
-
-{% set ssh_priv = '{}_sec_ssh_{}_privkey'.format(username, key_spec.name) %}
-{% set ssh_pub = '{}_sec_ssh_{}_pubkey'.format(username, key_spec.name) %}
-
-{% if (pillar[ssh_priv] is defined and pillar[ssh_pub] is defined) or
- (key_spec.privkey is defined and key_spec.pubkey is defined) %}
-{{ username }}_copy_{{ key_spec.name }}_ssh_priv:
-  file_ext.managed:
-    - name: {{ key_spec.privkey_location }}
-{% if pillar[ssh_priv] is defined %}
-    - contents_pillar: {{ ssh_priv }}
-{% elif key_spec.privkey_source is defined %}
-    - source: {{ key_spec.privkey_source }}
-{% else %}
-    - contents: {{ key_spec.privkey | yaml_encode }}
-{% endif %}
-    - user: {{ username }}
-    - mode: 600
-    - makedirs: True
-    - require:
-      - user: {{ username }}
-{{ username }}_copy_{{ key_spec.name }}_ssh_pub:
-  file_ext.managed:
-    - name: {{ key_spec.pubkey_location }}
-{% if pillar[ssh_pub] is defined %}
-    - contents_pillar: {{ ssh_pub }}
-{% elif key_spec.pubkey_source is defined %}
-    - source: {{ key_spec.pubkey_source }}
-{% else %}
-    - contents: {{ key_spec.pubkey | yaml_encode }}
-{% endif %}
-    - user: {{ username }}
-    - mode: 644
-    - makedirs: True
-    - require:
-      - user: {{ username }}
-
-{% else %}
-
-{% if key_spec.override or not salt['file.file_exists'](key_spec.privkey_location) %}
-{{ username }}_generate_{{ key_spec.name }}_ssh_keys:
-  file.absent:
-    - names:
-      - {{ key_spec.privkey_location }}
-      - {{ key_spec.pubkey_location }}
-  cmd.run:
-    - name: /usr/bin/ssh-keygen -q -t rsa -f {{ key_spec.privkey_location }} -N ''
-    - runas: {{ username }}
-    - require:
-      - user: {{ username }}
-{% else %}
-{{ username }}_cannot_generate_{{ key_spec.name }}_ssh_keys:
-  test.show_notification:
-    - name: Cannot generate keypair
-    - text: "Cannot generate keypair as already exists"
-{% endif %}
-
-{% endif %}
-
-{% endfor %}
-
-{% if user.sec.ssh_authorized_keys is defined  %}
-{% for key_spec in user.sec.ssh_authorized_keys %}
-
-{{ username }}_setup_ssh_authorized_keys:
-  ssh_auth.present:
-{% if key_spec.source is defined %}
-    - source: {{ key_spec.source }}
-{% elif key_spec.names is defined %}
-    - names: {{ key_spec.names }}
-{% else %}
-    - name: {{ key_spec.name }}
-{% endif %}
-{% if key_spec.enc is defined %}
-    - enc: {{ key_spec.enc }}
-{% endif %}
-{% if key_spec.config is defined %}
-    - config: {{ key_spec.config }}
-{% endif %}
-    - user: {{ username }}
-
-{% endfor %}
-{% endif %}
+log = logging.getLogger(__name__)
 
 
-{% endfor %}
+def run():
+    states = {}
+
+    def _copy_key(location, user, mode=600, contents_pillar=None, source=None, contents=None):
+        s = { 'file_ext.managed': [
+            { 'name': location },
+            { 'user': user },
+            { 'mode': mode },
+            { 'makedirs': True },
+            { 'require': [
+                { 'user': user }
+            ]}
+        ]}
+        if contents_pillar:
+            s['file_ext.managed'].append({ 'contents_pillar': contents_pillar })
+            return s
+        elif source:
+            s['file_ext.managed'].append({ 'source': source })
+            return s
+        else
+            s['file_ext.managed'].append({ 'contents': contents })
+            return s
+
+    for username, user in __salt__['pillar.get']("users", {}).items():
+        if 'sec' in user and 'ssh' in user['sec']':
+            for name, key_spec in user['sec']['ssh'].items():
+                ssh_priv_flat = "{}_sec_ssh_{}_privkey".format(username, name)
+                ssh_pub_flat = "{}_sec_ssh_{}_pubkey".format(username, name)
+
+                if ssh_priv_flat in pillar and ssh_pub_flat in pillar:
+                    states["{}_copy_{}_ssh_priv".format(username, name)] =
+                        _copy_key(key_spec['privkey_location'], user=username, mode=600, contents_pillar=ssh_priv_flat)
+                    states["{}_copy_{}_ssh_pub".format(username, name)] =
+                        _copy_key(key_spec['pubkey_location'], user=username, mode=644, contents_pillar=ssh_pub_flat)
+                elif 'privkey' in key_spec and 'pubkey' in key_spec:
+                    states["{}_copy_{}_ssh_priv".format(username, name)] =
+                        _copy_key(key_spec['privkey_location'], user=username, mode=600, contents_pillar="users:{}:sec:ssh:{}:privkey".format(username, name))
+                    states["{}_copy_{}_ssh_pub".format(username, name)] =
+                        _copy_key(key_spec['pubkey_location'], user=username, mode=644, contents_pillar="users:{}:sec:ssh:{}:pubkey".format(username, name))
+                elif 'privkey_source' in key_spec and 'pubkey_source' in key_spec:
+                    states["{}_copy_{}_ssh_priv".format(username, name)] =
+                        _copy_key(key_spec['privkey_location'], user=username, mode=600, source=key_spec['privkey_source'])
+                    states["{}_copy_{}_ssh_pub".format(username, name)] =
+                        _copy_key(key_spec['pubkey_location'], user=username, mode=644, source=key_spec['pubkey_source'])
+                else:
+                    log.info("Insufficient data to copy: {} keypair (no flat pillar, nested pillar or source), generating".format(name))
+
+                    if 'override' in key_spec['override'] and key_spec['override'] or not __salt__['file.file_exists'](key_spec['privkey_location']):
+                        states["{}_generate_{}_ssh_keys".format(username, name)] = {
+                            'file.absent': [
+                                { 'names': [
+                                    key_spec['privkey_location'],
+                                    key_spec['pubkey_location']
+                                ]},
+                                { 'require': [
+                                    { 'user': username }
+                                ]}
+                            ],
+                            'cmd.run': [
+                                { 'name': "/usr/bin/ssh-keygen -q -t rsa -f {} -N ''".format(key_spec['privkey_location']) },
+                                { 'runas': username },
+                                { 'require': [
+                                    { 'file': "{}_generate_{}_ssh_keys".format(username, name) }
+                                ] }
+                            ]
+                        }
+
+        if 'sec' in user and 'ssh_authorized_keys' in user['sec']:
+            for key_spec in user['sec']['ssh_authorized_keys']:
+                id="{}_setup_ssh_authorized_keys".format(username)
+                states[id] = {
+                    'ssh_auth.present': [
+                        { 'user': username }
+                    ]
+                }
+                if 'source' in key_spec:
+                    states[id]['ssh_auth.present'].append({ 'source': key_spec['source'] })
+                elif 'names' in key_spec:
+                    states[id]['ssh_auth.present'].append({ 'names': key_spec['names'] })
+                else:
+                    states[id]['ssh_auth.present'].append({ 'name': key_spec['name'] })
+
+                if 'enc' in key_spec:
+                    states[id]['ssh_auth.present'].append({ 'enc': key_spec['enc'] })
+
+                if 'config' in key_spec:
+                    states[id]['ssh_auth.present'].append({ 'config': key_spec['config'] })
+
+    states["keypairs_generation_completed".format(username)] = {
+        'test.show_notification': [
+            { 'name': "Keypairs copy/generation completed" },
+            { 'text': "Keypair already exists or was not specified" }
+        ]
+    }
+
+    return states
