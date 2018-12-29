@@ -35,20 +35,14 @@ def run():
                 ssh_pub_flat = "{}_sec_ssh_{}_pubkey".format(username, name)
 
                 if ssh_priv_flat in pillar and ssh_pub_flat in pillar:
-                    states["{}_copy_{}_ssh_priv".format(username, name)] =
-                        _copy_key(key_spec['privkey_location'], user=username, mode=600, contents_pillar=ssh_priv_flat)
-                    states["{}_copy_{}_ssh_pub".format(username, name)] =
-                        _copy_key(key_spec['pubkey_location'], user=username, mode=644, contents_pillar=ssh_pub_flat)
+                    states["{}_copy_{}_ssh_priv".format(username, name)] = _copy_key(key_spec['privkey_location'], user=username, mode=600, contents_pillar=ssh_priv_flat)
+                    states["{}_copy_{}_ssh_pub".format(username, name)] = _copy_key(key_spec['pubkey_location'], user=username, mode=644, contents_pillar=ssh_pub_flat)
                 elif 'privkey' in key_spec and 'pubkey' in key_spec:
-                    states["{}_copy_{}_ssh_priv".format(username, name)] =
-                        _copy_key(key_spec['privkey_location'], user=username, mode=600, contents_pillar="users:{}:sec:ssh:{}:privkey".format(username, name))
-                    states["{}_copy_{}_ssh_pub".format(username, name)] =
-                        _copy_key(key_spec['pubkey_location'], user=username, mode=644, contents_pillar="users:{}:sec:ssh:{}:pubkey".format(username, name))
+                    states["{}_copy_{}_ssh_priv".format(username, name)] = _copy_key(key_spec['privkey_location'], user=username, mode=600, contents_pillar="users:{}:sec:ssh:{}:privkey".format(username, name))
+                    states["{}_copy_{}_ssh_pub".format(username, name)] = _copy_key(key_spec['pubkey_location'], user=username, mode=644, contents_pillar="users:{}:sec:ssh:{}:pubkey".format(username, name))
                 elif 'privkey_source' in key_spec and 'pubkey_source' in key_spec:
-                    states["{}_copy_{}_ssh_priv".format(username, name)] =
-                        _copy_key(key_spec['privkey_location'], user=username, mode=600, source=key_spec['privkey_source'])
-                    states["{}_copy_{}_ssh_pub".format(username, name)] =
-                        _copy_key(key_spec['pubkey_location'], user=username, mode=644, source=key_spec['pubkey_source'])
+                    states["{}_copy_{}_ssh_priv".format(username, name)] = _copy_key(key_spec['privkey_location'], user=username, mode=600, source=key_spec['privkey_source'])
+                    states["{}_copy_{}_ssh_pub".format(username, name)] = _copy_key(key_spec['pubkey_location'], user=username, mode=644, source=key_spec['pubkey_source'])
                 else:
                     log.info("Insufficient data to copy: {} keypair (no flat pillar, nested pillar or source), generating".format(name))
 
