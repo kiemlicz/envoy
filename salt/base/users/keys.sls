@@ -24,7 +24,7 @@ def run():
         elif source:
             s['file_ext.managed'].append({ 'source': source })
             return s
-        else
+        else:
             s['file_ext.managed'].append({ 'contents': contents })
             return s
 
