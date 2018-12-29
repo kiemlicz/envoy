@@ -5,11 +5,15 @@ include:
   - os
 
 
+{% if vagrant.requisites is defined %}
 vagrant_requisites:
   pkg.latest:
     - pkgs: {{ vagrant.requisites }}
     - require:
       - sls: os
+    - require_in:
+      - pkg: vagrant
+{% endif %}
 
 vagrant:
   pkg.installed:
@@ -17,7 +21,7 @@ vagrant:
     - refresh: True
     - reload_modules: True
     - require:
-      - pkg: vagrant_requisites
+      - sls: os
 
 {% for plugin in vagrant.plugins %}
 

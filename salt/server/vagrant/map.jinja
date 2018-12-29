@@ -1,6 +1,6 @@
 {% set vagrant = salt['grains.filter_by']({
   'RedHat': {
-    'sources': "",
+    'sources': [{'vagrant': "https://releases.hashicorp.com/vagrant/2.2.2/vagrant_2.2.2_x86_64.rpm"}],
   },
   'Debian': {
     'requisites': ["nfs-common", "nfs-kernel-server"],
