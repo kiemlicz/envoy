@@ -29,7 +29,7 @@ def run():
             return s
 
     for username, user in __salt__['pillar.get']("users", {}).items():
-        if 'sec' in user and 'ssh' in user['sec']':
+        if 'sec' in user and 'ssh' in user['sec']:
             for name, key_spec in user['sec']['ssh'].items():
                 ssh_priv_flat = "{}_sec_ssh_{}_privkey".format(username, name)
                 ssh_pub_flat = "{}_sec_ssh_{}_pubkey".format(username, name)
