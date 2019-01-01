@@ -87,7 +87,7 @@ def run():
                 if 'config' in key_spec:
                     states[id]['ssh_auth.present'].append({ 'config': key_spec['config'] })
 
-    states["keypairs_generation_completed".format(username)] = {
+    states["keypairs_generation_completed"] = {
         'test.show_notification': [
             { 'name': "Keypairs copy/generation completed" },
             { 'text': "Keypair already exists or was not specified" }
