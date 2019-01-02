@@ -30,6 +30,10 @@ def run():
 
     for username, user in __salt__['pillar.get']("users", {}).items():
         if 'sec' in user and 'ssh' in user['sec']:
+            if not isinstance(user['sec']['ssh'], dict):
+                msg = "<username>:sec:ssh:<keyname>:... must be specified as dict, found: {}".format(type(user['sec']['ssh']))
+                log.error(msg)
+                raise TypeError(msg)
             for name, key_spec in user['sec']['ssh'].items():
                 ssh_priv_flat = "{}_sec_ssh_{}_privkey".format(username, name)
                 ssh_pub_flat = "{}_sec_ssh_{}_pubkey".format(username, name)
