@@ -1,6 +1,6 @@
 [![Build status](https://travis-ci.org/kiemlicz/envoy.svg?branch=master)](https://travis-ci.org/kiemlicz/envoy)
 # Basics 
-[SaltStack](https://saltstack.com/) _states_ for provisioning machines in generic yet sensible way.  
+[Salt](https://saltstack.com/) _states_ for provisioning machines in generic yet sensible way.  
 The goal is to create _salt environments_ usable by developers as well as admins during the setup of either server or 'client' machines.
 
 ## Setup  
@@ -18,37 +18,59 @@ fully automated setup of SaltStack via associated [project ambassador](https://g
     3. Use `config/common.conf` and `config/gitfs.conf` (put under `/etc/salt/minion.d/`)
     4. `systemctl restart salt-minion`  
     5. Optionally run `salt-call --local saltutil.sync_all`
+  
+### Using as Vagrant provisioner
+Vagrant supports [_Salt_ provisioner](https://www.vagrantup.com/docs/provisioning/salt.html)
 
+  1. Add proper sections to `Vagrantfile`.
+    ```
+    Vagrant.configure("2") do |config|
+    ...
+        config.vm.synced_folder "/srv/salt/", "/srv/salt/"  # add states from host
+    
+        config.vm.provision "init", type: "shell" do |s|
+          s.path = "init.sh"
+        end
+    
+        config.vm.provision :salt do |salt|
+          salt.masterless = true
+          salt.minion_config = "minion.conf"
+          salt.run_highstate = true
+          salt.salt_args = [ "saltenv=server" ]
+        end
+    ...
+    end
+    ```
+    
+    `init.sh`: bash script that installs salt requisites, e.g., git, pip packages (jinja2) etc.
+    `minion.conf`: configure `file_client: local` and whatever you like (mutlienvs, gitfs, ext_pillar)
+  2. `vagrant up`
+    
 ## Components
 In order to run _states_ against _minions_, _pillar_ must be configured.  
 Refer to `pillar.example.sls` files in states themselves for particular structure.  
 _States_ must be written with assumption that given pillar entry may not exist.
-`users` dict contains data (mostly self-describing) about particular... user.
-However some sections need more description:
-#### sec 
-Designed to generate/copy user security keys/keypairs.  
-For now only ssh is supported. When only `privkey_location` and `pubkey_location` is defined then keypair is generated on _minion_.
-On the other hand, if `privkey` and `pubkey` is also defined then its content is used as keys. Content can be passed also using 'flat' pillar 
-of following form: `<username>_sec_ssh_<name>_privkey` (in our example main keypair can be specified using: `coolguy_sec_ssh_home_privkey: <key>`)
-#### dotfile 
-TODO
+For detailed state description, refer to particular states' README file.
  
 # Structure
 States are divided in environments:
  1. `base` - the main one. Any other environment comprises of at least `base`. Contains core states responsible for operations like
  repositories configuration, core packages installation or user setup
- 2. `dev` - for developer machines. Uses `base`. Contains states that install tons of dev apps as well as configures them (like add entry to `PATH` variable)
- 3. `server` - TODO
- 4. `qa` - TODO
- 5. `prod` - TODO
+ 2. `dev` - for developer machines. Includes `base`. Contains states that install tons of dev apps along with their configuration (like add entry to `PATH` variable)
+ 3. `server` - installs/configured typical server tools, e.g., kubernetes or LVS. Includes `base` and `dev`
 
 # Extensions
-In order to keep _states_ readable and configuration of whole SaltStack as flexible as possible, some extensions were introduced:
-## privgit
+In order to keep _states_ readable and configuration of whole SaltStack as flexible as possible, some extensions and custom states were introduced.
+
+All of the custom states can be found in default _Salt_ extensions' [directories](https://docs.saltstack.com/en/latest/ref/file_server/dynamic-modules.html) (`_pillar`, `_runner`, etc.)
+
+## pillar extensions
+### privgit
 Dynamically configured `ext_pillar`.  
 Allows users to configure their own _pillar_ data git repository (in the runtime - using pillar entries)
 Repository must contain pillar data under the `root` directory
-### Usage
+
+#### Usage
 Fully static configuration (use _git_pillar_ instead of such):
 ```
 ext_pillar:
@@ -95,7 +117,7 @@ Entries order does matter, last one is the most specific one. It doesn't affect 
 They rely on salt settings only
 
 Due to potential integration with systems like [foreman](https://theforeman.org/) that support string keys only, 
-another (unpleasant) syntax exists:
+another (unpleasant, flat) syntax exists:
 ```
 privgit_name1_url: git@github.com:someone/somerepo.git
 privgit_name1_branch: master 
@@ -110,6 +132,24 @@ privgit_name2_branch: develop
 privgit_name2_env: custom
 privgit_name2_privkey_location: /location/on/master
 privgit_name2_pubkey_location: /location/on/master
+``` 
+
+### kubectl
+Pulls any kubernetes information and adds them to pillar.  
+It is possible to specify pillar key under which the kubernetes data will be hooked up.  
+Under the hood this extension executes:
+`kubectl get -o yaml -n <namespace or deafult> <kind> <name>` or 
+`kubectl get -o yaml -n <namespace or deafult> <kind> -l <selector>` if name is not provided
+ 
+#### Usage
+```
+ext_pillar:
+  - kubectl:
+      config: "/some/path/to/kubernetes/access.conf"
+      queries:
+        - kind: statefulsets
+          name: redis-cluster
+          key: "redis:kubernetes"
 ``` 
 
 ## dotfile
