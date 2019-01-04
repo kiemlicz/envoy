@@ -23,7 +23,7 @@ fully automated setup of SaltStack via associated [project ambassador](https://g
 Vagrant supports [_Salt_ provisioner](https://www.vagrantup.com/docs/provisioning/salt.html)
 
   1. Add proper sections to `Vagrantfile`.
-    ```
+```
     Vagrant.configure("2") do |config|
     ...
         config.vm.synced_folder "/srv/salt/", "/srv/salt/"  # add states from host
@@ -40,10 +40,11 @@ Vagrant supports [_Salt_ provisioner](https://www.vagrantup.com/docs/provisionin
         end
     ...
     end
-    ```
+```
     
-    `init.sh`: bash script that installs salt requisites, e.g., git, pip packages (jinja2) etc.
-    `minion.conf`: configure `file_client: local` and whatever you like (mutlienvs, gitfs, ext_pillar)
+`init.sh`: bash script that installs salt requisites, e.g., git, pip packages (jinja2) etc.  
+`minion.conf`: configure `file_client: local` and whatever you like (mutlienvs, gitfs, ext_pillar)
+  
   2. `vagrant up`
     
 ## Components
