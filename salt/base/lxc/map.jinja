@@ -1,6 +1,6 @@
 {% set lxc = salt['grains.filter_by']({
     'Debian': {
-        'pkgs': ["lxc", "bridge-utils", "debootstrap"],
+        'pkgs': ["lxc", "bridge-utils", "debootstrap", "libvirt0", "libpam-cgroup", "libpam-cgfs"],
         'service': "lxc",
         'config': {
           'net_file': "/etc/default/lxc-net",
