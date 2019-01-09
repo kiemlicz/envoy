@@ -46,7 +46,7 @@ pkgs_pip:
 
 {% if pkgs.scripts is defined %}
 {% for script in pkgs.scripts %}
-pkgs_scripts:
+pkgs_scripts_{{ script.source }}:
   cmd.script:
     - name: {{ script.source }}
     - args: {{ script.args }}
