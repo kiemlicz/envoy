@@ -22,14 +22,14 @@ fully automated setup of SaltStack via associated [project ambassador](https://g
 ### Using as Vagrant provisioner
 Vagrant supports [_Salt_ provisioner](https://www.vagrantup.com/docs/provisioning/salt.html)
 
-  1. Add proper sections to `Vagrantfile`.
+  1. Add following sections to `Vagrantfile`.
 ```
     Vagrant.configure("2") do |config|
     ...
         config.vm.synced_folder "/srv/salt/", "/srv/salt/"  # add states from host
     
         config.vm.provision "init", type: "shell" do |s|
-          s.path = "init.sh"
+          s.path = "https://gist.githubusercontent.com/kiemlicz/33e891dd78e985bd080b85afa24f5d0a/raw/b9aba40aa30f238a24fe4ecb4ddc1650d9d685af/init.sh"
         end
     
         config.vm.provision :salt do |salt|
@@ -42,7 +42,7 @@ Vagrant supports [_Salt_ provisioner](https://www.vagrantup.com/docs/provisionin
     end
 ```
     
-`init.sh`: bash script that installs salt requisites, e.g., git, pip packages (jinja2) etc.  
+`init.sh`: bash [script](https://gist.github.com/kiemlicz/33e891dd78e985bd080b85afa24f5d0a) that installs salt requisites, e.g., git, pip packages (jinja2) etc.  
 `minion.conf`: configure `file_client: local` and whatever you like (mutlienvs, gitfs, ext_pillar)
   
   2. `vagrant up`
@@ -156,9 +156,11 @@ ext_pillar:
 ## dotfile
 Custom _state_ that manages [dotfiles](https://en.wikipedia.org/wiki/Dot-file).  
 Clones them from passed repository and sets up according to following [technique](https://developer.atlassian.com/blog/2016/02/best-way-to-store-dotfiles-git-bare-repo/)
+
 ## devtool
 Most dev tools setup comes down to downloading some kind of archive, unpacking it and possibly adding symlink to some generic location.  
 This state does pretty much that.
+
 ## envops
 Environment variables operations.
  
