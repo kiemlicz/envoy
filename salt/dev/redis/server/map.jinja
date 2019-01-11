@@ -40,7 +40,7 @@
   'RedHat': {
     'pkg_name': 'redis-server',
     'port': instances.masters|map(attribute='port')|first|default(6379),
-    'ip': instances.masters|map(attribute='ip')|default(ip()),
+    'ip': instances.masters|map(attribute='ip')|first|default(ip()),
     'config': config,
     'total_slots': 16384,
     'instances': instances,
@@ -49,7 +49,7 @@
   'Debian': {
     'pkg_name': 'redis-server',
     'port': instances.masters|map(attribute='port')|first|default(6379),
-    'ip': instances.masters|map(attribute='ip')|default(ip()),
+    'ip': instances.masters|map(attribute='ip')|first|default(ip()),
     'config': config,
     'total_slots': 16384,
     'instances': instances,
