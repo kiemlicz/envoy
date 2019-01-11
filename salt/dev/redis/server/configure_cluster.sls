@@ -16,24 +16,23 @@ redis_init_script:
 
 {% set this_host = grains['id'] %}
 {% set all_instances = redis.masters + redis.slaves %}
-{% for bind in all_instances|selectattr("id", "equalto", this_host)|list %}
+{% for bind in all_instances|selectattr("name", "equalto", this_host)|list %}
 
+{% set instance_number = bind.port|string %}
 {% do bind.update({
   "ip": bind.ip|default(ip())
 }) %}
 
 {% if salt['grains.get']("init") == 'systemd' %}
 
-{% set instance_number = bind.port|string %}
 {% set service = redis.config.service ~ '@' ~ bind.port|string %}
-{{ redis_configure(redis, bind, instance_number, service) }}
+{{ redis_configure(redis, ip=bind.ip, port=bind.port, instance_number=instance_number, service=service) }}
 
 {% else %}
 
-{% set instance_number = bind.port|string %}
 {% set service = redis.config.service ~ '-' ~ instance_number %}
-{{ redis_configure(redis, bind, instance_number, service) }}
+{{ redis_configure(redis, ip=bind.ip, port=bind.port, instance_number=instance_number, service=service) }}
 
-{% endif%}
+{% endif %}
 
 {% endfor %}

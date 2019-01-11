@@ -65,57 +65,65 @@ In order to keep _states_ readable and configuration of whole SaltStack as flexi
 
 All of the custom states can be found in default _Salt_ extensions' [directories](https://docs.saltstack.com/en/latest/ref/file_server/dynamic-modules.html) (`_pillar`, `_runner`, etc.)
 
-## pillar extensions
+## Custom Pillars
 ### privgit
-Dynamically configured `ext_pillar`.  
-Allows users to configure their own _pillar_ data git repository (in the runtime - using pillar entries)
-Repository must contain pillar data under the `root` directory
+Dynamically configured git pillar.  
+Allows users to configure their own _pillar_ data git repository in the runtime - using pillar entries.
+Normally `git_pillar` must be configured in the _Salt Master_ configuration beforehand.
 
 #### Usage
+Append `privgit` to `ext_pillar` configuration option to enable this extension.  
+The syntax:
+```
+ext_pillar:                # Salt option
+  - privgit:               # extension name
+    - name1:               # first entry identifier
+        param1:            # the parameters dict
+        param2:            # append in config only the options that most likely won't be changed by users
+```
 Fully static configuration (use _git_pillar_ instead of such):
 ```
 ext_pillar:
   - privgit:
     - name1:
-      url: git@github.com:someone/somerepo.git
-      branch: master  
-      env: custom
-      root: pillar
-      privkey: |
-      some
-      sensitive data
-      pubkey: and so on
+        url: git@github.com:someone/somerepo.git
+        branch: master  
+        env: custom
+        root: pillar
+        privkey: |
+        some
+        sensitive data
+        pubkey: and so on
     - name2:
-      url: git@github.com:someone/somerepo.git
-      branch: develop
-      env: custom
-      privkey_location: /location/on/master
-      pubkey_location: /location/on/master
+        url: git@github.com:someone/somerepo.git
+        branch: develop
+        env: custom
+        privkey_location: /location/on/master
+        pubkey_location: /location/on/master
 ```
-Each of such parameter can be overridden in _pillar_ data that comes before _ext_pillar_:
+Parameters are formed as a list, next entries override previous:  
 ```
 privgit:
   - name1:
-    url: git@github.com:someone/somerepo.git
-    branch: master  
-    env: custom
-    root: pillar
-    privkey: |
-    some
-    sensitive data
-    pubkey: and so on
+        url: git@github.com:someone/somerepo.git
+        branch: master  
+        env: custom
+        root: pillar
+        privkey: |
+        some
+        sensitive data
+        pubkey: and so on
   - name2:
-    url: git@github.com:someone/somerepo.git
-    branch: develop
-    env: custom
-    privkey_location: /location/on/master
-    pubkey_location: /location/on/master
+        url: git@github.com:someone/somerepo.git
+        branch: develop
+        env: custom
+        privkey_location: /location/on/master
+        pubkey_location: /location/on/master
   - name2:
-    url: git@github.com:someone/somerepo.git
-    branch: notdevelop
+        url: git@github.com:someone/somerepo.git
+        branch: notdevelop
 ```
 Entries order does matter, last one is the most specific one. It doesn't affect further pillar merge strategies.
-They rely on salt settings only
 
 Due to potential integration with systems like [foreman](https://theforeman.org/) that support string keys only, 
 another (unpleasant, flat) syntax exists:
@@ -133,7 +141,7 @@ privgit_name2_branch: develop
 privgit_name2_env: custom
 privgit_name2_privkey_location: /location/on/master
 privgit_name2_pubkey_location: /location/on/master
-``` 
+```
 
 ### kubectl
 Pulls any kubernetes information and adds them to pillar.  
@@ -141,28 +149,47 @@ It is possible to specify pillar key under which the kubernetes data will be hoo
 Under the hood this extension executes:
 `kubectl get -o yaml -n <namespace or deafult> <kind> <name>` or 
 `kubectl get -o yaml -n <namespace or deafult> <kind> -l <selector>` if name is not provided
+
+There is no (not yet) per-minion filtering of kubernetes pillar data, thus this data will be matched to all minions.  
+For Kubernetes deployments (minions as daemon set) this should be acceptable.
  
 #### Usage
 ```
 ext_pillar:
   - kubectl:
-      config: "/some/path/to/kubernetes/access.conf"
+      config: "/some/path/to/kubernetes/access.conf"   # all queries will use this config
       queries:
         - kind: statefulsets
           name: redis-cluster
-          key: "redis:kubernetes"
+          key: "redis:kubernetes"                      # nest the results under `redis:kubernetes` 
 ``` 
-
-## dotfile
+## Custom States
+### dotfile
 Custom _state_ that manages [dotfiles](https://en.wikipedia.org/wiki/Dot-file).  
 Clones them from passed repository and sets up according to following [technique](https://developer.atlassian.com/blog/2016/02/best-way-to-store-dotfiles-git-bare-repo/)
 
-## devtool
+### devtool
 Most dev tools setup comes down to downloading some kind of archive, unpacking it and possibly adding symlink to some generic location.  
 This state does pretty much that.
 
-## envops
+### envops
 Environment variables operations.
+
+### redis_ext
+Custom _State Module_ that enforces redis cluster state (`CLUSTER MEET`, proper replication factor etc.).  
+[Full documentation of redis.server state](https://github.com/kiemlicz/envoy/tree/master/salt/dev/redis)
+ 
+## Custom Execution Modules
+## redis_ext
+Custom _Execution Module_ that executes mainly Redis cluster commands, default [redis module](https://docs.saltstack.com/en/latest/ref/modules/all/salt.modules.redismod.html) is too outdated.  
+[Full documentation of redis.server state](https://github.com/kiemlicz/envoy/tree/master/salt/dev/redis)
+ 
+# Tests
+Tests are performed on different OSes (in docker) in _Salt_ masterless mode.  
+Different [pillar data](https://github.com/kiemlicz/envoy/tree/master/.travis/pillar) is mixed with different [saltenvs](https://github.com/kiemlicz/envoy/tree/master/salt).  
+Then the `salt-call --local state.show_sls <state name>` is invoked and checked if renders properly
+
+More complex tests that perform actual state application in different environments are performed in associated [ambassador project](https://github.com/kiemlicz/ambassador)
  
 # References
 1. SaltStack [quickstart](https://docs.saltstack.com/en/latest/topics/states/index.html)

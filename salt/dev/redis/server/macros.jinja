@@ -1,5 +1,3 @@
-{% from "_common/util.jinja" import is_docker with context %}
-
 {% macro redis_master_id(ip, port, container_id=None) -%}
 {% if container_id is defined -%}
 {{ salt['docker.run'](container_id, 'redis-cli -h ' + ip + ' -p ' + port|string + ' CLUSTER MYID') }}
@@ -8,17 +6,18 @@
 {% endif -%}
 {%- endmacro %}
 
-{% macro redis_configure(redis, bind, instance_number, service) -%}
+{% macro redis_configure(redis, ip, port, instance_number, service) -%}
 
-redis_config_{{ bind.ip }}_{{ bind.port }}:
+redis_config_{{ ip }}_{{ port }}:
   file_ext.managed:
     - name: /etc/redis/redis-{{ instance_number }}.conf
     - source: {{ redis.config.source }}
     - makedirs: True
     - template: jinja
     - context:
-      bind: {{ bind|json_decode_dict }}
       redis:
+        ip: {{ ip }}
+        port: {{ port }}
         daemonize: {{ redis.daemonize }}
         setup_type: {{ redis.setup_type }}
         config:
@@ -37,9 +36,7 @@ redis_config_{{ bind.ip }}_{{ bind.port }}:
 {% endif %}
   service.running:
     - name: {{ service }}
-{% if not is_docker() %}
     - enable: True
-{% endif %}
     - watch:
       - file_ext: /etc/redis/redis-server-{{ instance_number }}.conf
 {%- endmacro %}
