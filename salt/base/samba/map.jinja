@@ -8,7 +8,7 @@
         'pam_mount_conf_managed': "salt://samba/pam_mount.conf.xml"
     },
     'Debian': {
-        'pkgs': ["libpam-mount", "samba"],
+        'pkgs': ["libpam-mount", "samba", "cifs-utils"],
         'service_name': salt['grains.filter_by']({
             'lenny': 'samba',
             'squeeze': 'samba',
