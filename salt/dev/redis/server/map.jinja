@@ -21,7 +21,7 @@
 }, grain='init')) %}
 
 {% set instances = salt['grains.filter_by']({
-  'Debian': {
+  'default': {
     'masters': [{
                   'name': "master",
                   'ip': '127.0.0.1',
