@@ -50,7 +50,7 @@ Vagrant supports [_Salt_ provisioner](https://www.vagrantup.com/docs/provisionin
 ### Using kubernetes
 Depending on use case, different deployment strategies exist.
 
-#### Using envoy to deploy kubernetes itself
+#### Using envoy to deploy kubernetes
 _Salt Master_ installed on separate machine, _Salt Minion_ installed on each [Kubernetes node](https://kubernetes.io/docs/concepts/architecture/nodes/).
 
 This way it is possible to automatically create Kubernetes master and worker nodes
