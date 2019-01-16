@@ -47,22 +47,22 @@ Vagrant supports [_Salt_ provisioner](https://www.vagrantup.com/docs/provisionin
   
   2. `vagrant up`
 
-### Using kubernetes
+### Using Kubernetes
 Depending on use case, different deployment strategies exist.
 
-#### Using envoy to deploy kubernetes
+#### Using envoy to deploy Kubernetes
 _Salt Master_ installed on separate machine, _Salt Minion_ installed on each [Kubernetes node](https://kubernetes.io/docs/concepts/architecture/nodes/).
 
 This way it is possible to automatically create Kubernetes master and worker nodes
 
-For documentation refer to [kubernetes states](https://github.com/kiemlicz/envoy/tree/master/salt/server/kubernetes)
+For documentation refer to [Kubernetes states](https://github.com/kiemlicz/envoy/tree/master/salt/server/kubernetes)
 
-#### Using envoy to provision in-kubernetes pods
+#### Using envoy to provision in-Kubernetes pods
 In this strategy the _Salt Master_ is deployed within dedicated pod and _Salt Minions_ are deployed as [DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/).  
 In this approach, the _Salt Minion_ is **not** the provisioned entity. 
 Instead the _Salt Minion_ registers [`docker_events` engine](https://docs.saltstack.com/en/latest/ref/engines/all/salt.engines.docker_events.html). The engine captures 
 docker host events and forwards them to _Salt Master Event Bus_. [_Salt Master's Reactor System_](https://github.com/kiemlicz/util/wiki/Salt-Events-and-Reactor) is then used to
-add additional provisioning logic that is impossible (not in easy way at least) to provide using kubernetes tools only.  
+add additional provisioning logic that is impossible (not in easy way at least) to provide using Kubernetes tools only.  
 Example: creating Redis cluster.
 
 Mind that _Salt Minion_ is **not** installed on every container and **not** used to fully configure that container. That would be possible but
@@ -79,7 +79,7 @@ States are divided in environments:
  1. `base` - the main one. Any other environment comprises of at least `base`. Contains core states responsible for operations like
  repositories configuration, core packages installation or user setup
  2. `dev` - for developer machines. Includes `base`. Contains states that install tons of dev apps along with their configuration (like add entry to `PATH` variable)
- 3. `server` - installs/configured typical server tools, e.g., kubernetes or LVS. Includes `base` and `dev`
+ 3. `server` - installs/configured typical server tools, e.g., Kubernetes or LVS. Includes `base` and `dev`
 
 # Extensions
 In order to keep _states_ readable and configuration of whole SaltStack as flexible as possible, some extensions and custom states were introduced.
@@ -165,13 +165,13 @@ privgit_name2_pubkey_location: /location/on/master
 ```
 
 ### kubectl
-Pulls any kubernetes information and adds them to pillar.  
-It is possible to specify pillar key under which the kubernetes data will be hooked up.  
+Pulls any Kubernetes information and adds them to pillar.  
+It is possible to specify pillar key under which the Kubernetes data will be hooked up.  
 Under the hood this extension executes:
 `kubectl get -o yaml -n <namespace or deafult> <kind> <name>` or 
 `kubectl get -o yaml -n <namespace or deafult> <kind> -l <selector>` if name is not provided
 
-There is no (not yet) per-minion filtering of kubernetes pillar data, thus this data will be matched to all minions.  
+There is no (not yet) per-minion filtering of Kubernetes pillar data, thus this data will be matched to all minions.  
 For Kubernetes deployments (minions as daemon set) this should be acceptable.
  
 #### Usage
