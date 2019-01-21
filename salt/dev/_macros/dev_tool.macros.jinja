@@ -28,6 +28,17 @@
 {% endmacro %}
 
 {% macro repo_pkg_service(state_id, conf_dict, run=True) %}
+{{ repo_pkg(state_id, conf_dict) }}
+{% if run %}
+  service.running:
+    - name: {{ conf_dict.service_name }}
+    - enable: True
+    - require:
+      - pkg: {{ conf_dict.pkg_name }}
+{% endif %}
+{% endmacro %}
+
+{% macro repo_pkg(state_id, conf_dict) %}
 {{ repository(state_id ~ "_repository", conf_dict, enabled=(conf_dict.names is defined or conf_dict.repo_id is defined),
    require=[{'sls': "os"}], require_in=[{'pkg': conf_dict.pkg_name}]) }}
 {{ state_id }}:
@@ -40,12 +51,5 @@
     - name: {{ conf_dict.pkg_name }}
     - version: {{ conf_dict.version }}
     - refresh: True
-{% endif %}
-{% if run %}
-  service.running:
-    - name: {{ conf_dict.service_name }}
-    - enable: True
-    - require:
-      - pkg: {{ conf_dict.pkg_name }}
 {% endif %}
 {% endmacro %}

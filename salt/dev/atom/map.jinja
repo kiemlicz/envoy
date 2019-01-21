@@ -1,0 +1,19 @@
+{% set atom = salt['grains.filter_by']({
+    'RedHat': {
+        'baseurl': "https://packagecloud.io/AtomEditor/atom/el/7/\$basearch",
+        'repo_id': "atom",
+        'gpgkey': "https://packagecloud.io/AtomEditor/atom/gpgkey",
+        'pkg_name': "atom",
+    },
+    'Debian': {
+        'names': [
+            "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main"
+        ],
+        'file': '/etc/apt/sources.list.d/atom.list',
+        'key_url': "https://packagecloud.io/AtomEditor/atom/gpgkey",
+        'pkg_name': "atom",
+    },
+    'Windows': {
+
+    },
+}, merge=salt['pillar.get']('atom')) %}
