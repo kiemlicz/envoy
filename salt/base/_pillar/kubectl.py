@@ -36,11 +36,11 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
         else:
             raise CommandExecutionError('Cannot perform kubectl (ext_pillar), no name or selector provided')
 
-    config_path = kwargs['config']
+    env = {'KUBECONFIG': kwargs['config']} if 'config' in kwargs else None
     queries = kwargs['queries']
     for query_conf in queries:
         command = query(query_conf)
-        output = __salt__['cmd.run_stdout'](command, python_shell=True, env={'KUBECONFIG': config_path})
+        output = __salt__['cmd.run_stdout'](command, python_shell=True, env=env)
         if output:
             key_list = query_conf['key'].split(DEFAULT_TARGET_DELIM)
             data = wrap(key_list, salt.utils.yaml.safe_load(output))
