@@ -14,11 +14,13 @@ fully automated setup of SaltStack via associated [project ambassador](https://g
  2. Master-less provisioning (machine provisions itself):  
  **Steps**  
     1. `curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com`, requires (`apt-get install curl python-pip python-pygit2`)
-    2. `sh /tmp/bootstrap-salt.sh stable # 2018.3.2`
-    3. Use `config/common.conf` and `config/gitfs.conf` (put under `/etc/salt/minion.d/`)
-    4. `systemctl restart salt-minion`  
+    2. `sh /tmp/bootstrap-salt.sh -X`
+    3. Create masterless configs: `config/common.conf` and `config/gitfs.conf` (put under `/etc/salt/minion.d/`), use associated [project ambassador](https://github.com/kiemlicz/ambassador) for guidelines how to create such configs
+    4. `systemctl start salt-minion`  
     5. Optionally run `salt-call --local saltutil.sync_all`
-  
+ 
+It is possible to use both methods, e.g., initially provision the machine using master-minion setup, "unplug" the minion and use master-less when needed.  
+ 
 ### Using as Vagrant provisioner
 Vagrant supports [_Salt_ provisioner](https://www.vagrantup.com/docs/provisioning/salt.html)
 
