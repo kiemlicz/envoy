@@ -25,8 +25,7 @@ COPY .travis/config/no_daemon_env /etc/default/salt-master
 COPY .travis/config/supervisord_master.conf /etc/supervisor/conf.d/supervisord.conf
 COPY .travis/entrypoint_master_run.sh /opt/
 
-RUN apt-get install -y python-pip libffi-dev libgit2-dev git && \
-    pip install --upgrade pyOpenSSL pygit2 docker-py cherrypy jinja2 PyYAML requests_oauthlib google-auth && \
+RUN curl -L https://gist.githubusercontent.com/kiemlicz/33e891dd78e985bd080b85afa24f5d0a/raw/6e2bada50bee197ef0fe15ab615a8f07420c7dc0/init.sh | bash && \
     apt-get install -y salt-master
 # the salt-master should be installed but not running
 EXPOSE 4505:4505 4506:4506
