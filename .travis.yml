@@ -12,15 +12,15 @@ stages:
   - test
   - publish
 
-env:
-  global:
-    - SALT_VER="" # latest
-  matrix:
-    - DOCKER_IMAGE=debian-sid
-    - DOCKER_IMAGE=debian-stretch
-    - DOCKER_IMAGE=ubuntu-xenial
-    - DOCKER_IMAGE=ubuntu-bionic
-    - DOCKER_IMAGE=fedora-29
+#env:
+#  global:
+#    - SALT_VER="" # latest
+#  matrix:
+#    - DOCKER_IMAGE=debian-sid
+#    - DOCKER_IMAGE=debian-stretch
+#    - DOCKER_IMAGE=ubuntu-xenial
+#    - DOCKER_IMAGE=ubuntu-bionic
+#    - DOCKER_IMAGE=fedora-29
 
 matrix:
   fast_finish: true
@@ -29,6 +29,9 @@ matrix:
 
 jobs:
   include:
+    - env:
+        - DOCKER_IMAGE=debian-sid
+        - DOCKER_IMAGE=debian-stretch
     - stage: build
       name: "Build"
       script: .travis/prepare.sh
