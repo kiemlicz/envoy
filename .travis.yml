@@ -7,20 +7,10 @@ dist: trusty
 services:
   - docker
 
-jobs:
-  include:
-    - stage: build
-      name: "Build"
-      script: .travis/prepare.sh
-    - stage: test
-      name: "Test"
-      script:
-        - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - .travis/test.sh
-        - kill %1
-    - stage: publish
-      name: "Publish"
-      script: .travis/publish.sh
+stages:
+  - build
+  - test
+  - publish
 
 env:
   global:
@@ -36,3 +26,18 @@ matrix:
   fast_finish: true
   allow_failures: # only unstable distro-based tests are allowed to fail
     - env: DOCKER_IMAGE=debian-sid
+
+jobs:
+  include:
+    - stage: build
+      name: "Build"
+      script: .travis/prepare.sh
+    - stage: test
+      name: "Test"
+      script:
+        - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
+        - .travis/test.sh
+        - kill %1
+    - stage: publish
+      name: "Publish"
+      script: .travis/publish.sh
