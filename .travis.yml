@@ -7,21 +7,6 @@ dist: trusty
 services:
   - docker
 
-env:
-  global:
-    - SALT_VER="" # latest
-  matrix:
-    - DOCKER_IMAGE=debian-sid
-    - DOCKER_IMAGE=debian-stretch
-    - DOCKER_IMAGE=ubuntu-xenial
-    - DOCKER_IMAGE=ubuntu-bionic
-    - DOCKER_IMAGE=fedora-29
-
-matrix:
-  fast_finish: true
-  allow_failures: # only unstable distro-based tests are allowed to fail
-    - env: DOCKER_IMAGE=debian-sid
-
 jobs:
   include:
     - stage: build
@@ -36,3 +21,18 @@ jobs:
     - stage: publish
       name: "Publish"
       script: .travis/publish.sh
+
+env:
+  global:
+    - SALT_VER="" # latest
+  matrix:
+    - DOCKER_IMAGE=debian-sid
+    - DOCKER_IMAGE=debian-stretch
+    - DOCKER_IMAGE=ubuntu-xenial
+    - DOCKER_IMAGE=ubuntu-bionic
+    - DOCKER_IMAGE=fedora-29
+
+matrix:
+  fast_finish: true
+  allow_failures: # only unstable distro-based tests are allowed to fail
+    - env: DOCKER_IMAGE=debian-sid
