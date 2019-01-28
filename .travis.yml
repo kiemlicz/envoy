@@ -37,6 +37,18 @@ jobs:
       name: "Build"
       env: DOCKER_IMAGE=debian-stretch
       script: .travis/prepare.sh
+    - stage: build
+      name: "Build"
+      env: DOCKER_IMAGE=ubuntu-xenial
+      script: .travis/prepare.sh
+    - stage: build
+      name: "Build"
+      env: DOCKER_IMAGE=ubuntu-bionic
+      script: .travis/prepare.sh
+    - stage: build
+      name: "Build"
+      env: DOCKER_IMAGE=fedora-29
+      script: .travis/prepare.sh
     - stage: test
       name: "Test"
       script:
