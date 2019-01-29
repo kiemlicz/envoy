@@ -27,6 +27,8 @@ matrix:
   allow_failures: # only unstable distro-based tests are allowed to fail
     - env: DOCKER_IMAGE=debian-sid
 
+script: .travis/test.sh
+
 jobs:
   include:
     - stage: build
