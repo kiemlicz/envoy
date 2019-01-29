@@ -2,15 +2,10 @@ language: python
 
 sudo: required
 
-dist: trusty
+dist: xenial
 
 services:
   - docker
-
-stages:
-  - build
-  - test
-  - publish
 
 env:
   global:
@@ -33,4 +28,4 @@ script: .travis/test.sh
 
 after_success: .travis/publish.sh
 
-# there is little to no benefit of using build stages as there don't share docker images
+# there is little or no benefit of using build stages as they don't share docker images
