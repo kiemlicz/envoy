@@ -53,6 +53,12 @@ jobs:
       script: .travis/prepare.sh
     - stage: test
       name: "Test"
+      services: docker
+      sudo: required
+      addons:
+        apt:
+          packages:
+            - docker-ce
       script: .travis/test.sh
     - stage: publish
       name: "Publish"
