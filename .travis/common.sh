@@ -13,7 +13,6 @@ docker_update() {
 
 docker_compose_update() {
     local docker_compose_version=$COMPOSE_VER
-
     docker-compose --version
     sudo rm /usr/local/bin/docker-compose
     curl -L https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-`uname -s`-`uname -m` > docker-compose
@@ -23,7 +22,7 @@ docker_compose_update() {
     docker --version
 }
 
-# $1 tag
+# $1 full repo/name:tag
 docker_push() {
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     docker push "$1"

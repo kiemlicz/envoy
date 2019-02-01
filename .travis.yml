@@ -10,6 +10,7 @@ services:
 env:
   global:
     - SALT_VER="" # latest
+    - ENVOY_TAG="latest"
   matrix:
     - DOCKER_IMAGE=debian-sid
     - DOCKER_IMAGE=debian-stretch
