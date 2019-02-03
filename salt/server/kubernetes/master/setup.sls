@@ -43,14 +43,26 @@ kubernetes_upload_config:
 
 #todo mine token, hash, port and address (ip() macro will have troubles as there are two: 10.244.0.0 and 0.1 addresses)
 
+propagate_token:
+  module.run:
+    - mine.send:
+        - kubeadm_token
+        - mine_function: cmd.run
+        - args: "kubeadm token list | awk '{if(NR==2) print $1}'"
+        - kwargs:
+            python_shell: True
+    - require:
+      - cmd: kubeadm_init
+
+propagate_hash:
+  module.run:
+    - mine.send:
+        - kubeadm_hash
+        - mine_function: cmd.run
+        - args: "openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'"
+        - kwargs:
+            python_shell: True
+    - require:
+      - cmd: kubeadm_init
+
 #todo the cmd.run should be wrapped with script and return stateful data
-
-
-#todo upload kubernetes config or already have the template on master
-
-# after master has the config
-## kubectl apply
-# after gather docker events
-## cluster orch
-### group events and fire separately when need to : cluster redis, cluster mongo etc
-
