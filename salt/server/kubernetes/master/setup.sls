@@ -32,7 +32,6 @@ allow_schedule_on_master:
 {% endif %}
 
 {% if kubernetes.master.upload_config %}
-#todo somehow this file is unavailable on master
 kubernetes_upload_config:
   module.run:
     - cp.push:
@@ -41,26 +40,34 @@ kubernetes_upload_config:
       - cmd: kubeadm_init
 {% endif %}
 
-#todo mine token, hash, port and address (ip() macro will have troubles as there are two: 10.244.0.0 and 0.1 addresses)
-
 propagate_token:
   module.run:
     - mine.send:
-        - func: cmd.run
+        - func: kubernetes_token
+        - mine_function: cmd.run
         - "kubeadm token list | awk '{if(NR==2) print $1}'"
         - python_shell: True
     - require:
       - cmd: kubeadm_init
 
-#propagate_hash:
-#  module.run:
-#    - mine.send:
-#        - kubeadm_hash
-#        - mine_function: cmd.run
-#        - args: "openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'"
-#        - kwargs:
-#            python_shell: True
-#    - require:
-#      - cmd: kubeadm_init
+propagate_hash:
+  module.run:
+    - mine.send:
+        - func: kubernetes_hash
+        - mine_function: cmd.run
+        - "openssl x509 -pubkey -in {{ kubernetes.config.ca_cert }} | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'"
+        - python_shell: True
+    - require:
+      - cmd: kubeadm_init
+
+
+propagate_ip:
+  module.run:
+    - mine.send:
+        - func: kubernetes_master_ip
+        - mine_function: network.ip_addrs
+        - cidr: {{ kubernetes_network.nodes.cidr }}
+    - require:
+      - cmd: kubeadm_init
 
 #todo the cmd.run should be wrapped with script and return stateful data

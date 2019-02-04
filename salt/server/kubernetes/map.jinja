@@ -16,7 +16,8 @@
           'key_url': "https://packages.cloud.google.com/apt/doc/apt-key.gpg",
           'pkgs': ["kubelet", "kubeadm", "kubectl"],
           'config': {
-            'locations': ["/etc/kubernetes/admin.conf"]
+            'locations': ["/etc/kubernetes/admin.conf"],
+            'ca_cert': "/etc/kubernetes/pki/ca.crt"
           },
       },
       'Windows': {

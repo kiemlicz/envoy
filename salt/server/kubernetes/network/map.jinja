@@ -6,6 +6,10 @@
       'provider': 'flannel',
       'cidr': "10.244.0.0/16",
       'source': "https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
+    },
+    'nodes': {
+      'cidr': "192.168.0.0/16",
+      'port': 6443,
     }
   },
 }, merge=kubernetes_defaults) %}
