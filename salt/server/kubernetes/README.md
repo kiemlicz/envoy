@@ -48,6 +48,9 @@ Then run:
 `salt-run state.orchestrate kubernetes._orchestrate.cluster saltenv=server`
 
 # Provisioning PODs
+In this approach it is assumed that application images are already prepared. _Salt_ is used to orchestrate the application logic that would not be possible with Kubernetes tooling only. 
+Kubernetes takes care of POD lifecycle management "only".  
+Applications that require administrative work can still benefit from _Salt_.  
 In order to leverage _Salt_ capabilities to orchestrate Kubernetes PODs following deployment strategies exists:  
 
 _Salt Master_
@@ -58,10 +61,10 @@ _Salt Minion_
  1. Deployed as a _DaemonSet_ 
  2. Deployed directly on Kubernetes Nodes
  
-| Minion \ Master | Separate VM | POD |
+| Minion\Master | Separate VM | POD |
 | - | - | - |
-| DaemonSet | The VM must be able to route traffic to k8s PODs. Minions have Node's `docker.sock` mounted | Minions have Node's `docker.sock` mounted |
-| K8s Nodes | Only k8s Nodes - VM connectivity must be possible. It must be possible to install _Salt Minion_ on k8s Nodes | Node-POD communication must be possible. It must be possible to install _Salt Minion_ on k8s Nodes | 
+| **DaemonSet** | The VM must be able to route traffic to k8s PODs. Minions must have k8s Node's `docker.sock` mounted | Minions must have Node's `docker.sock` mounted |
+| **K8s Nodes** | Only k8s Nodes - VM connectivity must be possible. It must be possible to install _Salt Minion_ on k8s Nodes | Node-POD communication must be possible. It must be possible to install _Salt Minion_ on k8s Nodes | 
 
 
 # References
