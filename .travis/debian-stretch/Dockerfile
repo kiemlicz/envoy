@@ -1,4 +1,4 @@
-FROM debian:stretch AS salt-base
+FROM debian:stretch-slim AS salt-base
 # "" == latest
 ARG salt_ver=""
 
