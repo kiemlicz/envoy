@@ -3,6 +3,11 @@
 COMPOSE_VER="1.22.0"
 KUBECTL_VER="v1.13.0"
 MINIKUBE_VER="v0.32.0"
+if [ -z "$TRAVIS_TAG" ]; then
+    TAG="latest"
+else
+    TAG=$TRAVIS_TAG
+fi
 
 docker_update() {
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
