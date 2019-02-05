@@ -35,7 +35,7 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
         if 'selector' in query_conf:
             selector = query_conf['selector']
             parts.append("-l {}".format(selector))
-        else:
+        if 'name' not in query_conf and 'selector' not in query_conf:
             raise CommandExecutionError('Cannot perform kubectl (ext_pillar), no name or selector provided')
         parts.append("-o yaml")
         return " ".join(parts)
