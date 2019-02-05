@@ -57,18 +57,20 @@ _Salt Master_ installed on separate machine, _Salt Minion_ installed on each [Ku
 
 This way it is possible to automatically create Kubernetes master and worker nodes
 
-For documentation refer to [Kubernetes states](https://github.com/kiemlicz/envoy/tree/master/salt/server/kubernetes)
+For documentation refer to [Kubernetes states](https://github.com/kiemlicz/envoy/tree/master/salt/server/kubernetes#kubernetes)
 
 #### Using envoy to provision in-Kubernetes pods
 In this strategy the _Salt Master_ is deployed within dedicated pod and _Salt Minions_ are deployed as [DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/).  
 In this approach, the _Salt Minion_ is **not** the provisioned entity. 
 Instead the _Salt Minion_ registers [`docker_events` engine](https://docs.saltstack.com/en/latest/ref/engines/all/salt.engines.docker_events.html). The engine captures 
 docker host events and forwards them to _Salt Master Event Bus_. [_Salt Master's Reactor System_](https://github.com/kiemlicz/util/wiki/Salt-Events-and-Reactor) is then used to
-add additional provisioning logic that is impossible (not in easy way at least) to provide using Kubernetes tools only.  
-Example: creating Redis cluster.
+add additional provisioning logic that is impossible (not in an easy way at least) to provide using Kubernetes tools only.  
+Example: creating and maintaining Redis Cluster.
 
 Mind that _Salt Minion_ is **not** installed on every container and **not** used to fully configure that container. That would be possible but
 this should be the responsibility of the tool that is used to create that container (of course it is possible to use _Salt_ as such tool)
+
+More detailed description can be found in [POD provisioning section](https://github.com/kiemlicz/envoy/tree/master/salt/server/kubernetes#provisioning-pods) 
     
 ## Components
 In order to run _states_ against _minions_, _pillar_ must be configured.  
