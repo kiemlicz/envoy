@@ -25,16 +25,20 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
             return {}
 
     def query(query_conf):
+        # don't specify namespace if none provided, local one will be used
+        q = "kubectl" if 'namespace' not in query_conf else "kubectl -n {}".format(query_conf['namespace'])
         kind = query_conf['kind']
-        namespace = query_conf['namespace'] if 'namespace' in query_conf else 'default'
+        q = " ".join([q, "get {}".format(kind)])
         if 'name' in query_conf:
             name = query_conf['name']
-            return "kubectl get {} {} -o yaml -n {}".format(kind, name, namespace)
+            q = " ".join([q, name])
         if 'selector' in query_conf:
             selector = query_conf['selector']
-            return "kubectl get {} -o yaml -l {} -n {} ".format(kind, selector, namespace)
+            q = " ".join([q, "-l {}".format(selector)])
         else:
             raise CommandExecutionError('Cannot perform kubectl (ext_pillar), no name or selector provided')
+        q = " ".join([q, "-o yaml"])
+        return q
 
     env = {'KUBECONFIG': kwargs['config']} if 'config' in kwargs else None
     queries = kwargs['queries']
