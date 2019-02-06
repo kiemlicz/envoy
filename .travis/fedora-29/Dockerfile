@@ -9,13 +9,12 @@ RUN dnf -y update && dnf -y install curl procps && \
     curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com && \
     sh /tmp/bootstrap-salt.sh -X -n stable $salt_ver
 
+ENTRYPOINT [ "/usr/bin/supervisord" ]
+
 
 FROM salt-base AS salt-minion
 
 COPY .travis/config/supervisord_minion.conf /etc/supervisor/conf.d/supervisord.conf
-COPY .travis/entrypoint_minion_run.sh /opt/
-
-ENTRYPOINT ["/opt/entrypoint_minion_run.sh"]
 
 
 FROM salt-base AS salt-master
@@ -25,11 +24,10 @@ COPY .travis/entrypoint_master_run.sh /opt/
 
 RUN dnf -y install python-pip git @development-tools redhat-rpm-config python2-devel libgit2-devel && \
     pip install --upgrade pyOpenSSL pygit2 docker-py cherrypy jinja2 PyYAML requests_oauthlib google-auth && \
-    dnf -y install salt-master
+    dnf -y install salt-master && \
+    salt-run saltutil.sync_all
 # the salt-master should be installed but not running
 EXPOSE 4505:4505 4506:4506
-
-ENTRYPOINT [ "/opt/entrypoint_master_run.sh" ]
 
 
 FROM salt-base AS dry-test
