@@ -18,6 +18,7 @@ def run():
       "os",
       "samba",
       "mail",
+      "minion",
     ],
     'G@os_family:Debian': [
       "os.pkgs.unattended"
