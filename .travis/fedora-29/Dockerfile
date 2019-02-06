@@ -20,7 +20,6 @@ COPY .travis/config/supervisord_minion.conf /etc/supervisor/conf.d/supervisord.c
 FROM salt-base AS salt-master
 
 COPY .travis/config/supervisord_master.conf /etc/supervisor/conf.d/supervisord.conf
-COPY .travis/entrypoint_master_run.sh /opt/
 
 RUN dnf -y install python-pip git @development-tools redhat-rpm-config python2-devel libgit2-devel && \
     pip install --upgrade pyOpenSSL pygit2 docker-py cherrypy jinja2 PyYAML requests_oauthlib google-auth && \
