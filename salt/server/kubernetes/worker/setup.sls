@@ -7,7 +7,7 @@
 {% set ips = salt['mine.get']("kubernetes:master:True", "kubernetes_master_ip", tgt_type="grain") %}
 {% set hashes = salt['mine.get']("kubernetes:master:True", "kubernetes_hash", tgt_type="grain") %}
 
-{% if ips %}
+{% if ips and tokens and hashes %}
 {% set main_master_id = ips.keys()|sort|first %}
 join_master:
     cmd.run:
@@ -18,5 +18,5 @@ join_master:
 kubernetes-no-masters-to-join:
     test.show_notification:
         - name: Kubernetes worker node found no master
-        - text: "Kubernetes worker node found no master"
+        - text: "Kubernetes worker node found no master with hash and token active"
 {% endif %}

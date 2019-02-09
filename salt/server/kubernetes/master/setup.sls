@@ -44,9 +44,8 @@ propagate_token:
   module.run:
     - mine.send:
         - func: kubernetes_token
-        - mine_function: cmd.run
-        - "kubeadm token list | awk '{if(NR==2) print $1}'"
-        - python_shell: True
+        - mine_function: cmd.script
+        - name: {{ kubernetes.master.token_script }}
     - require:
       - cmd: kubeadm_init
 
@@ -59,7 +58,6 @@ propagate_hash:
         - python_shell: True
     - require:
       - cmd: kubeadm_init
-
 
 propagate_ip:
   module.run:
