@@ -6,11 +6,17 @@
 {% set tokens = salt['mine.get']("kubernetes:master:True", "kubernetes_token", tgt_type="grain") %}
 {% set ips = salt['mine.get']("kubernetes:master:True", "kubernetes_master_ip", tgt_type="grain") %}
 {% set hashes = salt['mine.get']("kubernetes:master:True", "kubernetes_hash", tgt_type="grain") %}
+
+{% if ips %}
 {% set main_master_id = ips.keys()|sort|first %}
-
-
 join_master:
     cmd.run:
-    - name: "kubeadm join --token {{ tokens[main_master_id] }} {{ ips[main_master_id] }}:{{ kubernetes_network.nodes.port }} --discovery-token-ca-cert-hash sha256:{{ hashes[main_master_id] }}"
-    - require:
-        pkg: kubeadm
+        - name: "kubeadm join --token {{ tokens[main_master_id] }} {{ ips[main_master_id] }}:{{ kubernetes_network.nodes.port }} --discovery-token-ca-cert-hash sha256:{{ hashes[main_master_id] }}"
+        - require:
+            pkg: kubeadm
+{% else %}
+kubernetes-no-masters-to-join:
+    test.show_notification:
+        - name: Kubernetes worker node found no master
+        - text: "Kubernetes worker node found no master"
+{% endif %}
