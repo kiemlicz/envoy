@@ -1,4 +1,5 @@
 include:
   - docker
   - kubernetes.kubeadm
-#  - kubernetes.worker.setup
+  - kubernetes.worker.setup
+  

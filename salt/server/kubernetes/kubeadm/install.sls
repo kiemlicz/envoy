@@ -4,9 +4,9 @@
 
 {{ repository("kube_repository", kubernetes) }}
 kubeadm:
-  pkg.latest:
-  - pkgs: {{ kubernetes.pkgs }}
-  - refresh: True
-  - require:
-    - pkgrepo_ext: kube_repository
-    - service: docker
+    pkg.latest:
+      - pkgs: {{ kubernetes.pkgs }}
+      - refresh: True
+      - require:
+        - pkgrepo_ext: kube_repository
+        - service: docker
