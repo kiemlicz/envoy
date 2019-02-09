@@ -46,6 +46,7 @@ propagate_token:
         - func: kubernetes_token
         - mine_function: cmd.script
         - {{ kubernetes.master.token_script }}
+        - saltenv: {{ saltenv }}
     - require:
       - cmd: kubeadm_init
 
