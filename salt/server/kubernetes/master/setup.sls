@@ -45,7 +45,7 @@ propagate_token:
     - mine.send:
         - func: kubernetes_token
         - mine_function: cmd.script
-        - name: {{ kubernetes.master.token_script }}
+        - {{ kubernetes.master.token_script }}
     - require:
       - cmd: kubeadm_init
 
