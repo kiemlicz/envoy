@@ -23,12 +23,25 @@ pkgs:
     - require:
       - sls: os.locale
 
+{% if pkgs.versions is defined %}
+pkgs_sources:
+  pkg.installed:
+    - pkgs: {{ pkgs.versions }}
+    - require:
+      - pkg: os_packages
+    - require_in:
+      - pip: pip_packages
+    - onchanges_in:
+      - cmd: post_install
+{{ retry(attempts=2)| indent(4) }}
+{% endif %}
+
 {% if pkgs.sources is defined %}
 pkgs_sources:
   pkg.installed:
     - sources: {{ pkgs.sources }}
     - require:
-      - pkg: upgrade_os
+      - pkg: os_packages
     - require_in:
       - pip: pip_packages
     - onchanges_in:

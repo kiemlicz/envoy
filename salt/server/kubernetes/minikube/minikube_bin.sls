@@ -5,7 +5,7 @@ minikube:
   file.managed:
   - name: {{ kubernetes.minikube.location }}
   - source: {{ kubernetes.minikube.url }}
-  - skip_verify: {{ kubernetes.minikube.hash_verify }}
+  - skip_verify: {{ kubernetes.minikube.skip_verify }}
   - mode: 755
   - require:
       - service: docker
