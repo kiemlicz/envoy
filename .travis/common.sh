@@ -33,18 +33,7 @@ docker_push() {
     docker push "$1"
 }
 
-kubectl_install() {
-    curl -LO https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VER/bin/linux/amd64/kubectl
-    chmod +x kubectl
-    sudo mv kubectl /usr/local/bin/
-}
-
-minikube_install() {
-    curl -Lo minikube https://storage.googleapis.com/minikube/releases/$MINIKUBE_VER/minikube-linux-amd64
-    chmod +x minikube
-    sudo mv minikube /usr/local/bin/
-    sudo minikube start --vm-driver=none
-    minikube update-context
+minikube_ready() {
     echo "Waiting for nodes:"
     kubectl get nodes
     #wait until nodes report as ready
@@ -58,6 +47,21 @@ minikube_install() {
     sed -i 's;/home/travis/.minikube/client.crt;/etc/kubernetes/client.crt;g' ~/.kube/config_for_salt
     sed -i 's;/home/travis/.minikube/client.key;/etc/kubernetes/client.key;g' ~/.kube/config_for_salt
     echo "minikube setup complete"
+}
+
+minikube_install() {
+    curl -Lo minikube https://storage.googleapis.com/minikube/releases/$MINIKUBE_VER/minikube-linux-amd64
+    chmod +x minikube
+    sudo mv minikube /usr/local/bin/
+    sudo minikube start --vm-driver=none
+    minikube update-context
+    minikube_ready
+}
+
+kubectl_install() {
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VER/bin/linux/amd64/kubectl
+    chmod +x kubectl
+    sudo mv kubectl /usr/local/bin/
 }
 
 still_running() {
