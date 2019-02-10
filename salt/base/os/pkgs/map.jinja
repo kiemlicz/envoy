@@ -1,12 +1,12 @@
 {% set pkgs = salt['grains.filter_by']({
     'default': {
-        'pip_packages': ["google-auth"],
+        'pip_packages': [],
         'os_packages': [],
         'post_install': [],
         'dist_upgrade': False,
     },
     'Windows': {
-        'pip_packages': ["google-auth"],
+        'pip_packages': [],
         'os_packages': [],
     }
 }, merge=salt['pillar.get']('pkgs')) %}
