@@ -31,8 +31,6 @@ pkgs_versions:
       - pkg: os_packages
     - require_in:
       - pip: pip_packages
-    - onchanges_in:
-      - cmd: post_install
 {{ retry(attempts=2)| indent(4) }}
 {% endif %}
 
@@ -44,8 +42,6 @@ pkgs_sources:
       - pkg: os_packages
     - require_in:
       - pip: pip_packages
-    - onchanges_in:
-      - cmd: post_install
 {{ retry(attempts=2)| indent(4) }}
 {% endif %}
 
