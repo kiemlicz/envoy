@@ -24,7 +24,7 @@ pkgs:
       - sls: os.locale
 
 {% if pkgs.versions is defined %}
-pkgs_sources:
+pkgs_versions:
   pkg.installed:
     - pkgs: {{ pkgs.versions }}
     - require:
