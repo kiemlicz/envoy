@@ -23,28 +23,25 @@ pkgs:
     - require:
       - sls: os.locale
 
-{% if pkgs.versions is defined %}
+{% if pkgs.versions is defined and pkgs.versions %}
 pkgs_versions:
   pkg.installed:
     - pkgs: {{ pkgs.versions }}
     - require:
       - pkg: os_packages
-    - require_in:
-      - pip: pip_packages
 {{ retry(attempts=2)| indent(4) }}
 {% endif %}
 
-{% if pkgs.sources is defined %}
+{% if pkgs.sources is defined and pkgs.sources %}
 pkgs_sources:
   pkg.installed:
     - sources: {{ pkgs.sources }}
     - require:
       - pkg: os_packages
-    - require_in:
-      - pip: pip_packages
 {{ retry(attempts=2)| indent(4) }}
 {% endif %}
 
+{% if pkgs.pip_packages is defined and pkgs.pip_packages %}
 pkgs_pip:
   pip.installed:
     - name: pip_packages
@@ -52,15 +49,14 @@ pkgs_pip:
     - reload_modules: True
     - require:
       - pkg: os_packages
+{% endif %}
 
-{% if pkgs.scripts is defined %}
+{% if pkgs.scripts is defined and pkgs.scripts %}
 {% for script in pkgs.scripts %}
 pkgs_scripts_{{ script.source }}:
   cmd.script:
     - name: {{ script.source }}
     - args: {{ script.args }}
-    - require:
-      - pip: pip_packages
 {% endfor %}
 {% endif %}
 
@@ -68,8 +64,6 @@ pkgs_scripts_{{ script.source }}:
 post_install:
   cmd.run:
     - names: {{ pkgs.post_install }}
-    - require:
-      - pip: pip_packages
     - onchanges:
       - pkg: os_packages
 {% endif %}
