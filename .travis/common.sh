@@ -2,7 +2,7 @@
 
 COMPOSE_VER="1.22.0"
 KUBECTL_VER="v1.13.0"
-MINIKUBE_VER="v0.32.0"
+MINIKUBE_VER="v0.33.1"
 if [ -z "$TRAVIS_TAG" ]; then
     TAG="latest"
 else
@@ -36,9 +36,7 @@ docker_push() {
 minikube_ready() {
     echo "Waiting for nodes:"
     kubectl get nodes
-    #wait until nodes report as ready
-    JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; \
-    until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 1; done
+    kubectl wait nodes/minikube --for condition=ready
     cp ~/.minikube/ca.crt ~/.kube/
     cp ~/.minikube/client.crt ~/.kube/
     cp ~/.minikube/client.key ~/.kube/
