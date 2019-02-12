@@ -3,7 +3,6 @@ FROM fedora:29 AS salt-base
 ARG salt_ver=""
 
 COPY salt /srv/salt
-COPY reactor /srv/reactor
 
 RUN dnf -y update && dnf -y install curl procps && \
     curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com && \
@@ -32,6 +31,7 @@ EXPOSE 4505:4505 4506:4506
 FROM salt-base AS dry-test
 
 COPY .travis/entrypoint_dry_systemd.sh /opt/
+COPY .travis/reactor /srv/reactor
 COPY .travis/pillar/ /srv/pillar/
 COPY .travis/salt/top.sls /srv/salt/base/
 COPY .travis/config/masterless.conf /etc/salt/minion.d/masterless.conf
