@@ -11,3 +11,4 @@ kubeconfig_{{ location }}:
     - template: jinja
     - context:
         kubeconfig: {{ kubernetes.kubeconfig }}
+{% endfor %}
