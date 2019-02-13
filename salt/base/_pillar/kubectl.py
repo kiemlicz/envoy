@@ -4,13 +4,21 @@ import salt.utils.yaml
 from salt.defaults import DEFAULT_TARGET_DELIM
 from salt.exceptions import CommandExecutionError
 
+try:
+    from kubernetes import client, config
+
+    HAS_K8S = True
+except ImportError:
+    HAS_K8S = False
+
 log = logging.getLogger(__name__)
 
 __virtualname__ = 'kubectl'
 
 
 def __virtual__():
-    return True
+    config.load_incluster_config() # is it the place?
+    return True if HAS_K8S else (False, "Cannot load kubectl pillar, install: kubernetes")
 
 
 def ext_pillar(minion_id, pillar, *args, **kwargs):
