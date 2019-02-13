@@ -8,6 +8,7 @@ sync:
 mark:
   file.touch:
     - name: {{ minion.health_file }}
+    - makedirs: True
     - require:
       - module: sync
 
