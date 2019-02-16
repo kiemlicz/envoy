@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
 COMPOSE_VER="1.22.0"
-KUBECTL_VER="v1.13.0"
-MINIKUBE_VER="v0.33.1"
 if [ -z "$TRAVIS_TAG" ]; then
     TAG="latest"
 else
@@ -37,29 +35,24 @@ minikube_ready() {
     echo "Waiting for nodes:"
     kubectl get nodes
     kubectl wait nodes/minikube --for condition=ready
-    cp ~/.minikube/ca.crt ~/.kube/
-    cp ~/.minikube/client.crt ~/.kube/
-    cp ~/.minikube/client.key ~/.kube/
-    cp ~/.kube/config ~/.kube/config_for_salt
-    sed -i 's;/home/travis/.minikube/ca.crt;/etc/kubernetes/ca.crt;g' ~/.kube/config_for_salt
-    sed -i 's;/home/travis/.minikube/client.crt;/etc/kubernetes/client.crt;g' ~/.kube/config_for_salt
-    sed -i 's;/home/travis/.minikube/client.key;/etc/kubernetes/client.key;g' ~/.kube/config_for_salt
     echo "minikube setup complete"
 }
 
-minikube_install() {
-    curl -Lo minikube https://storage.googleapis.com/minikube/releases/$MINIKUBE_VER/minikube-linux-amd64
-    chmod +x minikube
-    sudo mv minikube /usr/local/bin/
-    sudo minikube start --vm-driver=none
-    minikube update-context
-    minikube_ready
+salt_install() {
+    sudo apt-get update && sudo apt-get install -y curl
+    sudo mkdir -p /etc/salt/minion.d/
+    sudo cp ${1-".travis/config/masterless.conf"} /etc/salt/minion.d/
+    sudo ln -s $TRAVIS_BUILD_DIR/envoy/salt /srv/salt
+    sudo ln -s $TRAVIS_BUILD_DIR/.travis/pillar /srv/pillar
+    curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com
+    sudo sh /tmp/bootstrap-salt.sh -n stable
 }
 
-kubectl_install() {
-    curl -LO https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VER/bin/linux/amd64/kubectl
-    chmod +x kubectl
-    sudo mv kubectl /usr/local/bin/
+minikube_install() {
+    sudo salt-call --local state.apply kubernetes.client saltenv=server
+    sudo salt-call --local state.apply kubernetes.minikube saltenv=server
+    sudo salt-call --local state.apply kubernetes.helm saltenv=server
+    minikube_ready
 }
 
 still_running() {
