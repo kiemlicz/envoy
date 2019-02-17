@@ -9,6 +9,7 @@ kubeconfig_{{ location }}:
     - source: salt://kubernetes/client/kubeconfig.yaml
     - makedirs: True
     - template: jinja
+    - user: {{ kubernetes.user }}
     - context:
         kubeconfig: {{ kubernetes.kubeconfig }}
 {% endfor %}

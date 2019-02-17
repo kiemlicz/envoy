@@ -4,6 +4,6 @@
 minikube_update_context:
   cmd.run:
   - name: "minikube update-context"
-  - runas: {{ kubernetes.minikube.user }}
+  - runas: {{ kubernetes.user }}
   - require:
       - sls: kubernetes.minikube.{{ kubernetes.minikube.driver }}

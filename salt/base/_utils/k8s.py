@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 
 class K8sClient(object):
-    def __init__(self, profile=None, **kwargs):
+    def __init__(self, **kwargs):
         if not HAS_K8S:
             raise CommandExecutionError('(unable to import kubernetes, module most likely not installed)')
 
@@ -41,8 +41,8 @@ class K8sClient(object):
             namespace = self.active_namespace
         method = "read_namespaced_{}".format(kind)
         try:
-            client = self._client(kind)
-            result = getattr(client, method)(name=name, namespace=namespace)
+            c = self._client(kind)
+            result = getattr(c, method)(name=name, namespace=namespace)
             return result.to_dict()
         except AttributeError as e:
             log.exception(e)
@@ -57,8 +57,8 @@ class K8sClient(object):
             namespace = self.active_namespace
         method = "list_namespaced_{}".format(kind)
         try:
-            client = self._client(kind)
-            result = getattr(client, method)(namespace=namespace, label_selector=label_selector)
+            c = self._client(kind)
+            result = getattr(c, method)(namespace=namespace, label_selector=label_selector)
             return result.to_dict()
         except AttributeError as e:
             log.exception(e)
@@ -75,6 +75,6 @@ class K8sClient(object):
             return self.client_apps_v1_api
 
 
-def k8s_client(profile=None, **kwargs):
-    log.info("Creating K8s client for profile: {}".format(profile))
-    return K8sClient(profile, **kwargs)
+def k8s_client(**kwargs):
+    log.info("Creating K8s client")
+    return K8sClient(**kwargs)
