@@ -32,7 +32,7 @@ docker_push() {
 }
 
 minikube_ready() {
-    echo "Waiting for nodes:"
+    echo "Waiting for nodes..."
     kubectl get nodes
     kubectl wait nodes/minikube --for condition=ready
     echo "minikube setup complete"
