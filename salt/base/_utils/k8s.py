@@ -5,6 +5,7 @@ from salt.exceptions import CommandExecutionError
 
 try:
     from kubernetes import client, config
+    from kubernetes.client import ApiClient
     from kubernetes.client.rest import ApiException
 
     HAS_K8S = True
@@ -35,6 +36,7 @@ class K8sClient(object):
 
         self.client_apps_v1_api = client.AppsV1Api()
         self.client_core_v1_api = client.CoreV1Api()
+        self.client_api = ApiClient()
 
     def read(self, kind, name=None, namespace=None):
         if not namespace:
@@ -43,7 +45,7 @@ class K8sClient(object):
         try:
             c = self._client(kind)
             result = getattr(c, method)(name=name, namespace=namespace)
-            return result.to_dict()
+            return self.client_api.sanitize_for_serialization(result)
         except AttributeError as e:
             log.exception(e)
             raise CommandExecutionError("Method {} not found".format(method))
@@ -59,7 +61,7 @@ class K8sClient(object):
         try:
             c = self._client(kind)
             result = getattr(c, method)(namespace=namespace, label_selector=label_selector)
-            return result.to_dict()
+            return self.client_api.sanitize_for_serialization(result)
         except AttributeError as e:
             log.exception(e)
             raise CommandExecutionError("Method {} not found".format(method))
