@@ -5,9 +5,6 @@ _State Tree_ for all redis related configuration
  - [`redis.client`](https://github.com/kiemlicz/envoy/tree/master/salt/dev/redis#redis.client) installs `redis-cli` utility from OS repository
  - [`redis.server`](https://github.com/kiemlicz/envoy/tree/master/salt/dev/redis#redis.server) installs `redis-server` and configures it
 
-### Available orchestrators
- - [`redis.server._orchestrate`](https://github.com/kiemlicz/envoy/tree/master/salt/dev/redis#redis.server._orchestrate) provisions Redis Cluster  
-
 #### `redis.client`
 Installs Redis client package from the OS repository
 ```
@@ -31,11 +28,4 @@ redis:
     init: salt://redis.init
     init_location: /etc/init.d/redis-server
     service: redis-server
-```
-
-#### `redis.server._orchestrate`
-Depending on the desired Redis deployment different configurations may be feasible or desired.  
-Specifying which instance 
-
-### Test
-Due to the state complexity this _State Tree_ is covered by additional tests
+``` 

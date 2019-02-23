@@ -200,14 +200,7 @@ This state does pretty much that.
 ### envops
 Environment variables operations.
 
-### redis_ext
-Custom _State Module_ that enforces redis cluster state (`CLUSTER MEET`, proper replication factor etc.).  
-[Full documentation of redis.server state](https://github.com/kiemlicz/envoy/tree/master/salt/dev/redis)
- 
 ## Custom Execution Modules
-## redis_ext
-Custom _Execution Module_ that executes mainly Redis cluster commands, default [redis module](https://docs.saltstack.com/en/latest/ref/modules/all/salt.modules.redismod.html) is too outdated.  
-[Full documentation of redis.server state](https://github.com/kiemlicz/envoy/tree/master/salt/dev/redis)
  
 # Tests
 Tests are performed on different OSes (in docker) in _Salt_ masterless mode.  
