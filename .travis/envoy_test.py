@@ -77,7 +77,7 @@ class EnvoyTest(ParametrizedTestCase):
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     saltenvs = ["base", "dev", "server"]
-    pillarenvs = ["empty", "base", "gui", "dev", "orch1", "orch2"]
+    pillarenvs = ["empty", "base", "gui", "dev", "orch1", "server"]
     for saltenv, pillarenv in itertools.product(saltenvs, pillarenvs):
         suite.addTest(ParametrizedTestCase.parametrize(EnvoyTest, saltenv=saltenv, pillarenv=pillarenv))
     result = unittest.TextTestRunner(verbosity=2).run(suite)
