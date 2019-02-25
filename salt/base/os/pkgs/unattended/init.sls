@@ -19,7 +19,7 @@ unattended_upgrades_{{ config.location }}:
     - source: {{ config.source }}
     - template: jinja
     - context:
-      settings: {{ config.settings|json_decode_dict }}
+      settings: {{ config.settings|tojson }}
     - require:
       - pkg: unattended_upgrades_pkgs
     - onchanges_in:

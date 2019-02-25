@@ -8,7 +8,7 @@ redis_config_{{ redis.ip }}_{{ redis.port }}:
     - makedirs: True
     - template: jinja
     - context:
-      redis: {{ redis|json_decode_dict }}
+      redis: {{ redis|tojson }}
     - require:
       - pkg: {{ redis.pkg_name }}
   service.running:

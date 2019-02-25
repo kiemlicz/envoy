@@ -10,7 +10,7 @@ redis_init_script:
     - mode: {{ redis.config.mode }}
     - template: jinja
     - context:
-      redis: {{ redis|json_decode_dict }}
+      redis: {{ redis|tojson }}
     - require:
       - pkg: {{ redis.pkg_name }}
 

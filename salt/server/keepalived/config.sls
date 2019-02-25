@@ -10,7 +10,7 @@ keepalived_config_{{ config.location }}:
     - makedirs: True
     - template: jinja
     - context:
-      keepalived: {{ keepalived|json_decode_dict }}
+      keepalived: {{ keepalived|tojson }}
     - watch_in:
       - service: {{ keepalived.service }}
 

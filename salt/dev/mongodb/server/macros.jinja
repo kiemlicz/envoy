@@ -9,8 +9,8 @@ mongodb_config_{{ bind.ip }}_{{ bind.port }}:
     - makedirs: True
     - template: jinja
     - context:
-      bind: {{ bind|json_decode_dict }}
-      mongodb: {{ mongodb|json_decode_dict }}
+      bind: {{ bind|tojson }}
+      mongodb: {{ mongodb|tojson }}
       discriminator: {{ discriminator }}
     - require:
       - file_ext: {{ mongodb.config.init_location }}

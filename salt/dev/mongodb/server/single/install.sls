@@ -22,6 +22,6 @@ mongodb:
     - mode: {{ mongodb.config.mode }}
     - template: jinja
     - context:
-      mongodb: {{ mongodb|json_decode_dict }}
+      mongodb: {{ mongodb|tojson }}
     - require:
       - pkg: {{ mongodb.pkg_name }}

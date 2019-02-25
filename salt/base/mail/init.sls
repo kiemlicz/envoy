@@ -23,7 +23,7 @@ mail_config_{{ config.location }}:
     - group: {{ config.group }}
     - mode: {{ config.mode }}
     - context:
-      settings: {{ config.settings|json_decode_dict }}
+      settings: {{ config.settings|tojson }}
     - require:
       - pkg: mail_pacakges
     - watch_in:
