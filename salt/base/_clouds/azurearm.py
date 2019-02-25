@@ -1425,9 +1425,9 @@ def create(vm_):
         Query node data.
         '''
         data = show_instance(name, call='action')
-        ip_address = None
-        if len(data.keys()) == 0:
+        if not data:
             return False
+        ip_address = None
         if bootstrap_interface == 'public':
             ip_address = data['public_ips'][0]
         if bootstrap_interface == 'private':
