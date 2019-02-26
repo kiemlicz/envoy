@@ -1,9 +1,12 @@
+from __future__ import print_function
 import itertools
 import os
 import traceback
 import unittest
 
 import salt.client
+import salt.minion
+import salt.syspaths as syspaths
 from salt.exceptions import CommandExecutionError
 
 
@@ -53,17 +56,21 @@ class EnvoyTest(ParametrizedTestCase):
                         msg="salt states not found: {}".format(os.path.join(self.saltenv_location, self.saltenv)))
         self.assertTrue(os.path.isdir(os.path.join(self.pillarenv_location, self.pillarenv)),
                         msg="pillar data not found: {}".format(os.path.join(self.pillarenv_location, self.pillarenv)))
-        return salt.client.Caller()
+        # ugly hack, as pillarenv is respected only when set in config..., passing `pillarenv=???` has no effect
+        conf = salt.config.minion_config(os.path.join(syspaths.CONFIG_DIR, 'minion'))
+        conf['pillarenv'] = self.pillarenv
+        return salt.client.Caller(mopts=conf)
 
     def test_states_syntax(self):
         caller = self._get_client()
+        print("saltenv: {}, pillarenv: {} ".format(self.saltenv, self.pillarenv), end='')
         try:
             tops = caller.cmd("state.show_top")
             self.assertFalse(len(tops) == 0, "empty state.show_top output")
             for env, states in tops.iteritems():
                 self.assertFalse(len(states) == 0, "empty state list for env: {}".format(env))
                 for state in states:
-                    result_sls = caller.cmd("state.show_sls", state, saltenv=env, pillarenv=self.pillarenv)
+                    result_sls = caller.cmd("state.show_sls", state, saltenv=env)
                     self.assertTrue(isinstance(result_sls, dict),
                                     msg="rendering of: {} (saltenv={}, pillarenv={}), failed with: {}".format(state,
                                                                                                               env,
