@@ -10,7 +10,7 @@
           - saltenv: server
           - pillarenv: base
           - pillar:
-              docker_event: {{ data|json_encode_dict }}
+              docker_event: {{ data|tojson }}
   {% elif data['data']['status'] == 'stop' or data['data']['status'] == 'kill' %}
     redis_instance_stopped:
       runner.state.orchestrate:
@@ -20,6 +20,6 @@
           - saltenv: server
           - pillarenv: base
           - pillar:
-              docker_event: {{ data|json_encode_dict }}
+              docker_event: {{ data|tojson }}
   {% endif %}
 {% endif %}

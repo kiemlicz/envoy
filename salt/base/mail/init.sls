@@ -9,7 +9,7 @@ include:
 mail:
   pkg.latest:
     - name: mail_pacakges
-    - pkgs: {{ mail.pkgs }}
+    - pkgs: {{ mail.pkgs|tojson }}
     - require:
       - sls: os
 {% for config in mail.configs %}

@@ -3,7 +3,7 @@
 
 samba_automount:
   pkg.latest:
-    - pkgs: {{ samba.pkgs }}
+    - pkgs: {{ samba.pkgs|tojson }}
     - require:
       - pkg: os_packages
     - require_in:

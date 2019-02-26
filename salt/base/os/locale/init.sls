@@ -6,7 +6,7 @@
 required_pkgs:
   pkg.latest:
     - name:
-    - pkgs: {{ locale.required_pkgs }}
+    - pkgs: {{ locale.required_pkgs|tojson }}
     - require:
       - sls: os.repositories
     - require_in:

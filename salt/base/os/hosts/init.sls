@@ -5,7 +5,7 @@
 {{ address }}_host:
   host.present:
     - ip: {{ address }}
-    - names: {{ aliases }}
+    - names: {{ aliases|tojson }}
 {% endfor %}
 
 hosts-notification:

@@ -4,7 +4,7 @@
 lxc:
   pkg.latest:
     - name: lxc_install
-    - pkgs: {{ lxc.pkgs }}
+    - pkgs: {{ lxc.pkgs|tojson }}
     - refresh: True
     - require:
       - sls: os

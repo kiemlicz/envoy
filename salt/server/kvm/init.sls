@@ -8,7 +8,7 @@ include:
 kvm:
   pkg.latest:
     - name: kvm_packages
-    - pkgs: {{ kvm.prerequisites }}
+    - pkgs: {{ kvm.prerequisites|tojson }}
     - refresh: True
     - require:
       - sls: os

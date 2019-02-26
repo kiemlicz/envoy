@@ -5,7 +5,7 @@
 {{ repository("kube_repository", kubernetes) }}
 kubeadm:
     pkg.latest:
-      - pkgs: {{ kubernetes.pkgs }}
+      - pkgs: {{ kubernetes.pkgs|tojson }}
       - refresh: True
       - require:
         - pkgrepo_ext: kube_repository

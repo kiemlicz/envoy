@@ -6,7 +6,7 @@ include:
 kannel_server:
   pkg.latest:
     - name: kannel
-    - pkgs: {{ kannel.pkgs }}
+    - pkgs: {{ kannel.pkgs|tojson }}
     - require:
       - sls: os
   service.running:

@@ -8,7 +8,7 @@ include:
 unattended_upgrades:
   pkg.latest:
     - name: unattended_upgrades_pkgs
-    - pkgs: {{ unattended.required_pkgs }}
+    - pkgs: {{ unattended.required_pkgs|tojson }}
     - require:
       - pkg: os_packages
 

@@ -29,7 +29,7 @@ java:
 {% endif %}
   pkg.latest:
     - name: {{ java.pkg_name }}
-    - pkgs: {{ [ java.pkg_name ] + java.ext_pkgs }}
+    - pkgs: {{ ([ java.pkg_name ] + java.ext_pkgs)|tojson }}
     - refresh: True
 {{ retry(attempts=3)| indent(4) }}
     - require:

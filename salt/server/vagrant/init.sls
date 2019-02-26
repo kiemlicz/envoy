@@ -8,7 +8,7 @@ include:
 {% if vagrant.requisites is defined %}
 vagrant_requisites:
   pkg.latest:
-    - pkgs: {{ vagrant.requisites }}
+    - pkgs: {{ vagrant.requisites|tojson }}
     - require:
       - sls: os
     - require_in:
@@ -29,7 +29,7 @@ vagrant:
 vagrant_plugin_{{ plugin.name }}:
 {% if plugin.pkgs is defined %}
   pkg.latest:
-  - pkgs: {{ plugin.pkgs }}
+  - pkgs: {{ plugin.pkgs|tojson }}
   - require:
     - pkg: vagrant
   - require_in:

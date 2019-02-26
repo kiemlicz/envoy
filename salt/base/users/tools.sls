@@ -36,7 +36,7 @@
 
 {{ username }}_powerline_requirements:
   pkg.latest:
-    - pkgs: {{ user.tools.powerline.required_pkgs }}
+    - pkgs: {{ user.tools.powerline.required_pkgs|tojson }}
     - refresh: True
     - require:
       - user: {{ username }}
