@@ -17,7 +17,7 @@ dist-upgrade:
 pkgs:
   pkg.latest:
     - name: os_packages
-    - pkgs: {{ pkgs.os_packages }}
+    - pkgs: {{ pkgs.os_packages|tojson }}
     - refresh: True
     - reload_modules: True
     - require:
@@ -26,7 +26,7 @@ pkgs:
 {% if pkgs.versions is defined and pkgs.versions %}
 pkgs_versions:
   pkg.installed:
-    - pkgs: {{ pkgs.versions }}
+    - pkgs: {{ pkgs.versions|tojson }}
     - require:
       - pkg: os_packages
 {{ retry(attempts=2)| indent(4) }}
@@ -45,7 +45,7 @@ pkgs_sources:
 pkgs_pip:
   pip.installed:
     - name: pip_packages
-    - pkgs: {{ pkgs.pip_packages }}
+    - pkgs: {{ pkgs.pip_packages|tojson }}
     - reload_modules: True
     - require:
       - pkg: os_packages
@@ -63,7 +63,7 @@ pkgs_scripts_{{ script.source }}:
 {% if pkgs.post_install is defined and pkgs.post_install %}
 post_install:
   cmd.run:
-    - names: {{ pkgs.post_install }}
+    - names: {{ pkgs.post_install|tojson }}
     - onchanges:
       - pkg: os_packages
 {% endif %}

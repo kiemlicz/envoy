@@ -15,7 +15,7 @@ required_pkgs:
 
 gen_locale:
   locale.present:
-    - names: {{ locale.locales }}
+    - names: {{ locale.locales|tojson }}
 
 {% if not is_lxc()|to_bool %}
 default_locale:

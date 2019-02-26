@@ -5,7 +5,7 @@
 
 {{ username }}_project_{{ project.url }}_setup:
   cmd.run:
-    - names: {{ project.cmds }}
+    - names: {{ project.cmds|tojson }}
     - runas: {{ username }}
     - cwd: {{ project.target }}
     - onchanges:

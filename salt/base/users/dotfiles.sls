@@ -21,7 +21,7 @@
 #todo fallback location = home
 {% if user.dotfile.post_cmds is defined %}
   cmd.run:
-    - names: {{ user.dotfile.post_cmds }}
+    - names: {{ user.dotfile.post_cmds|tojson }}
     - runas: {{ username }}
     - cwd: {{ user.dotfile.root }}
     - onchange:

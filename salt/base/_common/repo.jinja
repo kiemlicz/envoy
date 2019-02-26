@@ -6,7 +6,7 @@
 {{ id }}:
   pkgrepo_ext.managed:
   {% if repo.names is defined %}
-    - names: {{ repo.names|json_decode_list }}
+    - names: {{ repo.names|tojson }}
     - file: {{ repo.file }}
   {% if repo.key_text is defined %}
     - key_text: {{ repo.key_text|yaml_encode }}

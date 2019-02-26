@@ -13,5 +13,5 @@ kvm:
     - require:
       - sls: os
   group.present:
-    - names: {{ kvm.groups }}
+    - names: {{ kvm.groups|tojson }}
     - addusers: {{ kvm.users }}

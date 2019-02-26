@@ -10,7 +10,7 @@
       - sls: os # deliberately full sls (in case of urgent pkgs.post_install commands)
 {% if user.groups is defined %}
   group.present:
-    - names: {{ user.groups }}
+    - names: {{ user.groups|tojson }}
     - addusers:
       - {{ username }}
 {% endif %}
@@ -20,7 +20,7 @@
     - group: {{ username }}
     - mode: 755
     - makedirs: True
-    - names: {{ user.user_dirs }}
+    - names: {{ user.user_dirs|tojson }}
     - require:
       - user: {{ username }}
 
@@ -45,7 +45,7 @@ git_global_config_{{ username }}_{{ k }}:
 {% if user.known_hosts is defined %}
 {{ username }}_setup_ssh_known_hosts:
   ssh_known_hosts.present:
-    - names: {{ user.known_hosts }}
+    - names: {{ user.known_hosts|tojson }}
     - user: {{ username }}
     - require:
       - user: {{ username }}
