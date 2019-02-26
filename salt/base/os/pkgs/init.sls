@@ -35,7 +35,7 @@ pkgs_versions:
 {% if pkgs.sources is defined and pkgs.sources %}
 pkgs_sources:
   pkg.installed:
-    - sources: {{ pkgs.sources }}
+    - sources: {{ pkgs.sources|tojson }}
     - require:
       - pkg: os_packages
 {{ retry(attempts=2)| indent(4) }}
