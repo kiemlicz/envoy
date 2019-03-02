@@ -5,8 +5,10 @@
           'gpgkey': "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg",
           'pkgs': ["kubelet", "kubeadm", "kubectl"],
           'config': {
-            'locations': ["/etc/kubernetes/admin.conf"]
-          }
+            'locations': ["/etc/kubernetes/admin.conf"],
+            'ca_cert': "/etc/kubernetes/pki/ca.crt"
+          },
+          'user': "root",
       },
       'Debian': {
           'names': [
@@ -25,4 +27,3 @@
 
       },
 }, merge=salt['pillar.get']('kubernetes')) %}
-
