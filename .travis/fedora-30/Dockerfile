@@ -36,6 +36,8 @@ EXPOSE 4505:4505 4506:4506
 
 FROM salt-base AS dry-test
 
+# fixme libraries are not installed
+
 COPY .travis/reactor /srv/reactor
 COPY .travis/pillar/ /srv/pillar/
 COPY .travis/salt/top.sls /srv/salt/base/
