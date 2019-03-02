@@ -67,7 +67,7 @@ class EnvoyTest(ParametrizedTestCase):
         try:
             tops = caller.cmd("state.show_top")
             self.assertFalse(len(tops) == 0, "empty state.show_top output")
-            for env, states in tops.iteritems():
+            for env, states in tops.items():
                 self.assertFalse(len(states) == 0, "empty state list for env: {}".format(env))
                 for state in states:
                     result_sls = caller.cmd("state.show_sls", state, saltenv=env)

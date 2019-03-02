@@ -1,14 +1,14 @@
-FROM debian:sid-slim AS salt-base
+FROM fedora:30 AS salt-base
 # "" == latest
 ARG salt_ver=""
 
 COPY salt /srv/salt
 
-RUN apt-get update && apt-get install -y curl supervisor && \
+RUN dnf -y update && dnf -y install curl procps && \
     curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com && \
     sh /tmp/bootstrap-salt.sh -x python3 -X -n stable $salt_ver && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python2.7 10 && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python3.5 20
+    alternatives --install /usr/bin/python python /usr/bin/python2.7 10 && \
+    alternatives --install /usr/bin/python python /usr/bin/python3.7 20
 
 ENTRYPOINT [ "/usr/bin/supervisord" ]
 
@@ -24,11 +24,12 @@ FROM salt-base AS salt-master
 COPY .travis/config/no_daemon_env /etc/default/salt-master
 COPY .travis/config/supervisord_master.conf /etc/supervisor/conf.d/supervisord.conf
 
-RUN apt-get install -y libgit2-dev python3-pip libffi-dev git && \
-    update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 20 && \
-    pip install --upgrade pyOpenSSL pygit2 docker-py cherrypy jinja2 PyYAML requests_oauthlib google-auth && \
-    apt-get install -y salt-master
+RUN dnf -y install python3-pip git @development-tools redhat-rpm-config python3-devel libgit2-devel && \
+    alternatives --install /usr/bin/pip pip /usr/bin/pip3 20 && \
+    pip3 install --upgrade pyOpenSSL pygit2 docker-py cherrypy jinja2 PyYAML requests_oauthlib google-auth && \
+    dnf -y install salt-master
 
+# somehow installed pip3 as pip alternative didn't work
 # the salt-master should be installed but not running
 EXPOSE 4505:4505 4506:4506
 
