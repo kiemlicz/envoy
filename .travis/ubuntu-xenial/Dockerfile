@@ -6,9 +6,7 @@ COPY salt /srv/salt
 
 RUN apt-get update && apt-get install -y curl iproute2 supervisor && \
     curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com && \
-    sh /tmp/bootstrap-salt.sh -x python3 -X -n stable $salt_ver && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python2.7 10 && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python3.5 20
+    sh /tmp/bootstrap-salt.sh -x python3 -X -n stable $salt_ver
 
 ENTRYPOINT [ "/usr/bin/supervisord" ]
 

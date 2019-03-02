@@ -6,9 +6,7 @@ COPY salt /srv/salt
 
 RUN dnf -y update && dnf -y install curl procps && \
     curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com && \
-    sh /tmp/bootstrap-salt.sh -x python3 -X -n stable $salt_ver && \
-    alternatives --install /usr/bin/python python /usr/bin/python2.7 10 && \
-    alternatives --install /usr/bin/python python /usr/bin/python3.7 20
+    sh /tmp/bootstrap-salt.sh -x python3 -X -n stable $salt_ver
 
 ENTRYPOINT [ "/usr/bin/supervisord" ]
 
