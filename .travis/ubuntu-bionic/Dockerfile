@@ -25,7 +25,7 @@ COPY .travis/config/supervisord_master.conf /etc/supervisor/conf.d/supervisord.c
 
 RUN apt-get install -y python3-pip && \
     update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 20 && \
-    curl -L https://gist.githubusercontent.com/kiemlicz/33e891dd78e985bd080b85afa24f5d0a/raw/23b79f9a26fe9200102c5de3207a0801751ec2fe/init.sh | bash && \
+    curl -L https://gist.githubusercontent.com/kiemlicz/33e891dd78e985bd080b85afa24f5d0a/raw/1f5ce21454c10283d0c7d3f15a15ff46ad324fdb/init.sh && \
     apt-get install -y salt-master
 
 # the salt-master should be installed but not running
@@ -42,4 +42,4 @@ COPY .travis/envoy_test.py /opt/
 
 RUN salt-call --local saltutil.sync_all
 
-ENTRYPOINT [ "python", "/opt/envoy_test.py" ]
+ENTRYPOINT [ "python3", "/opt/envoy_test.py" ]

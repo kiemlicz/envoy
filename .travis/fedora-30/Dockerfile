@@ -44,4 +44,4 @@ COPY .travis/envoy_test.py /opt/
 
 RUN salt-call --local saltutil.sync_all
 
-ENTRYPOINT [ "python", "/opt/envoy_test.py" ]
+ENTRYPOINT [ "python3", "/opt/envoy_test.py" ]
