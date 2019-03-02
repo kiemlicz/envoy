@@ -34,8 +34,6 @@ EXPOSE 4505:4505 4506:4506
 
 FROM salt-base AS dry-test
 
-# fixme libraries are not installed
-
 COPY .travis/reactor /srv/reactor
 COPY .travis/pillar/ /srv/pillar/
 COPY .travis/salt/top.sls /srv/salt/base/
@@ -44,4 +42,5 @@ COPY .travis/envoy_test.py /opt/
 
 RUN salt-call --local saltutil.sync_all
 
-ENTRYPOINT [ "python3", "/opt/envoy_test.py" ]
+#don't understand why not python3
+ENTRYPOINT [ "python", "/opt/envoy_test.py" ]
