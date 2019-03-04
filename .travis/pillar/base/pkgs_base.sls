@@ -13,6 +13,8 @@
     merge=salt['grains.filter_by']({
       'stretch': {
         'os_packages': ["vim", "sudo", "man", "rsync", "insserv", "git", "zsh", "curl", "ntp",  "ca-certificates", "gnupg2"],
+        'pip_packages': ["pyasn1-modules"],
+        'pip3_packages': ["kubernetes"]
       },
       'bionic': {
         'os_packages': ["vim", "sudo", "man", "rsync", "git", "zsh", "curl", "ntp",  "ca-certificates", "gnupg2"],

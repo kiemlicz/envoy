@@ -1,4 +1,4 @@
-{% from "os/pkgs/map.jinja" import pkgs with context %}
+{% from "os/pkgs/map.jinja" import pkgs, pip_provider with context %}
 {% from "_common/util.jinja" import retry with context %}
 
 {% if pkgs.dist_upgrade %}
@@ -42,13 +42,36 @@ pkgs_sources:
 {% endif %}
 
 {% if pkgs.pip_packages is defined and pkgs.pip_packages %}
+pip_provider:
+  pkg.latest:
+    - name: {{ pip_provider.pip }}
+    - reload_modules: True
+    - require:
+      - pkg: os_packages
 pkgs_pip:
   pip.installed:
     - name: pip_packages
     - pkgs: {{ pkgs.pip_packages|tojson }}
     - reload_modules: True
     - require:
+      - pkg: pip_provider
+{% endif %}
+
+{% if pkgs.pip3_packages is defined and pkgs.pip3_packages %}
+pip3_provider:
+  pkg.latest:
+    - name: {{ pip_provider.pip3 }}
+    - reload_modules: True
+    - require:
       - pkg: os_packages
+pkgs_pip3:
+  pip.installed:
+    - name: pip3_packages
+    - pkgs: {{ pkgs.pip3_packages|tojson }}
+    - bin_env: '/usr/bin/pip3'
+    - reload_modules: True
+    - require:
+      - pkg: pip3_provider
 {% endif %}
 
 {% if pkgs.scripts is defined and pkgs.scripts %}
