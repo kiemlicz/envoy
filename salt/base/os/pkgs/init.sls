@@ -44,7 +44,8 @@ pkgs_sources:
 {% if pkgs.pip_packages is defined and pkgs.pip_packages %}
 pip_provider:
   pkg.latest:
-    - name: {{ pip_provider.pip }}
+    - name: pip_provider
+    - pkgs: {{ pip_provider.pip|tojson }}
     - reload_modules: True
     - require:
       - pkg: os_packages
@@ -60,7 +61,8 @@ pkgs_pip:
 {% if pkgs.pip3_packages is defined and pkgs.pip3_packages %}
 pip3_provider:
   pkg.latest:
-    - name: {{ pip_provider.pip3 }}
+    - name: pip3_provider
+    - pkgs: {{ pip_provider.pip3|tojson }}
     - reload_modules: True
     - require:
       - pkg: os_packages
