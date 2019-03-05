@@ -21,3 +21,11 @@ docker build \
     --target dry-test \
     -t "$DOCKER_USERNAME/envoy-dry-test-$DOCKER_IMAGE:$TAG" \
     -f .travis/"$DOCKER_IMAGE"/Dockerfile .
+
+docker build \
+    --build-arg=salt_ver=$SALT_VER \
+    --build-arg=log_level="${LOG_LEVEL-info}" \
+    --build-arg=saltenv="$SALTENV" \
+    --target masterless-test \
+    -t "$DOCKER_USERNAME/masterless-test-$DOCKER_IMAGE:$TAG" \
+    -f .travis/"$DOCKER_IMAGE"/Dockerfile .

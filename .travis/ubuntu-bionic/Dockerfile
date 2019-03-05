@@ -43,3 +43,24 @@ COPY .travis/envoy_test.py /opt/
 RUN salt-call --local saltutil.sync_all
 
 ENTRYPOINT [ "python3", "/opt/envoy_test.py" ]
+
+
+FROM salt-base AS masterless-test
+
+ARG log_level="info"
+ARG saltenv
+
+ENV SALTENV=$saltenv
+ENV LOG_LEVEL=$log_level
+
+COPY .travis/pillar/masterless /srv/pillar/
+COPY .travis/config/masterless.conf /etc/salt/minion.d/masterless.conf
+COPY .travis/salt/masterless-test-top.sls /srv/salt/base/
+
+# workaround for salt's service state
+# somehow in masterless config the service provider cannot be overriden
+# https://github.com/saltstack/salt/issues/33256
+RUN printf '#!/bin/bash\necho "N 5"' > /sbin/runlevel && \
+    chmod 775 /sbin/runlevel
+
+ENTRYPOINT salt-call --local state.highstate saltenv=$SALTENV -l $LOG_LEVEL
