@@ -27,7 +27,7 @@ RUN echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/s
     apt-get install -t stretch-backports -y libgit2-dev && \
     apt-get install -y python3-pip libffi-dev git && \
     update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 20 && \
-    pip install --upgrade pyOpenSSL pygit2==0.27.3 docker-py cherrypy jinja2 PyYAML requests_oauthlib google-auth && \
+    pip install --upgrade pyOpenSSL pygit2 docker-py cherrypy jinja2 PyYAML requests_oauthlib google-auth && \
     apt-get install -y salt-master
 
 # the salt-master should be installed but not running
