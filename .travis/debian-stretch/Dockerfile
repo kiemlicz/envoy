@@ -4,23 +4,19 @@ ARG salt_ver=""
 
 COPY salt /srv/salt
 
-RUN apt-get update && apt-get install -y curl supervisor && \
+RUN apt-get update && apt-get install -y curl && \
     curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com && \
     sh /tmp/bootstrap-salt.sh -x python3 -X -n stable $salt_ver
 
-ENTRYPOINT [ "/usr/bin/supervisord" ]
-
 
 FROM salt-base AS salt-minion
-
-COPY .travis/config/no_daemon_env /etc/default/salt-minion
-COPY .travis/config/supervisord_minion.conf /etc/supervisor/conf.d/supervisord.conf
 # hostname from `docker run -h` must be used as minion ID
 
-FROM salt-base AS salt-master
+ENTRYPOINT [ "/usr/bin/salt-minion" ]
+CMD []
 
-COPY .travis/config/no_daemon_env /etc/default/salt-master
-COPY .travis/config/supervisord_master.conf /etc/supervisor/conf.d/supervisord.conf
+
+FROM salt-base AS salt-master
 
 RUN echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list.d/backports.list && \
     apt-get update && \
@@ -32,6 +28,9 @@ RUN echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/s
 
 # the salt-master should be installed but not running
 EXPOSE 4505:4505 4506:4506
+
+ENTRYPOINT [ "/usr/bin/salt-master" ]
+CMD []
 
 
 FROM salt-base AS dry-test
