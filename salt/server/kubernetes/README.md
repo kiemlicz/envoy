@@ -7,7 +7,25 @@ Deploys and configures the Kubernetes Nodes.
  - [`kubernetes.helm`](https://github.com/kiemlicz/envoy/tree/master/salt/server/kubernetes#kubernetes.helm)
 
 ## Usage
-`salt-run state.orchestrate kubernetes._orchestrate.cluster saltenv=server`
+Some prerequisites must be met first:
+ - minion config must contain:
+```
+use_superseded:
+  - module.run
+```
+
+1. Set grains on minions that should represent workers and masters:
+Masters:  
+```
+kubernetes:
+    master: True
+```
+Workers:
+```
+kubernetes:
+    worker: True
+```
+2. `salt-run state.orchestrate kubernetes._orchestrate.cluster saltenv=server`
 
 ### `kubernetes.master`
 Setup Kubernetes master node
