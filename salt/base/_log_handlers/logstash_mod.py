@@ -379,7 +379,7 @@ class DatagramLogstashHandler(logging.handlers.DatagramHandler):
     '''
 
     def makePickle(self, record):
-        return self.format(salt.utils.stringutils.to_bytes(record))
+        return salt.utils.stringutils.to_bytes(self.format(record))
 
 
 class ZMQLogstashHander(logging.Handler, NewStyleClassMixIn):
@@ -417,7 +417,7 @@ class ZMQLogstashHander(logging.Handler, NewStyleClassMixIn):
         return self._publisher
 
     def emit(self, record):
-        formatted_object = self.format(salt.utils.stringutils.to_bytes(record))
+        formatted_object = salt.utils.stringutils.to_bytes(self.format(record))
         self.publisher.send(formatted_object)
 
     def close(self):
