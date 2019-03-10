@@ -4,7 +4,7 @@ ARG salt_ver=""
 
 COPY salt /srv/salt
 
-RUN dnf -y update && dnf -y install curl procps && \
+RUN dnf -y --nogpgcheck update && dnf -y --nogpgcheck install curl procps && \
     curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com && \
     sh /tmp/bootstrap-salt.sh -x python3 -X -n stable $salt_ver
 
@@ -17,10 +17,10 @@ CMD []
 
 FROM salt-base AS salt-master
 
-RUN dnf -y install python3-pip git @development-tools redhat-rpm-config python3-devel libgit2-devel && \
+RUN dnf -y --nogpgcheck install python3-pip git @development-tools redhat-rpm-config python3-devel libgit2-devel && \
     alternatives --install /usr/bin/pip pip /usr/bin/pip3 20 && \
     pip3 install --upgrade pyOpenSSL pygit2 docker-py cherrypy jinja2 PyYAML requests_oauthlib google-auth && \
-    dnf -y install salt-master
+    dnf -y --nogpgcheck install salt-master
 
 # somehow installed pip3 as pip alternative didn't work
 # the salt-master should be installed but not running
