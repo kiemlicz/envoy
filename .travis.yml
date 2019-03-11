@@ -31,7 +31,8 @@ jobs:
   include:
     - stage: build
       script:
-        - echo "build"
+        - echo "build1: $DOCKER_IMAGE"
+    - script: echo "build2: $DOCKER_IMAGE"
     - stage: test
       script:
         - echo "test"
