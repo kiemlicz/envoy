@@ -31,16 +31,19 @@ jobs:
   include:
     - stage: build
       script:
-        - echo "build1: $DOCKER_IMAGE"
+        - echo "build1"
     - script:
-        - echo "build2: $DOCKER_IMAGE"
+        - echo "build2"
       env: DOCKER_IMAGE=debian-stretch
     - script:
-        - echo "build3: $DOCKER_IMAGE"
+        - echo "build3"
       env: DOCKER_IMAGE=ubuntu-xenial
     - stage: test
       script:
         - echo "test"
+    - stage: deploy
+      script:
+        - echo "deploy"
 
 after_success:
   - echo "after success"
