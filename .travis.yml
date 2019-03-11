@@ -16,7 +16,6 @@ env:
   global:
     - SALT_VER="" # latest
   matrix:
-    - DOCKER_IMAGE=debian-sid
     - DOCKER_IMAGE=debian-stretch
     - DOCKER_IMAGE=ubuntu-xenial
     - DOCKER_IMAGE=ubuntu-bionic
@@ -30,22 +29,21 @@ matrix:
 jobs:
   include:
     - stage: build
-      script:
-        - echo "build1"
-    - script:
-        - echo "build2"
+      name: "Build"
+      script: .travis/prepare.sh
       env: DOCKER_IMAGE=debian-stretch
-    - script:
-        - echo "build3"
-      env: DOCKER_IMAGE=ubuntu-xenial
+    - env: DOCKER_IMAGE=debian-sid
+    - env: DOCKER_IMAGE=ubuntu-xenial
+    - env: DOCKER_IMAGE=ubuntu-bionic
+    - env: DOCKER_IMAGE=fedora-30
     - stage: test
-      script:
-        - echo "test"
-    - stage: deploy
-      script:
-        - echo "deploy"
-
-after_success:
-  - echo "after success"
+      name: "Test"
+      script: .travis/test.sh
+      # will contain all of the env by default of test stage definition
+    - stage: publish
+      name: "Publish"
+      env: DOCKER_IMAGE=debian-stretch
+      script: .travis/publish.sh
+    - env: DOCKER_IMAGE=ubuntu-bionic
 
 # there is little or no benefit of using build stages as they don't share docker images
