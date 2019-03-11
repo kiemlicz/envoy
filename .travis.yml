@@ -7,6 +7,11 @@ dist: xenial
 services:
   - docker
 
+stages:
+  - build
+  - test
+  - publish
+
 env:
   global:
     - SALT_VER="" # latest
@@ -22,10 +27,13 @@ matrix:
   allow_failures: # only unstable distro-based tests are allowed to fail
     - env: DOCKER_IMAGE=debian-sid
 
-before_install: .travis/prepare.sh
+before_install:
+  - echo "before"
 
-script: .travis/test.sh
+script:
+  - echo "script"
 
-after_success: .travis/publish.sh
+after_success:
+  - echo "after success"
 
 # there is little or no benefit of using build stages as they don't share docker images
