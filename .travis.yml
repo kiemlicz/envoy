@@ -37,12 +37,6 @@ jobs:
         - >
           mkdir -p $HOME/docker && docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'
           | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$1.tar.gz'
-    - env: DOCKER_IMAGE=debian-sid
-      script: .travis/prepare.sh
-      before_cache:
-        - >
-          mkdir -p $HOME/docker && docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'
-          | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$1.tar.gz'
     - env: DOCKER_IMAGE=ubuntu-xenial
       script: .travis/prepare.sh
       before_cache:
@@ -61,9 +55,21 @@ jobs:
         - >
           mkdir -p $HOME/docker && docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'
           | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$1.tar.gz'
-    # will contain all of the env by default of test stage definition
     - stage: test
       name: "Test"
+      env: DOCKER_IMAGE=debian-stretch
+      before_install:
+        - if [[ -d $HOME/docker ]]; then ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "zcat {file} | docker load"; fi
+      script: .travis/test.sh
+    - env: DOCKER_IMAGE=ubuntu-xenial
+      before_install:
+        - if [[ -d $HOME/docker ]]; then ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "zcat {file} | docker load"; fi
+      script: .travis/test.sh
+    - env: DOCKER_IMAGE=ubuntu-bionic
+      before_install:
+        - if [[ -d $HOME/docker ]]; then ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "zcat {file} | docker load"; fi
+      script: .travis/test.sh
+    - env: DOCKER_IMAGE=fedora-30
       before_install:
         - if [[ -d $HOME/docker ]]; then ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "zcat {file} | docker load"; fi
       script: .travis/test.sh
