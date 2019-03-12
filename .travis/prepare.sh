@@ -31,5 +31,3 @@ echo "docker images:"
 docker images
 echo "docker info"
 docker info
-echo "docker inspect image:"
-docker inspect kiemlicz/envoy-dry-test-debian-stretch
