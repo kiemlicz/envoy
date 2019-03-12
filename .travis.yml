@@ -56,7 +56,13 @@ jobs:
       script: .travis/publish.sh
 #    - env: DOCKER_IMAGE=ubuntu-bionic
 #      script: .travis/publish.sh
-
+    - stage: cleanup
+      name: "Clean cache"
+      env: DOCKER_IMAGE=debian-stretch
+      before_cache:
+        - >
+          rm -rf $HOME/docker
+# cleanup of docker images in some final stage
 # docker images are not shared between stages: how to
 # https://github.com/travis-ci/travis-ci/issues/5358
 # https://travis-ci.org/s12v/sns/builds/161873445
