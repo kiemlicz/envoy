@@ -30,7 +30,7 @@ jobs:
   include:
     - stage: build
       name: "Build"
-      before_cache: .travis/prepare.sh
+      script: .travis/prepare.sh
       env: DOCKER_IMAGE=debian-stretch
     #    - env: DOCKER_IMAGE=debian-sid
 #      script: .travis/prepare.sh
@@ -42,8 +42,6 @@ jobs:
 #      script: .travis/prepare.sh
     - stage: test
       name: "Test"
-      before_install:
-        - "docker images"
       script: .travis/test.sh
       # will contain all of the env by default of test stage definition
     - stage: publish
