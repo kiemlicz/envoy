@@ -7,6 +7,14 @@ dist: xenial
 services:
   - docker
 
+stages:
+  - build
+  - dry test
+  - publish
+  - cleanup
+  - name: test
+    if: false
+
 env:
   global:
     - SALT_VER="" # latest
