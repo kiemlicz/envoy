@@ -24,6 +24,3 @@ docker build \
     --target dry-test \
     -t "$DOCKER_USERNAME/envoy-dry-test-$DOCKER_IMAGE:$TAG" \
     -f .travis/"$DOCKER_IMAGE"/Dockerfile .
-
-echo "BUILD:"
-sudo ls -al $HOME/docker/
