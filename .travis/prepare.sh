@@ -29,3 +29,5 @@ echo "BUILD:"
 sudo ls -al $HOME/docker/
 echo "docker images:"
 docker images
+echo "docker info"
+docker info
