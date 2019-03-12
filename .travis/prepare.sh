@@ -4,9 +4,6 @@ source .travis/common.sh
 
 docker_update
 
-echo "===="
-sudo cat /etc/docker/daemon.json
-
 docker build \
     --build-arg=salt_ver=$SALT_VER \
     --target salt-minion \
