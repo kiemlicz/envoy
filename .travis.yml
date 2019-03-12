@@ -30,7 +30,10 @@ jobs:
   include:
     - stage: build
       name: "Build"
-      before_cache: .travis/prepare.sh
+      script: .travis/prepare.sh
+      before_cache:
+        - echo "CACHEING"
+        - "ls -al /home/travis/docker/"
       env: DOCKER_IMAGE=debian-stretch
     #    - env: DOCKER_IMAGE=debian-sid
 #      script: .travis/prepare.sh
