@@ -2,10 +2,13 @@
 
 source .travis/common.sh
 
+sudo chown -R $(whoami) $HOME/docker
 docker_update
 echo "===="
 sudo cat /etc/docker/daemon.json
 sudo ls -al $HOME/docker/
+echo "-"
+sudo ls -al $HOME/docker/overlay2 || true
 
 while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
 docker run --privileged "$DOCKER_USERNAME/envoy-dry-test-$DOCKER_IMAGE:$TAG"

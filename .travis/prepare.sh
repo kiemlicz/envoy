@@ -2,8 +2,8 @@
 
 source .travis/common.sh
 
+sudo chown -R $(whoami) $HOME/docker
 docker_update
-
 echo "===="
 sudo cat /etc/docker/daemon.json
 
@@ -27,3 +27,5 @@ docker build \
 
 echo "BUILD:"
 sudo ls -al $HOME/docker/
+echo "docker images:"
+docker images
