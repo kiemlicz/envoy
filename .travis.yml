@@ -1,17 +1,9 @@
-language: python
-
 sudo: required
 
 dist: xenial
 
 services:
   - docker
-
-stages:
-  - build
-  - dry_test
-  - publish
-  - cleanup
 
 env:
   global:
