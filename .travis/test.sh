@@ -5,6 +5,7 @@ source .travis/common.sh
 docker_update
 echo "===="
 sudo cat /etc/docker/daemon.json
+sudo ls -al $HOME/docker/
 
 while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
 docker run --privileged "$DOCKER_USERNAME/envoy-dry-test-$DOCKER_IMAGE:$TAG"
