@@ -8,79 +8,31 @@ services:
   - docker
 
 stages:
-  - build
-  - dry test
-  - publish
-  - cleanup
+  - test
 
 env:
   global:
     - SALT_VER="" # latest
+  matrix:
+    - DOCKER_IMAGE=debian-stretch
+    - DOCKER_IMAGE=ubuntu-xenial
+    - DOCKER_IMAGE=ubuntu-bionic
+    - DOCKER_IMAGE=fedora-30
+
+matrix:
+  fast_finish: true
+  allow_failures: # only unstable distro-based tests are allowed to fail
+    - env: DOCKER_IMAGE=debian-sid
 
 jobs:
   include:
-    - stage: build
-      name: "Build"
-      env: DOCKER_IMAGE=debian-stretch
-      script: .travis/prepare.sh
-      before_cache:
-        - >
-          mkdir -p $HOME/docker && docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'
-          | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$0.tar.gz'
-    - env: DOCKER_IMAGE=ubuntu-xenial
-      script: .travis/prepare.sh
-      before_cache:
-        - >
-          mkdir -p $HOME/docker && docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'
-          | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$0.tar.gz'
-    - env: DOCKER_IMAGE=ubuntu-bionic
-      script: .travis/prepare.sh
-      before_cache:
-        - >
-          mkdir -p $HOME/docker && docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'
-          | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$0.tar.gz'
-    - env: DOCKER_IMAGE=fedora-30
-      script: .travis/prepare.sh
-      before_cache:
-        - >
-          mkdir -p $HOME/docker && docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'
-          | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$0.tar.gz'
-    - stage: dry test
-      name: "Dry show SLS tests"
-      env: DOCKER_IMAGE=debian-stretch
-      before_install:
-        - if [[ -d $HOME/docker ]]; then ls $HOME/docker/*.tar.gz | grep $DOCKER_IMAGE | xargs -I {file} sh -c "zcat {file} | docker load"; fi
+    - stage: test
+      name: "Test"
+      before_install: .travis/prepare.sh
       script: .travis/test.sh
-    - env: DOCKER_IMAGE=ubuntu-xenial
-      before_install:
-        - if [[ -d $HOME/docker ]]; then ls $HOME/docker/*.tar.gz | grep $DOCKER_IMAGE | xargs -I {file} sh -c "zcat {file} | docker load"; fi
-      script: .travis/test.sh
-    - env: DOCKER_IMAGE=ubuntu-bionic
-      before_install:
-        - if [[ -d $HOME/docker ]]; then ls $HOME/docker/*.tar.gz | grep $DOCKER_IMAGE | xargs -I {file} sh -c "zcat {file} | docker load"; fi
-      script: .travis/test.sh
-    - env: DOCKER_IMAGE=fedora-30
-      before_install:
-        - if [[ -d $HOME/docker ]]; then ls $HOME/docker/*.tar.gz | grep $DOCKER_IMAGE | xargs -I {file} sh -c "zcat {file} | docker load"; fi
-      script: .travis/test.sh
-    - stage: publish
-      name: "Publish"
-      env: DOCKER_IMAGE=debian-stretch
-      before_install:
-        - if [[ -d $HOME/docker ]]; then ls $HOME/docker/*.tar.gz | grep $DOCKER_IMAGE | xargs -I {file} sh -c "zcat {file} | docker load"; fi
-      script: .travis/publish.sh
-    - env: DOCKER_IMAGE=ubuntu-bionic
-      before_install:
-        - if [[ -d $HOME/docker ]]; then ls $HOME/docker/*.tar.gz | grep $DOCKER_IMAGE | xargs -I {file} sh -c "zcat {file} | docker load"; fi
-      script: .travis/publish.sh
-    - stage: cleanup
-      name: "Clean cache"
-      env: DOCKER_IMAGE=debian-stretch
-      before_cache:
-        - >
-          rm -rf $HOME/docker
+      after_success: .travis/publish.sh
 
-cache:
-  bundler: true
-  directories:
-    - $HOME/docker
+#cache:
+#  bundler: true
+#  directories:
+#    - $HOME/docker
