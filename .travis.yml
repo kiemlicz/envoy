@@ -17,7 +17,6 @@ env:
   global:
     - SALT_VER="" # latest
 
-
 jobs:
   include:
     - stage: build
