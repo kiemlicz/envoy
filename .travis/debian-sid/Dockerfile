@@ -4,23 +4,18 @@ ARG salt_ver=""
 
 COPY salt /srv/salt
 
-RUN apt-get update && apt-get install -y curl supervisor && \
+RUN apt-get update && apt-get install -y curl && \
     curl -o /tmp/bootstrap-salt.sh -L https://bootstrap.saltstack.com && \
     sh /tmp/bootstrap-salt.sh -x python3 -X -n stable $salt_ver
-
-ENTRYPOINT [ "/usr/bin/supervisord" ]
 
 
 FROM salt-base AS salt-minion
 
-COPY .travis/config/no_daemon_env /etc/default/salt-minion
-COPY .travis/config/supervisord_minion.conf /etc/supervisor/conf.d/supervisord.conf
+ENTRYPOINT [ "/usr/bin/salt-minion" ]
+CMD []
 
 
 FROM salt-base AS salt-master
-
-COPY .travis/config/no_daemon_env /etc/default/salt-master
-COPY .travis/config/supervisord_master.conf /etc/supervisor/conf.d/supervisord.conf
 
 RUN apt-get install -y libgit2-dev python3-pip libffi-dev git && \
     update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 20 && \
@@ -29,6 +24,9 @@ RUN apt-get install -y libgit2-dev python3-pip libffi-dev git && \
 
 # the salt-master should be installed but not running
 EXPOSE 4505:4505 4506:4506
+
+ENTRYPOINT [ "/usr/bin/salt-master" ]
+CMD []
 
 
 FROM salt-base AS dry-test
