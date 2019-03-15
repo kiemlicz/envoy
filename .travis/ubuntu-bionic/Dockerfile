@@ -52,6 +52,7 @@ ENV LOG_LEVEL=$log_level
 
 COPY .travis/pillar/masterless /srv/pillar/
 COPY .travis/config/masterless.conf /etc/salt/minion.d/masterless.conf
+COPY .travis/config/pillar.conf /etc/salt/minion.d/pillar.conf
 COPY .travis/salt/masterless-test-top.sls /srv/salt/base/
 
 # workaround for salt's service state
