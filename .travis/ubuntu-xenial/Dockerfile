@@ -32,7 +32,7 @@ CMD []
 FROM salt-base AS dry-test
 
 COPY .travis/reactor /srv/reactor
-COPY .travis/pillar/ /srv/pillar/
+COPY .travis/pillar/dry-test /srv/pillar/
 COPY .travis/salt/dry-test-top.sls /srv/salt/base/top.sls
 COPY .travis/config/masterless.conf /etc/salt/minion.d/masterless.conf
 COPY .travis/envoy_test.py /opt/

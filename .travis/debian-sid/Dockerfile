@@ -32,7 +32,7 @@ CMD []
 FROM salt-base AS dry-test
 
 COPY .travis/reactor /srv/reactor
-COPY .travis/pillar/dry-test /srv/pillar/
+COPY .travis/pillar/dry-test/ /srv/pillar/
 COPY .travis/salt/dry-test-top.sls /srv/salt/base/top.sls
 COPY .travis/config/masterless.conf /etc/salt/minion.d/masterless.conf
 COPY .travis/envoy_test.py /opt/
@@ -50,7 +50,7 @@ ARG saltenv
 ENV SALTENV=$saltenv
 ENV LOG_LEVEL=$log_level
 
-COPY .travis/pillar/masterless /srv/pillar/
+COPY .travis/pillar/masterless/ /srv/pillar/
 COPY .travis/config/masterless.conf /etc/salt/minion.d/masterless.conf
 COPY .travis/config/pillar.conf /etc/salt/minion.d/pillar.conf
 COPY .travis/salt/masterless-test-top.sls /srv/salt/base/top.sls
