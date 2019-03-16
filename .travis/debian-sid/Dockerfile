@@ -35,6 +35,7 @@ COPY .travis/reactor /srv/reactor
 COPY .travis/pillar/dry-test/ /srv/pillar/
 COPY .travis/salt/dry-test-top.sls /srv/salt/base/top.sls
 COPY .travis/config/masterless.conf /etc/salt/minion.d/masterless.conf
+COPY .travis/config/pillar.conf /etc/salt/minion.d/pillar.conf
 COPY .travis/envoy_test.py /opt/
 
 RUN salt-call --local saltutil.sync_all
@@ -52,7 +53,6 @@ ENV LOG_LEVEL=$log_level
 
 COPY .travis/pillar/masterless/ /srv/pillar/
 COPY .travis/config/masterless.conf /etc/salt/minion.d/masterless.conf
-COPY .travis/config/pillar.conf /etc/salt/minion.d/pillar.conf
 COPY .travis/salt/masterless-test-top.sls /srv/salt/base/top.sls
 
 # workaround for salt's service state
