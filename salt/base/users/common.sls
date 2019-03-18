@@ -1,3 +1,5 @@
+{% from "_common/util.jinja" import retry with context %}
+
 {% for username, user in salt['pillar.get']("users", {}).items() %}
 
 {{ username }}_setup_user:
@@ -47,6 +49,7 @@ git_global_config_{{ username }}_{{ k }}:
   ssh_known_hosts.present:
     - names: {{ user.known_hosts|tojson }}
     - user: {{ username }}
+{{ retry(attempts=2)| indent(4) }}
     - require:
       - user: {{ username }}
 {% endif %}
