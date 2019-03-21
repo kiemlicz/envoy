@@ -16,7 +16,6 @@ join_master:
             - pkg: kubeadm
 {% else %}
 kubernetes-no-masters-to-join:
-    test.show_notification:
-        - name: Kubernetes worker node found no master
-        - text: "Kubernetes worker node found no master with hash and token active"
+    test.fail_without_changes:
+        - name: Kubernetes worker node found no master with hash and token active
 {% endif %}

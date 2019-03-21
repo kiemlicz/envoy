@@ -8,24 +8,34 @@ Deploys and configures the Kubernetes Nodes.
 
 ## Usage
 Some prerequisites must be met first:
- - minion config must contain:
+ - _Salt Minion_ config must contain:
 ```
 use_superseded:
   - module.run
 ```
+ - if you want to receive _kubeconfig_ on the _Salt Master_, set: `file_recv: True` in _Salt Master_ config
 
 1. Set grains on minions that should represent workers and masters:
-Masters:  
+Masters (`/etc/salt/minion.d/grains.conf`):  
+```
+grains:
+    kubernetes:
+        master: True
+```
+Workers (`/etc/salt/minion.d/grains.conf`):
+```
+grains:
+    kubernetes:
+        worker: True
+```
+Set the CIDR of the Kubernetes Nodes in the pillar:
 ```
 kubernetes:
-    master: True
+    nodes:
+        cidr: 10.0.0.0/8
 ```
-Workers:
-```
-kubernetes:
-    worker: True
-```
-2. `salt-run state.orchestrate kubernetes._orchestrate.cluster saltenv=server`
+2. If using Envoy, sync modules first: `salt-run saltutil.sync_all && salt '*' saltutil.sync_all refresh=True`
+3. `salt-run state.orchestrate kubernetes._orchestrate.cluster saltenv=server`
 
 ### `kubernetes.master`
 Setup Kubernetes master node
