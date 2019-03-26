@@ -2,9 +2,9 @@
 Deploys and configures the Kubernetes Nodes.  
 
 ## Available states
- - [`kubernetes.master`](https://github.com/kiemlicz/envoy/tree/master/salt/server/kubernetes#kubernetes.master)
- - [`kubernetes.worker`](https://github.com/kiemlicz/envoy/tree/master/salt/server/kubernetes#kubernetes.worker)
- - [`kubernetes.helm`](https://github.com/kiemlicz/envoy/tree/master/salt/server/kubernetes#kubernetes.helm)
+ - [`kubernetes.master`](#kubernetes.master)
+ - [`kubernetes.worker`](#kubernetes.worker)
+ - [`kubernetes.helm`](#kubernetes.helm)
 
 ## Usage
 Some prerequisites must be met first:
