@@ -2,9 +2,9 @@
 Deploys and configures the Kubernetes Nodes.  
 
 ## Available states
- - [`kubernetes.master`](#kubernetes.master)
- - [`kubernetes.worker`](#kubernetes.worker)
- - [`kubernetes.helm`](#kubernetes.helm)
+ - [`kubernetes.master`](#kubernetesmaster)
+ - [`kubernetes.worker`](#kubernetesworker)
+ - [`kubernetes.helm`](#kuberneteshelm)
 
 ## Usage
 Some prerequisites must be met first:
