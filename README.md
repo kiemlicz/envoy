@@ -1,3 +1,11 @@
+THIS REPO IS NO LONGER ACTIVE
+
+All of its contents are now part of the project [Ambassador](https://github.com/kiemlicz/ambassador)
+
+Images are published from the Ambassador CI
+
+Old readme:
+
 [![Build status](https://travis-ci.org/kiemlicz/envoy.svg?branch=master)](https://travis-ci.org/kiemlicz/envoy)
 # Basics 
 [Salt](https://saltstack.com/) _states_ for provisioning machines in generic yet sensible way.  
